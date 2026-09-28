@@ -16,6 +16,19 @@ Next.js (App Router) + TypeScript + React. Goal ₱12,000,000; ₱2,700,000 alre
 ## Edit content
 Everything you'll change is in `lib/config.ts`: goal, amount already raised, service schedule, email, and GCash/Maya/bank details (currently placeholders).
 
+## Site header, footer, leaders & officers
+- `content/site.ts` – links, logos, church address, social media and the header menu.
+  - **Development vs production links:** the `ENVIRONMENTS` block at the top holds both sets. `npm run dev` uses `localhost` (Home/GCC `:3000`, Support `:3001`); `npm run build` / `npm start` use the real `gcciemelif.website` links. The IEMELIF and Facebook links are the same in both.
+  - `SITE_URL` (canonical links, sitemap, Open Graph) follows the same switch.
+- `content/officers.ts` – current term (`CURRENT_TERM`), past terms (`HISTORY_TERMS`) and the groups on the Church Leadership page. New term: copy the current block into `HISTORY_TERMS`, then replace `CURRENT_TERM`.
+- **Pictures:** every line has `image: "<slug of the name>"` (e.g. `ocampo-juanito-jr-s`), which loads `/images/people/<slug>.svg`.
+  - New person → add the line with their slug, then run `npm run avatars` to create the placeholder SVG (existing files are never overwritten; it also warns about lines missing `image`).
+  - Real photo → put the file in `public/images/people/` and set the full path: `image: "/images/people/ocampo-juanito-jr-s.jpg"`.
+- **Theme:** colors are CSS variables at the top of `app/globals.css`, taken from the two logos (GCC crimson, IEMELIF gold and blue, dark brown of the cross). The header is sticky.
+- **Logos:** `public/images/*.png` now have transparent backgrounds; the untouched originals are in `design/original-logos/`.
+- Pages: `/leadership`, `/officers`, `/history/<term>`. `/about`, `/ministries`, `/contact` are empty placeholders (noindex until they have content).
+- SEO: per-page titles/descriptions/canonical URLs, Open Graph, church structured data (JSON-LD), `/sitemap.xml`, `/robots.txt`, GCC logo as favicon (`icon` + `shortcut icon`). `/admin` is noindex.
+
 ## Hosting note
 Pledges are stored in a file, so host on a server that keeps its disk (a VPS, or Docker with a volume). Serverless hosts such as Vercel have a read-only, temporary filesystem; swap `lib/store.ts` for a database (Vercel Postgres, Supabase, etc.) there.
 
