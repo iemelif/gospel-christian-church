@@ -8,16 +8,30 @@ export type Gift = {
   status: "pending" | "confirmed"; createdAt: string;
 };
 
-const DIR = process.env.DATA_DIR || path.join(process.cwd(), "data"); // on Cloud Run: a mounted bucket
+const DIR = process.env.DATA_DIR || path.join(process.cwd(), "data"); // on Cloud Run: the mounted bucket (/data)
 const FILE = path.join(DIR, "gifts.json");
 
+/**
+ * Reads all gifts. A missing file means "no gifts yet", but any OTHER failure (unreadable, corrupt JSON)
+ * is thrown on purpose: silently returning [] here would let the next write overwrite every saved pledge.
+ */
 export async function readGifts(): Promise<Gift[]> {
-  try { return JSON.parse(await fs.readFile(FILE, "utf8")) as Gift[]; } catch { return []; }
+  let raw: string;
+  try {
+    raw = await fs.readFile(FILE, "utf8");
+  } catch (e) {
+    if ((e as NodeJS.ErrnoException).code === "ENOENT") return [];
+    throw e;
+  }
+  if (!raw.trim()) return [];
+  return JSON.parse(raw) as Gift[];
 }
+
 export async function writeGifts(g: Gift[]) {
   await fs.mkdir(DIR, { recursive: true });
   await fs.writeFile(FILE, JSON.stringify(g, null, 2));
 }
+
 let chain: Promise<unknown> = Promise.resolve();
 /** Serialises read-modify-write so concurrent requests can't overwrite each other. */
 export function update<T>(fn: (gifts: Gift[]) => Gift[] | Promise<Gift[]>, result?: () => T): Promise<T | undefined> {
@@ -27,11 +41,12 @@ export function update<T>(fn: (gifts: Gift[]) => Gift[] | Promise<Gift[]>, resul
 }
 
 export async function summary() {
-  const gifts = await readGifts();
+  let gifts: Gift[] = [];
+  try { gifts = await readGifts(); } catch (e) { console.error("Could not read gifts:", e); }
   const confirmed = gifts.filter((g) => g.status === "confirmed");
   const raised = CHURCH.baseRaised + confirmed.reduce((s, g) => s + g.amount, 0);
   const wall = confirmed.slice(-8).reverse().map((g) => ({
     id: g.id, name: g.anon ? "Anonymous" : g.name, amount: g.amount, message: g.message,
   }));
-  return { raised, wall, donors: confirmed.length };
+  return { raised, wall, donors: confirmed.length, pledged: gifts.filter((g) => g.status === "pending").length };
 }

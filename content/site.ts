@@ -12,7 +12,7 @@ const ENVIRONMENTS = {
     siteUrl: "http://localhost:3000",     // this app
     home: "http://localhost:3000",
     gcc: "http://localhost:3000",
-    support: "http://localhost:3000/support",     // the support site, if you run it locally
+    support: "http://localhost:3000",     // the support site, if you run it locally
   },
   production: {
     siteUrl: "https://www.gcciemelif.website",

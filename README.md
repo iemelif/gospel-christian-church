@@ -12,6 +12,8 @@ Next.js (App Router) + TypeScript + React. Goal ₱12,000,000; ₱2,700,000 alre
 - Donors submit a pledge on the home page and get a reference number + payment instructions.
 - Pledges are saved to `data/gifts.json` as **pending**.
 - Open `/admin`, sign in with ADMIN_PASSWORD, and click **Confirm** once you have received the money. Only confirmed gifts count toward the progress bar and giving wall.
+- The admin login lasts **one day** (secure cookie) and there is a **Log out** button. **Delete** is only offered for pending pledges; confirmed ones are locked (use **Undo** first if a confirmation was a mistake).
+- Payment methods (GCash, Maya, Bank transfer, Cash at church) are always listed. The first three show the value from `NEXT_PUBLIC_GCASH_NUMBER` / `NEXT_PUBLIC_MAYA_NUMBER` / `NEXT_PUBLIC_BANK_DETAILS`; if a value is empty or still has `XXX` placeholders, donors are told to email the church. These are build-time values, so after changing a GitHub variable, re-run the deploy.
 
 ## Edit content
 Everything you'll change is in `lib/config.ts`: goal, amount already raised, service schedule, email, and GCash/Maya/bank details (currently placeholders).
@@ -80,3 +82,7 @@ Replace `PROJECT_ID`, `GITHUB_USER/REPO` and the bucket name.
 | Variable | `NEXT_PUBLIC_CHURCH_EMAIL`, `NEXT_PUBLIC_GOAL`, `NEXT_PUBLIC_BASE_RAISED`, `NEXT_PUBLIC_GCASH_NUMBER`, `NEXT_PUBLIC_MAYA_NUMBER`, `NEXT_PUBLIC_BANK_DETAILS` | public settings (see `.env.example`); blank falls back to defaults |
 
 `NEXT_PUBLIC_*` values are baked in at build time, so changing one means re-running the deploy. `ADMIN_PASSWORD` is read at runtime and never enters the image.
+
+### Payment detail format
+`NEXT_PUBLIC_GCASH_NUMBER`, `NEXT_PUBLIC_MAYA_NUMBER` and `NEXT_PUBLIC_BANK_DETAILS` all use the same format: `Label: value · Label: value`, for example
+`GCash Number: +639228656711 · Account name: Wilson L Abesamis`. Each part becomes a line on the site, so you can change the account name (or add lines). The Copy button copies the number / account number. In GitHub variables, paste the value without surrounding quotes.
