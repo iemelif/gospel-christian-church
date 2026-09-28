@@ -13,9 +13,9 @@ concurrency:
 
 env:
   PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
-  REGION: asia-southeast1
+  REGION: us-central1
   SERVICE: gospel-christian-church
-  IMAGE: asia-southeast1-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/gospel-christian-church/gospel-christian-church
+  IMAGE: us-central1-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/gospel-christian-church/gospel-christian-church
 
 jobs:
   deploy:
