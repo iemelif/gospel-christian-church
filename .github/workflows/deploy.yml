@@ -89,7 +89,7 @@ jobs:
             ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}
           flags: >-
             --execution-environment=gen2
-            --add-volume=name=data,type=cloud-storage,bucket=${{ vars.GCS_BUCKET }}
+            --add-volume=name=data,type=cloud-storage,bucket=${{ vars.GCP_PROJECT_ID }}-gospel-christian-chruch-data
             --add-volume-mount=volume=data,mount-path=/data
             --allow-unauthenticated
             --min-instances=0
