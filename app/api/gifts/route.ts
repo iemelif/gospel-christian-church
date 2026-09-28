@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { randomUUID } from "crypto";
-import { readGifts, writeGifts, summary, type Gift } from "@/lib/store";
+import { update, summary, type Gift } from "@/lib/store";
 import { PAYMENT } from "@/lib/config";
 
 export const dynamic = "force-dynamic";
@@ -27,8 +27,6 @@ export async function POST(req: Request) {
     message: String(b.message ?? "").trim().slice(0, 300), anon: Boolean(b.anon),
     status: "pending", createdAt: new Date().toISOString(),
   };
-  const all = await readGifts();
-  all.push(gift);
-  await writeGifts(all);
+  await update((all) => [...all, gift]);
   return NextResponse.json({ ref: gift.ref, amount, freq, method });
 }

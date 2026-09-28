@@ -8,15 +8,24 @@ export type Gift = {
   status: "pending" | "confirmed"; createdAt: string;
 };
 
-const FILE = path.join(process.cwd(), "data", "gifts.json");
+const DIR = process.env.DATA_DIR || path.join(process.cwd(), "data"); // on Cloud Run: a mounted bucket
+const FILE = path.join(DIR, "gifts.json");
 
 export async function readGifts(): Promise<Gift[]> {
   try { return JSON.parse(await fs.readFile(FILE, "utf8")) as Gift[]; } catch { return []; }
 }
 export async function writeGifts(g: Gift[]) {
-  await fs.mkdir(path.dirname(FILE), { recursive: true });
+  await fs.mkdir(DIR, { recursive: true });
   await fs.writeFile(FILE, JSON.stringify(g, null, 2));
 }
+let chain: Promise<unknown> = Promise.resolve();
+/** Serialises read-modify-write so concurrent requests can't overwrite each other. */
+export function update<T>(fn: (gifts: Gift[]) => Gift[] | Promise<Gift[]>, result?: () => T): Promise<T | undefined> {
+  const run = chain.then(async () => { await writeGifts(await fn(await readGifts())); return result?.(); });
+  chain = run.catch(() => undefined);
+  return run;
+}
+
 export async function summary() {
   const gifts = await readGifts();
   const confirmed = gifts.filter((g) => g.status === "confirmed");

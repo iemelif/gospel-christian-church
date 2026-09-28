@@ -1,0 +1,99 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+  REGION: asia-southeast1
+  SERVICE: gospel-church
+  IMAGE: asia-southeast1-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/gospel-church/gospel-church
+
+jobs:
+  deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── Keyless auth (Workload Identity Federation) ─────────────────────
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      # ── Build & push image ───────────────────────────────────────────────
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker asia-southeast1-docker.pkg.dev --quiet
+
+      # NEXT_PUBLIC_* values are inlined by Next.js at build time, so they are passed as build args.
+      # They come from repository *variables* (public values, not secrets).
+      - name: Build Docker image
+        env:
+          NEXT_PUBLIC_CHURCH_EMAIL: ${{ vars.NEXT_PUBLIC_CHURCH_EMAIL }}
+          NEXT_PUBLIC_GOAL: ${{ vars.NEXT_PUBLIC_GOAL }}
+          NEXT_PUBLIC_BASE_RAISED: ${{ vars.NEXT_PUBLIC_BASE_RAISED }}
+          NEXT_PUBLIC_GCASH_NUMBER: ${{ vars.NEXT_PUBLIC_GCASH_NUMBER }}
+          NEXT_PUBLIC_MAYA_NUMBER: ${{ vars.NEXT_PUBLIC_MAYA_NUMBER }}
+          NEXT_PUBLIC_BANK_DETAILS: ${{ vars.NEXT_PUBLIC_BANK_DETAILS }}
+        run: |
+          docker build \
+            --tag "$IMAGE:${{ github.sha }}" \
+            --tag "$IMAGE:latest" \
+            --file Dockerfile \
+            --build-arg NEXT_PUBLIC_CHURCH_EMAIL="$NEXT_PUBLIC_CHURCH_EMAIL" \
+            --build-arg NEXT_PUBLIC_GOAL="$NEXT_PUBLIC_GOAL" \
+            --build-arg NEXT_PUBLIC_BASE_RAISED="$NEXT_PUBLIC_BASE_RAISED" \
+            --build-arg NEXT_PUBLIC_GCASH_NUMBER="$NEXT_PUBLIC_GCASH_NUMBER" \
+            --build-arg NEXT_PUBLIC_MAYA_NUMBER="$NEXT_PUBLIC_MAYA_NUMBER" \
+            --build-arg NEXT_PUBLIC_BANK_DETAILS="$NEXT_PUBLIC_BANK_DETAILS" \
+            .
+
+      - name: Push Docker image
+        run: |
+          docker push "$IMAGE:${{ github.sha }}"
+          docker push "$IMAGE:latest"
+
+      # ── Deploy to Cloud Run ──────────────────────────────────────────────
+      # ADMIN_PASSWORD is a runtime secret. DATA_DIR=/data is a Cloud Storage bucket mounted as a volume,
+      # so gifts.json survives restarts. Keep max-instances=1 so all writes go through one process.
+      - name: Deploy to Cloud Run
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.SERVICE }}
+          region: ${{ env.REGION }}
+          image: ${{ env.IMAGE }}:${{ github.sha }}
+          env_vars: |
+            NODE_ENV=production
+            DATA_DIR=/data
+            ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}
+          flags: >-
+            --allow-unauthenticated
+            --min-instances=0
+            --max-instances=1
+            --memory=256Mi
+            --cpu=1
+            --port=3000
+            --timeout=60s
+            --concurrency=80
+
+      - name: Print deployed URL
+        run: echo "✅ Site → ${{ steps.deploy.outputs.url }}"

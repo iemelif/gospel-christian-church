@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { readGifts, writeGifts } from "@/lib/store";
+import { readGifts, update } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
@@ -17,9 +17,10 @@ export async function GET(req: Request) {
 export async function PATCH(req: Request) {
   if (!authorized(req)) return deny();
   const { id, action } = (await req.json()) as { id: string; action: "confirm" | "unconfirm" | "delete" };
-  let all = await readGifts();
-  if (action === "delete") all = all.filter((g) => g.id !== id);
-  else all = all.map((g) => (g.id === id ? { ...g, status: action === "confirm" ? "confirmed" : "pending" } : g));
-  await writeGifts(all);
+  await update((all) =>
+    action === "delete"
+      ? all.filter((g) => g.id !== id)
+      : all.map((g) => (g.id === id ? { ...g, status: action === "confirm" ? "confirmed" : "pending" } : g)),
+  );
   return NextResponse.json({ ok: true });
 }
