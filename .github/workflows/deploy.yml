@@ -41,7 +41,7 @@ jobs:
 
       # ── Build & push image ───────────────────────────────────────────────
       - name: Configure Docker for Artifact Registry
-        run: gcloud auth configure-docker asia-southeast1-docker.pkg.dev --quiet
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
 
       # NEXT_PUBLIC_* values are inlined by Next.js at build time, so they are passed as build args.
       # They come from repository *variables* (public values, not secrets).
