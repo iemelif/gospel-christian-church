@@ -1,11 +1,11 @@
-// Google reCAPTCHA v3 (invisible, score-based) verification for recording gifts. Server-only.
+// Google reCAPTCHA v3 (invisible, score-based) verification for recording gifts and the Admin sign-in. Server-only.
 // The secret is read from RECAPTCHA_SECRET_KEY at call time and is never logged, returned or stored.
 // The browser token is only forwarded to Google; it is never logged or saved.
 
-import { RECAPTCHA_ACTION } from "./config";
+import { RECAPTCHA_ACTION, RECAPTCHA_ADMIN_ACTION } from "./config";
 
-/** Action name the client passes to grecaptcha.execute(); the server requires exactly this value back. */
-export { RECAPTCHA_ACTION };
+/** Action names the client passes to grecaptcha.execute(); the server requires exactly the expected one back. */
+export { RECAPTCHA_ACTION, RECAPTCHA_ADMIN_ACTION };
 
 /** Default minimum score (0.0 = likely bot … 1.0 = likely human), Google's suggested starting point. */
 export const DEFAULT_RECAPTCHA_MIN_SCORE = 0.5;
@@ -23,8 +23,11 @@ export function recaptchaMinScore(): number {
   return Number.isFinite(n) && n >= 0 && n <= 1 ? n : DEFAULT_RECAPTCHA_MIN_SCORE;
 }
 
-/** Verifies a reCAPTCHA v3 token with Google. `fetchImpl` exists for tests; production uses the global fetch. */
-export async function verifyRecaptcha(token: unknown, fetchImpl: typeof fetch = fetch): Promise<RecaptchaResult> {
+/**
+ * Verifies a reCAPTCHA v3 token with Google. `action` is the action the token must have been issued for (default:
+ * recording a gift). `fetchImpl` exists for tests; production uses the global fetch.
+ */
+export async function verifyRecaptcha(token: unknown, fetchImpl: typeof fetch = fetch, action: string = RECAPTCHA_ACTION): Promise<RecaptchaResult> {
   if (typeof token !== "string" || !token.trim() || token.length > 4000) return { ok: false, reason: "missing-token" };
   const secret = process.env.RECAPTCHA_SECRET_KEY;
   if (!secret) return { ok: false, reason: "not-configured" };
@@ -45,8 +48,21 @@ export async function verifyRecaptcha(token: unknown, fetchImpl: typeof fetch = 
   }
 
   if (data.success !== true) return { ok: false, reason: "not-success" };
-  if (data.action !== RECAPTCHA_ACTION) return { ok: false, reason: "wrong-action" };
+  if (data.action !== action) return { ok: false, reason: "wrong-action" };
   const score = typeof data.score === "number" ? data.score : NaN;
   if (!(score >= recaptchaMinScore())) return { ok: false, reason: "low-score" };
   return { ok: true, score };
+}
+
+/** True when the failure means verification itself is unavailable (worth logging on the server). */
+export const recaptchaUnavailable = (reason: RecaptchaFailure) => reason === "not-configured" || reason === "request-failed";
+
+/**
+ * HTTP status and visitor-facing message for a failed check, shared by every route that uses reCAPTCHA: 503 when
+ * verification is unavailable (the caller logs it), 400 for a missing token, 403 otherwise. Never includes the
+ * reason, the token or the secret.
+ */
+export function recaptchaError(reason: RecaptchaFailure): { status: number; error: string } {
+  if (recaptchaUnavailable(reason)) return { status: 503, error: "We couldn't verify your request right now. Please try again in a moment." };
+  return { status: reason === "missing-token" ? 400 : 403, error: "We couldn't verify your request. Please reload the page and try again." };
 }

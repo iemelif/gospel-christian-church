@@ -1,5 +1,7 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
+import RecaptchaNotice from "@/components/RecaptchaNotice";
+import { signInWithRecaptcha } from "@/lib/adminSignIn";
 import type { Gift } from "@/lib/store";
 import { php } from "@/lib/config";
 import { btn, card, errorText, h2, input, label, muted, sub, wrap } from "@/lib/ui";
@@ -12,6 +14,7 @@ export default function Admin() {
   const [gifts, setGifts] = useState<Gift[] | null>(null);
   const [checking, setChecking] = useState(true); // true while we look for an existing one-day session
   const [err, setErr] = useState("");
+  const [signingIn, setSigningIn] = useState(false); // reCAPTCHA + sign-in request running: blocks double submits
 
   const load = useCallback(async () => {
     const res = await fetch("/api/admin", { cache: "no-store" });
@@ -25,14 +28,17 @@ export default function Admin() {
   // Restore the session (the cookie lasts one day), so a refresh doesn't ask for the password again.
   useEffect(() => { load().finally(() => setChecking(false)); }, [load]);
 
+  /** Gets a reCAPTCHA token first; the password is only sent with a token (lib/adminSignIn.ts). */
   async function signIn() {
+    if (signingIn) return;
     setErr("");
-    const res = await fetch("/api/admin/session", {
-      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: pw }),
-    });
-    if (!res.ok) return setErr((await res.json()).error ?? "Could not sign in.");
-    setPw("");
-    await load();
+    setSigningIn(true);
+    try {
+      const r = await signInWithRecaptcha(pw);
+      if (!r.ok) return setErr(r.error);
+      setPw("");
+      await load();
+    } finally { setSigningIn(false); }
   }
   async function signOut() {
     await fetch("/api/admin/session", { method: "DELETE" });
@@ -62,8 +68,9 @@ export default function Admin() {
           <label className={label} htmlFor="pw">Admin password</label>
           <input className={input} id="pw" type="password" autoComplete="current-password" value={pw} onChange={(e) => setPw(e.target.value)} />
           <p className={errorText} role="alert">{err}</p>
-          <button className={btn.primaryFull} type="submit">Sign in</button>
+          <button className={btn.primaryFull} type="submit" disabled={signingIn}>{signingIn ? "Signing in…" : "Sign in"}</button>
           <p className={`${muted} mt-2.5`}>You’ll stay signed in on this device for one day.</p>
+          <RecaptchaNotice />
         </form>
       ) : (
         <>

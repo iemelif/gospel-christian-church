@@ -59,7 +59,8 @@ push to main     ──► deploy.yml: GCP auth (WIF) → docker build → push 
 - `NEXT_PUBLIC_*` changes require re-running the deploy.
 - **Required before deploying the reCAPTCHA code:** repository variable `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` and
   repository secret `RECAPTCHA_SECRET_KEY` (and the production domains registered for the key in the
-  reCAPTCHA console). Without them every gift is rejected in production (the server fails closed).
+  reCAPTCHA console). Without them every gift is rejected **and nobody can sign in to `/admin`** in production (the
+  server fails closed).
 - The service now makes an outbound HTTPS call at runtime (Google `siteverify`, 8s timeout) for each gift.
 - **Unknown:** whether branch protection requires CI to pass before merging to `main`.
 

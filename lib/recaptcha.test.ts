@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { DEFAULT_RECAPTCHA_MIN_SCORE, RECAPTCHA_ACTION, recaptchaMinScore, verifyRecaptcha } from "./recaptcha";
+import { DEFAULT_RECAPTCHA_MIN_SCORE, RECAPTCHA_ACTION, RECAPTCHA_ADMIN_ACTION, recaptchaError, recaptchaMinScore, recaptchaUnavailable, verifyRecaptcha } from "./recaptcha";
 
 // Google is never called: every test passes a mocked fetch.
 const SECRET = "test-secret-do-not-use";
@@ -74,5 +74,25 @@ describe("recaptchaMinScore", () => {
   });
   it("ignores invalid values", () => {
     for (const v of ["abc", "2", "-1", ""]) { vi.stubEnv("RECAPTCHA_MIN_SCORE", v); expect(recaptchaMinScore()).toBe(0.5); }
+  });
+});
+
+describe("verifyRecaptcha — action per protected form", () => {
+  it("defaults to record_gift and accepts admin_sign_in only when that action is requested", async () => {
+    const admin = { success: true, action: RECAPTCHA_ADMIN_ACTION, score: 0.9 };
+    expect(RECAPTCHA_ADMIN_ACTION).toBe("admin_sign_in");
+    expect(await verifyRecaptcha("t", google(admin), RECAPTCHA_ADMIN_ACTION)).toEqual({ ok: true, score: 0.9 });
+    expect(await verifyRecaptcha("t", google(admin))).toEqual({ ok: false, reason: "wrong-action" });
+    expect(await verifyRecaptcha("t", google(human), RECAPTCHA_ADMIN_ACTION)).toEqual({ ok: false, reason: "wrong-action" });
+  });
+});
+
+describe("recaptchaError", () => {
+  it("maps failures to 503 (unavailable), 400 (no token) or 403, without revealing the reason", () => {
+    expect(recaptchaError("not-configured").status).toBe(503);
+    expect(recaptchaError("request-failed").status).toBe(503);
+    expect(recaptchaError("missing-token").status).toBe(400);
+    for (const r of ["not-success", "wrong-action", "low-score"] as const) expect(recaptchaError(r)).toEqual({ status: 403, error: "We couldn't verify your request. Please reload the page and try again." });
+    expect(recaptchaUnavailable("not-configured") && recaptchaUnavailable("request-failed") && !recaptchaUnavailable("low-score")).toBe(true);
   });
 });

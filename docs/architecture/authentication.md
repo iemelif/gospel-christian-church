@@ -8,6 +8,7 @@
   protected against bots by **Google reCAPTCHA v3** (score ≥ threshold, action `record_gift`), not by a login;
   see [configuration.md](configuration.md) and `docs/pages/donate.md` §12–13.
 - The `/admin` page code itself (a static client shell) is served to anyone; data is protected by the API.
+- The Admin **Sign in** is additionally protected by the same Google reCAPTCHA v3 (action `admin_sign_in`); see §3.
 
 ## 2. Credentials (verified)
 
@@ -19,10 +20,12 @@
 ## 3. Sign-in flow (verified, `app/api/admin/session/route.ts`, `lib/auth.ts`)
 
 1. Admin page loads → `GET /api/admin` (`cache: "no-store"`). 401 → password form.
-2. `POST /api/admin/session { password }`.
-3. Rate-limit check (§5); then `passwordOk()`: HMAC-SHA256 of input and of `ADMIN_PASSWORD` (fixed key),
+2. Sign in → browser gets a reCAPTCHA v3 token for `admin_sign_in` (`lib/adminSignIn.ts`); no token → nothing is
+   sent. Otherwise `POST /api/admin/session { password, recaptchaToken }`.
+3. Rate-limit check (§5); then `verifyRecaptcha(token, fetch, "admin_sign_in")` — failure → 400 / 403 / 503, no
+   password check, no cookie, not counted as a failed password; then `passwordOk()`: HMAC-SHA256 of input and of `ADMIN_PASSWORD` (fixed key),
    compared with `timingSafeEqual`.
-4. Success → cookie set; failure → 401 "Wrong password, or ADMIN_PASSWORD is not set on the server."
+4. Success → cookie set; failure → 401 "Unable to sign in. Please try again."
 5. Page reloads data with the cookie.
 
 ## 4. Session (verified)

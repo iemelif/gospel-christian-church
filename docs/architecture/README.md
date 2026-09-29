@@ -23,7 +23,7 @@ gift recording; Node 24 Dockerfile, ESLint + Vitest).
 ## One-paragraph summary (verified)
 
 A single Next.js 16 App Router application (React 19, TypeScript, Node 24, Tailwind CSS v4 compiled at build
-time) with no database; its only runtime external service is Google reCAPTCHA v3 (gift recording). Content is compiled from TypeScript modules; the only mutable state is a JSON file of
+time) with no database; its only runtime external service is Google reCAPTCHA v3 (gift recording and Admin sign-in). Content is compiled from TypeScript modules; the only mutable state is a JSON file of
 donation pledges, stored on a Cloud Storage bucket mounted into a single Cloud Run instance. Donors record
 pledges through a public API; a treasurer confirms them behind a shared-password admin page. GitHub
 Actions builds a Docker image and deploys to Cloud Run on every push to `main`.

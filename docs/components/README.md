@@ -15,6 +15,7 @@ Verified against the working tree on branch `feat-ai-powered-integration`, 2026-
 | `GiveForm` | `components/GiveForm.tsx` | **Client** | 3-step pledge form + receipt; reCAPTCHA v3; posts to `/api/gifts` | `/donate` (and `/`, which renders the Donate page) | [give-form.md](give-form.md) |
 | `PaymentDetails` | `components/PaymentDetails.tsx` | Server* | Detail rows, copy button and note for one payment method (from `PAYMENT_METHODS`); GCash/Maya QR codes | `/donate` "Ways to send your gift" cards; inside `GiveForm` | [payment-details.md](payment-details.md) |
 | `FundraisingPercent` | `components/FundraisingPercent.tsx` | Server | Share of the Project Nehemiah goal raised, above the Giving Wall, with a large decorative church illustration on the left | `/donate` (and `/`) | [fundraising-percent.md](fundraising-percent.md) |
+| `RecaptchaNotice` | `components/RecaptchaNotice.tsx` | Server* | Loads Google reCAPTCHA v3 (`next/script`) and shows Google's required notice; nothing without a site key | Inside `GiveForm` (`/donate`) and the Admin sign-in form (`/admin`) | [give-form.md](give-form.md), [admin.md](../pages/admin.md) §12 |
 | `CopyButton` | `components/CopyButton.tsx` | **Client** | Copies a string to the clipboard, shows "Copied" | Inside `GiveForm` and `PaymentDetails` | [copy-button.md](copy-button.md) |
 | `ChurchProgress` | `components/ChurchProgress.tsx` | Server | Church outline SVG filled to a percentage | `/donate` (and `/`) | [church-progress.md](church-progress.md) |
 | `JoinUs` | `components/JoinUs.tsx` | Server | "Join us" section: heading, intro and one card per service from `SCHEDULE` | `/donate`, `/` | [join-us.md](join-us.md) |
@@ -29,7 +30,7 @@ Verified against the working tree on branch `feat-ai-powered-integration`, 2026-
 | `SocialIcon` | `components/SocialIcon.tsx` | Server | Inline SVG icon for a social network | Inside `SiteFooter` only | This file (below) |
 
 \* `PaymentDetails` has no directive: it is a Server Component on the Donate page and part of the client tree
-inside `GiveForm`.
+inside `GiveForm`. `RecaptchaNotice` has no directive either and is only rendered inside client components.
 
 "Server" = no `"use client"` directive, so it renders as a React Server Component. It can still be rendered
 inside a client component tree (`CopyButton` is only ever rendered by the client `GiveForm`).

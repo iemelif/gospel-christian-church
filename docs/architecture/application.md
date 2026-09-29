@@ -12,7 +12,7 @@
 | Fonts | `next/font/google`: Young Serif → `--font-young-serif` → `font-serif` (headings); Figtree → `--font-figtree` → `font-sans` (body) |
 | Runtime deps | `next`, `react`, `react-dom` only (`tailwindcss` and `@tailwindcss/postcss` are dev dependencies, used only during the build) |
 | Storage | JSON file (see [data-storage.md](data-storage.md)) |
-| External services | **Google reCAPTCHA v3** only: the browser loads `https://www.google.com/recaptcha/api.js` on the Donate page (and `/`), and `POST /api/gifts` calls Google's `siteverify` endpoint. Google Fonts are downloaded at build time by `next/font` |
+| External services | **Google reCAPTCHA v3** only: the browser loads `https://www.google.com/recaptcha/api.js` on the Donate page (and `/`), and `/admin`, and `POST /api/gifts` and `POST /api/admin/session` (sign-in) call Google's `siteverify` endpoint. Google Fonts are downloaded at build time by `next/font` |
 
 **Verified absent:** no `middleware`/`proxy` file, no `instrumentation`, no custom `not-found`, `error` or
 `global-error` files, no database, no CMS, no analytics or error-monitoring SDK, no AI SDK, no redirects.

@@ -1,30 +1,14 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Script from "next/script";
-import { AMOUNTS, AMOUNT_NOTES, CHURCH, PAYMENT_METHODS, RECAPTCHA_ACTION, RECAPTCHA_SITE_KEY, php } from "@/lib/config";
+import { AMOUNTS, AMOUNT_NOTES, CHURCH, PAYMENT_METHODS, RECAPTCHA_ACTION, php } from "@/lib/config";
+import { recaptchaToken } from "@/lib/recaptchaClient";
 import { btn, cardTitle, errorText, input, label, muted } from "@/lib/ui";
 import CopyButton from "./CopyButton";
 import PaymentDetails from "./PaymentDetails";
+import RecaptchaNotice from "./RecaptchaNotice";
 
 type Receipt = { ref: string; amount: number; freq: string; method: string };
-
-// Google reCAPTCHA v3 (invisible, score-based; no checkbox). Loaded by the <Script> in the form below.
-declare global {
-  interface Window { grecaptcha?: { ready(cb: () => void): void; execute(siteKey: string, opts: { action: string }): Promise<string> } }
-}
-
-/** Gets a fresh reCAPTCHA v3 token for recording a gift, or "" if reCAPTCHA is unavailable (the server then rejects). */
-async function recaptchaToken(): Promise<string> {
-  const g = window.grecaptcha;
-  if (!RECAPTCHA_SITE_KEY || !g) return "";
-  try {
-    await new Promise<void>((resolve) => g.ready(resolve));
-    return await g.execute(RECAPTCHA_SITE_KEY, { action: RECAPTCHA_ACTION });
-  } catch {
-    return "";
-  }
-}
 
 // Styles used only by this form.
 const fieldset = "m-0 mb-[18px] min-w-0 border-0 p-0";
@@ -65,7 +49,7 @@ export default function GiveForm() {
     if (!valid) return setError("Choose or enter an amount greater than zero.");
     setBusy(true);
     try {
-      const recaptcha = await recaptchaToken();
+      const recaptcha = await recaptchaToken(RECAPTCHA_ACTION); // Google reCAPTCHA v3, loaded by <RecaptchaNotice />
       const res = await fetch("/api/gifts", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount, freq, method, name, email, message, anon, recaptchaToken: recaptcha }),
@@ -98,7 +82,6 @@ export default function GiveForm() {
 
   return (
     <form onSubmit={(e) => { e.preventDefault(); submit(); }} noValidate>
-      {RECAPTCHA_SITE_KEY && <Script src={`https://www.google.com/recaptcha/api.js?render=${encodeURIComponent(RECAPTCHA_SITE_KEY)}`} strategy="afterInteractive" />}
       <fieldset className={fieldset}>
         <legend className={legend}><span className={stepNo}>1</span>Choose your gift</legend>
         <div className="grid grid-cols-[repeat(3,1fr)] gap-2 max-xs:grid-cols-[repeat(2,1fr)]">
@@ -145,8 +128,7 @@ export default function GiveForm() {
         {busy ? "Recording…" : valid ? `Record my ${php(amount)}${monthly ? " monthly" : ""} gift` : "Record my gift"}
       </button>
       <p className="mt-2.5 mb-0 text-center text-[13px] text-mute">No payment is taken on this site. You’ll get a reference number, then send your gift using the method above.</p>
-      {/* Required by Google when the reCAPTCHA badge is hidden (see the base layer in app/globals.css). */}
-      {RECAPTCHA_SITE_KEY && <p className="mt-2 mb-0 text-center text-[12px] text-mute">This site is protected by reCAPTCHA and the Google <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a> and <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a> apply.</p>}
+      <RecaptchaNotice />
     </form>
   );
 }

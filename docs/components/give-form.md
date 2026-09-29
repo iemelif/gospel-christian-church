@@ -17,7 +17,8 @@ the left and the details on the right from ~600px viewports; it stacks on phones
 the box shows the **QR code** plus the account details — both **before Record Gift** (for the selected method) and
 **on the receipt**; Bank Transfer and Cash at Church show details only (see [payment-details.md](payment-details.md)).
 `MethodDetails` is exported for tests, and a module
-helper `recaptchaToken()` that asks reCAPTCHA v3 for a token. Two views: the form, or the receipt once a pledge
+uses the shared `recaptchaToken(RECAPTCHA_ACTION)` (`lib/recaptchaClient.ts`, also used by the Admin sign-in) to ask
+reCAPTCHA v3 for a token. Two views: the form, or the receipt once a pledge
 is recorded.
 
 ## 3. Props / Inputs
@@ -45,12 +46,13 @@ therefore also on `/` (temporary Home). Renders `PaymentDetails` and `CopyButton
 
 ## 6. Layout and Structure
 
-**Verified:** when a site key is set, a `next/script` tag loads Google reCAPTCHA v3. `form` (`noValidate`) with
+**Verified:** `form` (`noValidate`) with
 three `fieldset`s, each with a numbered `legend`: 1 "Choose your gift" (amount radio cards, custom amount,
 One-time / Monthly chips, monthly hint with the yearly total); 2 "Your details" (name and "Email (optional)"
 in two columns, message `textarea`, "Anonymous" checkbox); 3 "How will you send it?" (payment-method chips +
-`MethodDetails`). Then the error line, full-width submit button (label shows the amount), the fine print, and —
-when a site key is set — Google's reCAPTCHA notice with links to Google's Privacy Policy and Terms of Service.
+`MethodDetails`). Then the error line, full-width submit button (label shows the amount), the fine print, and
+`<RecaptchaNotice />` — when a site key is set, it loads Google reCAPTCHA v3 (`next/script`) and shows Google's
+notice with links to Google's Privacy Policy and Terms of Service.
 Receipt view: ✓ circle, "Thank you, <first name>.", "Your pledge of ₱X to Project Nehemiah is recorded.",
 monospace reference, copy button, `MethodDetails`, "Give again" and "Print receipt".
 

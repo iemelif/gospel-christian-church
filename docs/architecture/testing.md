@@ -11,12 +11,14 @@
 
 No formatter (Prettier) is configured.
 
-## 2. Current tests (verified, 102 tests in 19 files, all passing on 2026-09-29)
+## 2. Current tests (verified, 114 tests in 21 files, all passing on 2026-09-29)
 
 | File | Tests | Covers |
 | --- | --- | --- |
 | `app/api/gifts/route.test.ts` | 17 | `POST /api/gifts`: optional/valid/invalid email, name and amount validation unchanged, existing payment ids accepted (labels rejected), reCAPTCHA v3 cases (missing token, Google request failure, `success: false`, wrong action, low score, missing secret, success), gift saved only after verification, token not stored, secret never returned; `GET` public summary contains no email |
-| `lib/recaptcha.test.ts` | 12 | `verifyRecaptcha()` (request format, all failure reasons, threshold boundary, secret never in the result) and `recaptchaMinScore()` |
+| `lib/recaptcha.test.ts` | 14 | `verifyRecaptcha()` (request format, all failure reasons, threshold boundary, secret never in the result, `action` parameter: `record_gift` default, `admin_sign_in` only when requested), `recaptchaMinScore()`, `recaptchaError()` status/message mapping |
+| `app/api/admin/session/route.test.ts` | 7 | Admin sign-in: reCAPTCHA (`admin_sign_in`) verified before the password; missing token 400, failed / gift-token / low score 403, unavailable 503 — never a cookie, no token/secret in logs; right password → session cookie, wrong → 401; rate limit 429 unaffected by failed reCAPTCHA; sign-out clears the cookie without reCAPTCHA |
+| `lib/adminSignIn.test.ts` | 3 | Admin Sign in (browser flow): token requested before the request; password + token posted to `/api/admin/session`; no token → nothing sent; server/network errors |
 | `lib/config.test.ts` | 8 | `php`, campaign "Project Nehemiah" and goal, `PAYMENT_METHODS` parsing, ids unchanged + labels, GCash/Maya QR paths and sizes matching the image files |
 | `lib/auth.test.ts` | 6 | password check, session tampering/expiry/password change, cookie parsing |
 | `lib/officers.test.ts` | 5 | `displayName`, `imageSrc`, `toPeople`, `boardRows`, `leadershipGroups` |
@@ -36,7 +38,7 @@ No formatter (Prettier) is configured.
 | `app/sitemap.test.ts` | 1 | sitemap has `/donate`, not `/support` |
 
 **Google is never contacted by the test suite:** `lib/recaptcha.test.ts` passes a mocked `fetch`, and the route
-tests replace the global `fetch` with a mock of the `siteverify` response.
+tests (`/api/gifts`, `/api/admin/session`) replace the global `fetch` with a mock of the `siteverify` response.
 
 Tests stub environment variables with `vi.stubEnv` and re-import modules, because config and store read
 `process.env` at import time. The store and route tests use a temporary `DATA_DIR`, never `./data`.
