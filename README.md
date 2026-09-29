@@ -87,4 +87,5 @@ Replace `PROJECT_ID` and `GITHUB_USER/REPO`. Keep the region (`us-central1`), re
 
 ### Payment detail format
 `NEXT_PUBLIC_GCASH_NUMBER`, `NEXT_PUBLIC_MAYA_NUMBER` and `NEXT_PUBLIC_BANK_DETAILS` all use the same format: `Label: value · Label: value`, for example
-`GCash Number: +639228656711 · Account name: Wilson L Abesamis`. Each part becomes a line on the site, so you can change the account name (or add lines). The Copy button copies the number / account number. In GitHub variables, paste the value without surrounding quotes.
+`GCash Number: GCASH_NUMBER · Account name: ACCOUNT_NAME` or
+`Bank: BANK_NAME · Account name: ACCOUNT_NAME · Account no.: BANK_ACCOUNT_NUMBER` (placeholders — put the real values only in `.env.local` / GitHub variables, never in this file). Each part becomes a line on the site, so you can change the account name (or add lines). The Copy button copies the number / account number. In GitHub variables, paste the value without surrounding quotes.

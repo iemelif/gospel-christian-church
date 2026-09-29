@@ -2,6 +2,12 @@
 
 Source: `components/ChurchProgress.tsx` · Type: Server · Used by: `app/donate/page.tsx`
 
+> **Implemented 2026-09-29:** optional `decorative` prop. Default (hero): unchanged — `role="img"`,
+> `aria-label="Church illustration, <pct>% funded"`, clip-path id `cp`. `decorative` (used as the large left-side illustration of
+> `FundraisingPercent` — 76×80px or 54×57px, [fundraising-percent.md](fundraising-percent.md)): `aria-hidden="true"`,
+> `focusable="false"`, no role/label, clip-path id `cp-decorative` (so the two SVGs on the Donate page never share
+> an id). Tests: `components/ChurchProgress.test.ts`.
+
 ## 1. Purpose
 
 **Verified:** an illustration of a church (three building shapes, cross, door) whose interior fills with

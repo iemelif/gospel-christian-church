@@ -13,8 +13,8 @@ Verified against the working tree on branch `feat-ai-powered-integration`, 2026-
 | `SiteHeader` | `components/SiteHeader.tsx` | **Client** | Sticky site header: logos, brand, dropdown nav, mobile menu | Every page, via `app/layout.tsx` | [site-header.md](site-header.md) |
 | `SiteFooter` | `components/SiteFooter.tsx` | Server | Footer: logos, address, schedule, email, social links | Every page, via `app/layout.tsx` | [site-footer.md](site-footer.md) |
 | `GiveForm` | `components/GiveForm.tsx` | **Client** | 3-step pledge form + receipt; reCAPTCHA v3; posts to `/api/gifts` | `/donate` (and `/`, which renders the Donate page) | [give-form.md](give-form.md) |
-| `PaymentDetails` | `components/PaymentDetails.tsx` | Server* | Detail rows, copy button and note for one payment method (from `PAYMENT_METHODS`) | `/donate` "Ways to send your gift" cards; inside `GiveForm` | This file (below) |
-| `FundraisingPercent` | `components/FundraisingPercent.tsx` | Server | Share of the Project Nehemiah goal raised, above the Giving Wall | `/donate` (and `/`) | [fundraising-percent.md](fundraising-percent.md) |
+| `PaymentDetails` | `components/PaymentDetails.tsx` | Server* | Detail rows, copy button and note for one payment method (from `PAYMENT_METHODS`); GCash/Maya QR codes | `/donate` "Ways to send your gift" cards; inside `GiveForm` | [payment-details.md](payment-details.md) |
+| `FundraisingPercent` | `components/FundraisingPercent.tsx` | Server | Share of the Project Nehemiah goal raised, above the Giving Wall, with a large decorative church illustration on the left | `/donate` (and `/`) | [fundraising-percent.md](fundraising-percent.md) |
 | `CopyButton` | `components/CopyButton.tsx` | **Client** | Copies a string to the clipboard, shows "Copied" | Inside `GiveForm` and `PaymentDetails` | [copy-button.md](copy-button.md) |
 | `ChurchProgress` | `components/ChurchProgress.tsx` | Server | Church outline SVG filled to a percentage | `/donate` (and `/`) | [church-progress.md](church-progress.md) |
 | `OfficerBoard` | `components/OfficerBoard.tsx` | Server | Officer board in 3 rows for one term | `/officers`, `/history/[term]` | [officer-board.md](officer-board.md) |
@@ -51,16 +51,9 @@ the admin dashboard UI (inline in `app/admin/page.tsx`).
 - **Verified:** used by every inner page; the Donate page has its own larger hero markup instead.
 - **Reuse:** standard opening for any new inner page, followed by ``<div className={`${wrap} ${pageBody}`}>``.
 
-## PaymentDetails (no dedicated file)
+## PaymentDetails
 
-- **Verified:** `PaymentDetails({ method, className })` renders one payment method from `PAYMENT_METHODS`: a
-  `dl` of `[label, value]` rows (`dt` muted, 118px min width; `dd` bold, wraps long values), a `CopyButton`
-  when `method.copy` is set ("Copy account number" for id `Bank transfer`, otherwise "Copy number"), and the
-  method's note. Every value comes from configuration (`lib/config.ts`, `NEXT_PUBLIC_*`); nothing is hard-coded.
-- **Verified:** used by the Donate page's "Ways to send your gift" cards (heading = `method.label`) and by
-  `GiveForm`'s `MethodDetails` (dashed box under the chips and on the receipt). The caller supplies the wrapper
-  classes.
-- **Constraint:** the copy-label choice compares the **id** `Bank transfer`; ids must not change.
+Documented in [payment-details.md](payment-details.md) (details block and GCash/Maya QR codes — in the Ways cards, the form before Record Gift, and the receipt).
 
 ## SocialIcon (no dedicated file)
 

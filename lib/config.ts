@@ -32,7 +32,18 @@ export type PaymentMethod = {
   rows: [string, string][];
   copy?: string;
   note: string;
+  /** QR code image for this method (public/images/payments/), shown only when the method's details are set. */
+  qr?: PaymentQr;
 };
+
+/**
+ * A QR-only code image served from /public. `width`/`height` are the file's intrinsic size (keeps the aspect
+ * ratio; lib/config.test.ts checks them against the file).
+ */
+export type PaymentQr = { src: string; width: number; height: number; alt: string };
+
+const GCASH_QR: PaymentQr = { src: "/images/payments/qrcode-gcash.jpg", width: 441, height: 442, alt: "GCash QR code for sending your gift" };
+const MAYA_QR: PaymentQr = { src: "/images/payments/qrcode-maya.jpg", width: 663, height: 663, alt: "Maya QR code for sending your gift" };
 
 /** Splits "Bank: X · Account name: Y · Account no.: Z" into label/value rows. */
 function bankRows(text: string): [string, string][] {
@@ -69,6 +80,7 @@ export const PAYMENT_METHODS: PaymentMethod[] = [
     rows: isSet(gcash) ? walletRows(gcash, "GCash number") : pending("GCash number"),
     copy: isSet(gcash) ? numberOf(walletRows(gcash, "GCash number")) : undefined,
     note: "Send the amount, then put your reference number in the message.",
+    qr: isSet(gcash) ? GCASH_QR : undefined,
   },
   {
     id: "Maya",
@@ -76,6 +88,7 @@ export const PAYMENT_METHODS: PaymentMethod[] = [
     rows: isSet(maya) ? walletRows(maya, "Maya number") : pending("Maya number"),
     copy: isSet(maya) ? numberOf(walletRows(maya, "Maya number")) : undefined,
     note: "Send the amount, then put your reference number in the message.",
+    qr: isSet(maya) ? MAYA_QR : undefined,
   },
   {
     id: "Bank transfer",

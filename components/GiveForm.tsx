@@ -36,11 +36,11 @@ const amountSpan = "flex cursor-pointer flex-col items-center rounded-[10px] bor
 const chipLabel = "relative m-0 block text-[14px] font-medium";
 const chipSpan = "block cursor-pointer rounded-lg border-[1.5px] border-line bg-bg px-4 py-2.5 peer-checked:border-brand peer-checked:bg-[color-mix(in_srgb,var(--color-gold)_18%,transparent)] peer-checked:font-semibold peer-checked:shadow-[0_0_0_1px_var(--color-brand)] peer-focus-visible:outline-[3px] peer-focus-visible:outline-blue";
 
-/** Payment instructions for one method. In the receipt the box is centred and narrower. */
-function MethodDetails({ id, receipt = false }: { id: string; receipt?: boolean }) {
+/** Payment instructions for one method (before Record Gift and on the receipt; exported for tests). In the receipt the box is centred and narrower. */
+export function MethodDetails({ id, receipt = false }: { id: string; receipt?: boolean }) {
   const m = PAYMENT_METHODS.find((x) => x.id === id);
   if (!m) return null;
-  return <PaymentDetails method={m} className={`rounded-lg border border-dashed border-line bg-bg p-3 text-left text-[14px] text-mute ${receipt ? "mx-auto my-4 max-w-[420px]" : "mt-2.5"}`} />;
+  return <PaymentDetails method={m} className={`rounded-lg border border-dashed border-line bg-bg p-3 text-left text-[14px] text-mute ${receipt ? "mx-auto my-4 max-w-[500px]" : "mt-2.5"}`} />;
 }
 
 export default function GiveForm() {
