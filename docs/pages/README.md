@@ -8,7 +8,7 @@ included: `/donate` is the Donate page for Project Nehemiah, `/support` returns 
 
 | Route | Documentation | Status | In header menu | In sitemap | Notes / discrepancies |
 | --- | --- | --- | --- | --- | --- |
-| `/` | [home.md](home.md) | **Temporary** | "Home" – external link to `LINKS.home` | Yes (priority 1) | Renders the Donate page with canonical `/`. Will be replaced by the Home page (content pending from owner). `<title>` has no site suffix |
+| `/` | [home.md](home.md) | **Complete** | "Home" – external link to `LINKS.home` | Yes (priority 1) | Home page: carousel → welcome → Project Nehemiah feature (inline video, CTA → `/donate`) → Our Pastor, Deacon, Chairman and Vice Chairman → Join Us. `<title>` has no site suffix (root segment) |
 | `/donate` | [donate.md](donate.md) | **Complete** | "Donate" – internal link to `/donate` | Yes | Project Nehemiah. Same content as `/` for now. Canonical `/donate`. Gift recording protected by Google reCAPTCHA v3. `/support` returns 404 (not redirected, not in sitemap) |
 | `/officers` | [officers.md](officers.md) | **Complete** | Church Leadership → Church Officers | Yes | Current term 2026 - 2027 |
 | `/leadership` | [leadership.md](leadership.md) | **Complete** | **No** | Yes | Only reachable by URL / sitemap. Two configured roles match nobody |

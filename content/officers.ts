@@ -42,8 +42,6 @@ export const LEADERSHIP_GROUPS: { title: string; roles: string[] }[] = [
   {
     title: "Ministry & Organization Leaders",
     roles: [
-      "Music Director",
-      "Sound System Operator",
       "President of Young Adult",
       "President of Youth",
       "President of Kababaihan",
