@@ -4,7 +4,9 @@
 
 - The only protected area is the treasurer dashboard: `/admin` UI data via `/api/admin` (`GET`, `PATCH`).
 - There are no user accounts, roles, sign-ups or third-party identity providers.
-- Everything else is public, including `POST /api/gifts` (anyone can record a pledge).
+- Everything else is public, including `POST /api/gifts` (anyone can record a pledge). That endpoint is
+  protected against bots by **Google reCAPTCHA v3** (score ≥ threshold, action `record_gift`), not by a login;
+  see [configuration.md](configuration.md) and `docs/pages/donate.md` §12–13.
 - The `/admin` page code itself (a static client shell) is served to anyone; data is protected by the API.
 
 ## 2. Credentials (verified)

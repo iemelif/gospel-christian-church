@@ -5,7 +5,8 @@
 ## 1. Relevant existing conditions (Repository facts)
 
 - The site stores donor personal data (names, emails, messages) in `gifts.json` on a Cloud Storage bucket.
-- Public endpoints have no bot protection; the only rate limiter (admin sign-in) is in-memory, keyed on a
+- `POST /api/gifts` is protected by Google reCAPTCHA v3 (the site's only runtime external service); other public
+  endpoints have no bot protection. The only rate limiter (admin sign-in) is in-memory, keyed on a
   client-supplied header, and resets on restart (`docs/architecture/authentication.md`).
 - Runtime limits: one Cloud Run instance, 512Mi memory, 60s request timeout, scale to zero
   (`docs/architecture/deployment.md`).
@@ -17,7 +18,7 @@
 | Risk | Why it matters here | Proposed mitigation |
 | --- | --- | --- |
 | Inaccurate or invented answers | Church information pages are mostly empty; AI could fill gaps with fabrications | Answer only from approved sources; say "I don't know" and point to the church contact |
-| Wrong payment details | Direct financial harm to donors and the church | Payment details only verbatim from `PAYMENT_METHODS` or link to `/support` ([data-boundaries.md](data-boundaries.md)) |
+| Wrong payment details | Direct financial harm to donors and the church | Payment details only verbatim from `PAYMENT_METHODS` or link to `/donate` ([data-boundaries.md](data-boundaries.md)) |
 | Donor privacy | Personal data; possible obligations under the Philippine Data Privacy Act (RA 10173) — **legal applicability not assessed** | Keep donor data out of AI entirely unless an explicit, reviewed decision says otherwise |
 | Prompt injection | Public free-text input could attempt to extract instructions or data | Give public AI no tools and no access to private data; curated public context only |
 | Cost abuse | Each AI call costs money; current rate limiting is insufficient | Robust per-client limits, spending cap, alerts |

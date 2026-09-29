@@ -10,18 +10,19 @@ Next.js (App Router) + TypeScript + React. Goal ₱12,000,000; ₱2,700,000 alre
     # checks (same as CI): npm run lint && npm test && npm run build
 
 ## How it works
-- Donors submit a pledge on the Support page (`/support`; `/` shows the same page until the new Home page is built) and get a reference number + payment instructions.
+- Donors submit a pledge on the **Donate** page for **Project Nehemiah** (`/donate`; `/` shows the same page until the new Home page is built) and get a reference number + payment instructions. Email is optional. The old `/support` address returns 404.
+- Recording a pledge is protected by **Google reCAPTCHA v3** (invisible). It needs `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` and `RECAPTCHA_SECRET_KEY` (see `.env.example`); without them pledges are rejected.
 - Pledges are saved to `data/gifts.json` as **pending**.
 - Open `/admin`, sign in with ADMIN_PASSWORD, and click **Confirm** once you have received the money. Only confirmed gifts count toward the progress bar and giving wall.
 - The admin login lasts **one day** (secure cookie) and there is a **Log out** button. **Delete** is only offered for pending pledges; confirmed ones are locked (use **Undo** first if a confirmation was a mistake).
-- Payment methods (GCash, Maya, Bank transfer, Cash at church) are always listed. The first three show the value from `NEXT_PUBLIC_GCASH_NUMBER` / `NEXT_PUBLIC_MAYA_NUMBER` / `NEXT_PUBLIC_BANK_DETAILS`; if a value is empty or still has `XXX` placeholders, donors are told to email the church. These are build-time values, so after changing a GitHub variable, re-run the deploy.
+- Payment methods (GCash, Maya, Bank Transfer, Cash at Church) are always listed — prominently in a "Ways to send your gift" section and in the form. The first three show the value from `NEXT_PUBLIC_GCASH_NUMBER` / `NEXT_PUBLIC_MAYA_NUMBER` / `NEXT_PUBLIC_BANK_DETAILS`; if a value is empty or still has `XXX` placeholders, donors are told to email the church. These are build-time values, so after changing a GitHub variable, re-run the deploy.
 
 ## Edit content
 Giving settings are in `lib/config.ts`: goal, amount already raised, service schedule, preset amounts and payment method notes. The email, goal, amount already raised and GCash/Maya/bank details can be overridden with the `NEXT_PUBLIC_*` variables in `.env.local` / GitHub variables (see `.env.example`). Links, menu, address and officers are in `content/` (below).
 
 ## Site header, footer, leaders & officers
 - `content/site.ts` – links, logos, church address, social media and the header menu.
-  - **Development vs production links:** the `ENVIRONMENTS` block at the top holds both sets. `npm run dev` uses `localhost:3000` for Home, GCC and Support; `npm run build` / `npm start` use the real `gcciemelif.website` links. The IEMELIF and Facebook links are the same in both.
+  - **Development vs production links:** the `ENVIRONMENTS` block at the top holds both sets. `npm run dev` uses `localhost:3000` for Home, GCC (and the unused Support link); `npm run build` / `npm start` use the real `gcciemelif.website` links. The IEMELIF and Facebook links are the same in both.
   - `SITE_URL` (canonical links, sitemap, Open Graph) follows the same switch.
 - `content/officers.ts` – current term (`CURRENT_TERM`), past terms (`HISTORY_TERMS`) and the groups on the Church Leadership page. New term: copy the current block into `HISTORY_TERMS`, then replace `CURRENT_TERM`.
 - **Pictures:** every line has `image: "<slug of the name>"` (e.g. `ocampo-juanito-jr-s`), which loads `/images/people/<slug>.svg`.
@@ -29,7 +30,7 @@ Giving settings are in `lib/config.ts`: goal, amount already raised, service sch
   - Real photo → put the file in `public/images/people/` and set the full path: `image: "/images/people/ocampo-juanito-jr-s.jpg"`.
 - **Theme and styling:** the site uses Tailwind CSS v4. Colors are theme tokens in the `@theme` block at the top of `app/globals.css` (used as classes like `bg-brand`, `text-gold`), taken from the two logos (GCC crimson, IEMELIF gold and blue, dark brown of the cross). Repeated styles (buttons, cards, headings) are shared class strings in `lib/ui.ts`. The header is sticky.
 - **Logos:** `public/images/*.png` now have transparent backgrounds; the untouched originals are in `design/original-logos/`.
-- Pages: `/support` (building fund), `/leadership`, `/officers`, `/history/<term>`. `/about`, `/ministries`, `/contact` are empty placeholders (noindex until they have content).
+- Pages: `/donate` (Project Nehemiah), `/leadership`, `/officers`, `/history/<term>`. `/about`, `/ministries`, `/contact` are empty placeholders (noindex until they have content).
 - SEO: per-page titles/descriptions/canonical URLs, Open Graph, church structured data (JSON-LD), `/sitemap.xml`, `/robots.txt`, GCC logo as favicon (`icon` + `shortcut icon`). `/admin` is noindex.
 
 ## Hosting note
@@ -78,10 +79,11 @@ Replace `PROJECT_ID` and `GITHUB_USER/REPO`. Keep the region (`us-central1`), re
 | Secret | `GCP_WORKLOAD_IDENTITY_PROVIDER` | output of the last command above |
 | Secret | `GCP_SERVICE_ACCOUNT` | `gh-deployer@PROJECT_ID.iam.gserviceaccount.com` |
 | Secret | `ADMIN_PASSWORD` | your /admin password (avoid commas) |
+| Secret | `RECAPTCHA_SECRET_KEY` | Google reCAPTCHA v3 secret key (server-only; never commit it) |
 | Variable | `GCP_PROJECT_ID` | your project id |
-| Variable | `NEXT_PUBLIC_CHURCH_EMAIL`, `NEXT_PUBLIC_GOAL`, `NEXT_PUBLIC_BASE_RAISED`, `NEXT_PUBLIC_GCASH_NUMBER`, `NEXT_PUBLIC_MAYA_NUMBER`, `NEXT_PUBLIC_BANK_DETAILS` | public settings (see `.env.example`); blank falls back to defaults |
+| Variable | `NEXT_PUBLIC_CHURCH_EMAIL`, `NEXT_PUBLIC_GOAL`, `NEXT_PUBLIC_BASE_RAISED`, `NEXT_PUBLIC_GCASH_NUMBER`, `NEXT_PUBLIC_MAYA_NUMBER`, `NEXT_PUBLIC_BANK_DETAILS`, `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` | public settings (see `.env.example`); blank falls back to defaults |
 
-`NEXT_PUBLIC_*` values are baked in at build time, so changing one means re-running the deploy. `ADMIN_PASSWORD` is read at runtime and never enters the image.
+`NEXT_PUBLIC_*` values are baked in at build time, so changing one means re-running the deploy. `ADMIN_PASSWORD` and `RECAPTCHA_SECRET_KEY` are read at runtime and never enter the image. Register the site's domains for the reCAPTCHA key in the Google reCAPTCHA console.
 
 ### Payment detail format
 `NEXT_PUBLIC_GCASH_NUMBER`, `NEXT_PUBLIC_MAYA_NUMBER` and `NEXT_PUBLIC_BANK_DETAILS` all use the same format: `Label: value · Label: value`, for example

@@ -12,28 +12,33 @@ Verified against the working tree on branch `feat-ai-powered-integration`, 2026-
 | --- | --- | --- | --- | --- | --- |
 | `SiteHeader` | `components/SiteHeader.tsx` | **Client** | Sticky site header: logos, brand, dropdown nav, mobile menu | Every page, via `app/layout.tsx` | [site-header.md](site-header.md) |
 | `SiteFooter` | `components/SiteFooter.tsx` | Server | Footer: logos, address, schedule, email, social links | Every page, via `app/layout.tsx` | [site-footer.md](site-footer.md) |
-| `GiveForm` | `components/GiveForm.tsx` | **Client** | 3-step pledge form + receipt; posts to `/api/gifts` | `/support` (and `/`, which renders the Support page) | [give-form.md](give-form.md) |
-| `CopyButton` | `components/CopyButton.tsx` | **Client** | Copies a string to the clipboard, shows "Copied" | Inside `GiveForm` only | [copy-button.md](copy-button.md) |
-| `ChurchProgress` | `components/ChurchProgress.tsx` | Server | Church outline SVG filled to a percentage | `/support` (and `/`) | [church-progress.md](church-progress.md) |
+| `GiveForm` | `components/GiveForm.tsx` | **Client** | 3-step pledge form + receipt; reCAPTCHA v3; posts to `/api/gifts` | `/donate` (and `/`, which renders the Donate page) | [give-form.md](give-form.md) |
+| `PaymentDetails` | `components/PaymentDetails.tsx` | Server* | Detail rows, copy button and note for one payment method (from `PAYMENT_METHODS`) | `/donate` "Ways to send your gift" cards; inside `GiveForm` | This file (below) |
+| `FundraisingPercent` | `components/FundraisingPercent.tsx` | Server | Share of the Project Nehemiah goal raised, above the Giving Wall | `/donate` (and `/`) | [fundraising-percent.md](fundraising-percent.md) |
+| `CopyButton` | `components/CopyButton.tsx` | **Client** | Copies a string to the clipboard, shows "Copied" | Inside `GiveForm` and `PaymentDetails` | [copy-button.md](copy-button.md) |
+| `ChurchProgress` | `components/ChurchProgress.tsx` | Server | Church outline SVG filled to a percentage | `/donate` (and `/`) | [church-progress.md](church-progress.md) |
 | `OfficerBoard` | `components/OfficerBoard.tsx` | Server | Officer board in 3 rows for one term | `/officers`, `/history/[term]` | [officer-board.md](officer-board.md) |
 | `PersonCard` | `components/PersonCard.tsx` | Server | One person card (`<li>`): avatar, name, roles | `/leadership`; inside `OfficerBoard` | [person-card.md](person-card.md) |
 | `Avatar` | `components/Avatar.tsx` | Server | Person image, or built-in gray silhouette | Inside `PersonCard` only | [avatar.md](avatar.md) |
 | `PageHero` | `components/PageHero.tsx` | Server | Crimson inner-page banner with `h1` + optional intro | `/about`, `/ministries`, `/contact`, `/leadership`, `/officers`, `/history/[term]` | This file (below) |
 | `SocialIcon` | `components/SocialIcon.tsx` | Server | Inline SVG icon for a social network | Inside `SiteFooter` only | This file (below) |
 
+\* `PaymentDetails` has no directive: it is a Server Component on the Donate page and part of the client tree
+inside `GiveForm`.
+
 "Server" = no `"use client"` directive, so it renders as a React Server Component. It can still be rendered
 inside a client component tree (`CopyButton` is only ever rendered by the client `GiveForm`).
 
 Categories:
 - **Shared layout:** `SiteHeader`, `SiteFooter` (rendered once in `app/layout.tsx`; never render them in pages).
-- **Giving / donation:** `GiveForm`, `CopyButton`, `ChurchProgress`.
+- **Giving / donation:** `GiveForm`, `PaymentDetails`, `FundraisingPercent`, `CopyButton`, `ChurchProgress`.
 - **People / officers:** `OfficerBoard` → `PersonCard` → `Avatar`.
 - **Generic building blocks:** `PageHero`, `SocialIcon`.
 - **Data-coupled:** `SiteHeader` / `SiteFooter` (`content/site.ts`, `lib/config.ts`), `GiveForm`
   (`lib/config.ts`, `/api/gifts`), `OfficerBoard` / `PersonCard` (`content/officers.ts`, `lib/officers.ts`).
 
 Not components but page-level UI that could become components if reused (**Proposed**, only on request):
-the Support page's hero progress card, giving wall and schedule cards (inline in `app/support/page.tsx`), and
+the Donate page's hero progress card, giving wall and schedule cards (inline in `app/donate/page.tsx`), and
 the admin dashboard UI (inline in `app/admin/page.tsx`).
 
 ## PageHero (no dedicated file)
@@ -43,8 +48,19 @@ the admin dashboard UI (inline in `app/admin/page.tsx`).
   (`bg-[linear-gradient(135deg,…brand,…brand-2)]`, same as `brandGradient` in `lib/ui.ts`), `text-onbrand`,
   `pt-9 pb-10`; heading `text-[length:clamp(30px,5vw,46px)]`; intro `mt-2.5 mb-0 text-[#f4dbe1]`; focus outline
   turns gold inside it (`[&_:focus-visible]:outline-gold`).
-- **Verified:** used by every inner page; the Support page has its own larger hero markup instead.
+- **Verified:** used by every inner page; the Donate page has its own larger hero markup instead.
 - **Reuse:** standard opening for any new inner page, followed by ``<div className={`${wrap} ${pageBody}`}>``.
+
+## PaymentDetails (no dedicated file)
+
+- **Verified:** `PaymentDetails({ method, className })` renders one payment method from `PAYMENT_METHODS`: a
+  `dl` of `[label, value]` rows (`dt` muted, 118px min width; `dd` bold, wraps long values), a `CopyButton`
+  when `method.copy` is set ("Copy account number" for id `Bank transfer`, otherwise "Copy number"), and the
+  method's note. Every value comes from configuration (`lib/config.ts`, `NEXT_PUBLIC_*`); nothing is hard-coded.
+- **Verified:** used by the Donate page's "Ways to send your gift" cards (heading = `method.label`) and by
+  `GiveForm`'s `MethodDetails` (dashed box under the chips and on the receipt). The caller supplies the wrapper
+  classes.
+- **Constraint:** the copy-label choice compares the **id** `Bank transfer`; ids must not change.
 
 ## SocialIcon (no dedicated file)
 

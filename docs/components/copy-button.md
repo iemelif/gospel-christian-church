@@ -1,6 +1,6 @@
 # CopyButton
 
-Source: `components/CopyButton.tsx` · Type: **Client** · Used by: `GiveForm`
+Source: `components/CopyButton.tsx` · Type: **Client** · Used by: `GiveForm`, `PaymentDetails`
 
 ## 1. Purpose
 
@@ -25,8 +25,9 @@ None.
 
 ## 5. Pages / Components Using It
 
-**Verified:** only `GiveForm` — "Copy reference" on the receipt, and "Copy number" / "Copy account number"
-inside `MethodDetails` when a method has a `copy` value.
+**Verified:** `GiveForm` ("Copy reference" on the receipt) and `PaymentDetails` ("Copy number" / "Copy account
+number" when a method has a `copy` value), which is rendered both inside `GiveForm` and in the "Ways to send your
+gift" cards on the Donate page.
 
 ## 6. Layout and Structure
 
@@ -77,4 +78,4 @@ None.
 
 ## 16. References
 
-`components/CopyButton.tsx`, `components/GiveForm.tsx`.
+`components/CopyButton.tsx`, `components/GiveForm.tsx`, `components/PaymentDetails.tsx`.

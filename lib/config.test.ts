@@ -15,10 +15,25 @@ describe("php", () => {
   });
 });
 
+describe("CHURCH", () => {
+  it("names the campaign Project Nehemiah with the ₱12,000,000 default goal", async () => {
+    const { CHURCH } = await load({ NEXT_PUBLIC_GOAL: "" });
+    expect(CHURCH.campaign).toBe("Project Nehemiah");
+    expect(CHURCH.goal).toBe(12_000_000);
+  });
+});
+
 describe("PAYMENT_METHODS", () => {
   it("always lists all four methods", async () => {
     const { PAYMENT_IDS } = await load({});
     expect(PAYMENT_IDS).toEqual(["GCash", "Maya", "Bank transfer", "Cash at church"]);
+  });
+
+  it("keeps the stored ids unchanged and shows the donor-facing labels", async () => {
+    const { PAYMENT_METHODS } = await load({});
+    expect(PAYMENT_METHODS.map((m) => [m.id, m.label])).toEqual([
+      ["GCash", "GCash"], ["Maya", "Maya"], ["Bank transfer", "Bank Transfer"], ["Cash at church", "Cash at Church"],
+    ]);
   });
 
   it("parses 'Label: value · Label: value' and picks the number to copy", async () => {

@@ -53,6 +53,7 @@ jobs:
           NEXT_PUBLIC_GCASH_NUMBER: ${{ vars.NEXT_PUBLIC_GCASH_NUMBER }}
           NEXT_PUBLIC_MAYA_NUMBER: ${{ vars.NEXT_PUBLIC_MAYA_NUMBER }}
           NEXT_PUBLIC_BANK_DETAILS: ${{ vars.NEXT_PUBLIC_BANK_DETAILS }}
+          NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${{ vars.NEXT_PUBLIC_RECAPTCHA_SITE_KEY }}
         run: |
           docker build \
             --tag "$IMAGE:${{ github.sha }}" \
@@ -64,6 +65,7 @@ jobs:
             --build-arg NEXT_PUBLIC_GCASH_NUMBER="$NEXT_PUBLIC_GCASH_NUMBER" \
             --build-arg NEXT_PUBLIC_MAYA_NUMBER="$NEXT_PUBLIC_MAYA_NUMBER" \
             --build-arg NEXT_PUBLIC_BANK_DETAILS="$NEXT_PUBLIC_BANK_DETAILS" \
+            --build-arg NEXT_PUBLIC_RECAPTCHA_SITE_KEY="$NEXT_PUBLIC_RECAPTCHA_SITE_KEY" \
             .
 
       - name: Push Docker image
@@ -87,6 +89,7 @@ jobs:
             NODE_ENV=production
             DATA_DIR=/data
             ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}
+            RECAPTCHA_SECRET_KEY=${{ secrets.RECAPTCHA_SECRET_KEY }}
           flags: >-
             --execution-environment=gen2
             --add-volume=name=data,type=cloud-storage,bucket=${{ vars.GCP_PROJECT_ID }}-gospel-christian-church-data

@@ -18,7 +18,7 @@ const ENVIRONMENTS = {
     siteUrl: "https://www.gcciemelif.website",
     home: "https://www.gcciemelif.website",
     gcc: "https://www.gcciemelif.website",
-    support: "https://support.gcciemelif.website",
+    support: "https://support.gcciemelif.website", // not used by the menu since Donate moved to /donate (subdomain decision pending)
   },
 };
 const ENV = process.env.NODE_ENV === "development" ? ENVIRONMENTS.development : ENVIRONMENTS.production;
@@ -30,7 +30,7 @@ export const SITE = {
   name: "Gospel Christian Church IEMELIF",
   shortName: "Gospel Christian Church",
   description:
-    "Gospel Christian Church IEMELIF in Frances, Calumpit, Bulacan. Meet our pastor, leaders and officers, join our worship services, and support our church building fund.",
+    "Gospel Christian Church IEMELIF in Frances, Calumpit, Bulacan. Meet our pastor, leaders and officers, join our worship services, and support Project Nehemiah, our church building project.",
   locale: "en_PH",
 };
 
@@ -86,6 +86,6 @@ export const NAV: NavItem[] = [
       { label: "Leadership History", children: [] }, // filled from HISTORY_TERMS
     ],
   },
-  { label: "Support", href: LINKS.support, external: true },
+  { label: "Donate", href: "/donate" }, // internal page for Project Nehemiah (was "Support" → LINKS.support)
   { label: "Contact Us", href: "/contact" },
 ];

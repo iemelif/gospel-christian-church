@@ -9,7 +9,7 @@
 | --- | --- | --- |
 | Church name, address, schedule, links | `content/site.ts`, `lib/config.ts` | Yes |
 | Officer names and roles | `content/officers.ts` | Yes (officer/leadership pages) |
-| Campaign totals (raised, still needed, confirmed count) | `summary()` | Yes (`/support`, `/`) |
+| Campaign totals (raised, still needed, confirmed count) | `summary()` | Yes (`/donate`, `/`) |
 | Payment instructions (GCash, Maya, bank details) | Build-time `NEXT_PUBLIC_*` → `PAYMENT_METHODS` | Yes (shown to donors) |
 | Giving wall: name or "Anonymous", amount, message excerpt of the last 8 **confirmed** gifts | `summary()` | Yes |
 | Donor name, email, amount, frequency, method, message, anonymity flag, reference, status, date | `DATA_DIR/gifts.json` | **No** — admin only |
@@ -30,7 +30,7 @@
   approval.
 
 ### Payment information
-- AI may only repeat payment details **exactly** as provided by `PAYMENT_METHODS`, or link to `/support`.
+- AI may only repeat payment details **exactly** as provided by `PAYMENT_METHODS`, or link to `/donate`.
 - AI must never generate, guess, reformat, "correct" or suggest alternative account numbers, wallet numbers
   or account names.
 - AI must never state that a gift has been received or confirmed; only the treasurer confirms gifts.

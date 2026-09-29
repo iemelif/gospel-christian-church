@@ -16,7 +16,7 @@ is `/data` on Cloud Run, where a Cloud Storage bucket is mounted as a volume (se
 
 ## 2. Data model (verified, `lib/store.ts`)
 
-`Gift = { id (UUID), ref ("GCC-" + 6 hex chars), name, email, amount (integer pesos), freq ("One-time" |
+`Gift = { id (UUID), ref ("GCC-" + 6 hex chars), name, email (optional; "" when not given), amount (integer pesos), freq ("One-time" |
 "Monthly"), method (payment method id), message, anon (boolean), status ("pending" | "confirmed"),
 createdAt (ISO string) }`. The file is a pretty-printed JSON array.
 
@@ -33,9 +33,11 @@ createdAt (ISO string) }`. The file is a pretty-printed JSON array.
 
 ## 4. Data flows (verified)
 
-- **Pledge:** `GiveForm` → `POST /api/gifts` → validation/normalisation → `update(all => [...all, gift])`
-  (status `pending`) → `{ ref, amount, freq, method }`.
-- **Public read:** `/`, `/support` call `summary()` on every request. `GET /api/gifts` also returns
+- **Pledge:** `GiveForm` → reCAPTCHA v3 token → `POST /api/gifts` → field validation/normalisation → Google
+  reCAPTCHA verification (`lib/recaptcha.ts`) → `update(all => [...all, gift])` (status `pending`) →
+  `{ ref, amount, freq, method }`. Nothing is saved when validation or verification fails. The reCAPTCHA
+  token is **not** stored in the gift.
+- **Public read:** `/`, `/donate` call `summary()` on every request. `GET /api/gifts` also returns
   `summary()` but has no caller.
 - **Admin:** `GET /api/admin` → all gifts newest first; `PATCH /api/admin` → confirm / unconfirm / delete
   via `update()`; deleting a confirmed gift is refused (409).

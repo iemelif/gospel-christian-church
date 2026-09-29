@@ -1,11 +1,30 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { AMOUNTS, AMOUNT_NOTES, PAYMENT_METHODS, php } from "@/lib/config";
+import Script from "next/script";
+import { AMOUNTS, AMOUNT_NOTES, CHURCH, PAYMENT_METHODS, RECAPTCHA_ACTION, RECAPTCHA_SITE_KEY, php } from "@/lib/config";
 import { btn, cardTitle, errorText, input, label, muted } from "@/lib/ui";
 import CopyButton from "./CopyButton";
+import PaymentDetails from "./PaymentDetails";
 
 type Receipt = { ref: string; amount: number; freq: string; method: string };
+
+// Google reCAPTCHA v3 (invisible, score-based; no checkbox). Loaded by the <Script> in the form below.
+declare global {
+  interface Window { grecaptcha?: { ready(cb: () => void): void; execute(siteKey: string, opts: { action: string }): Promise<string> } }
+}
+
+/** Gets a fresh reCAPTCHA v3 token for recording a gift, or "" if reCAPTCHA is unavailable (the server then rejects). */
+async function recaptchaToken(): Promise<string> {
+  const g = window.grecaptcha;
+  if (!RECAPTCHA_SITE_KEY || !g) return "";
+  try {
+    await new Promise<void>((resolve) => g.ready(resolve));
+    return await g.execute(RECAPTCHA_SITE_KEY, { action: RECAPTCHA_ACTION });
+  } catch {
+    return "";
+  }
+}
 
 // Styles used only by this form.
 const fieldset = "m-0 mb-[18px] min-w-0 border-0 p-0";
@@ -21,17 +40,7 @@ const chipSpan = "block cursor-pointer rounded-lg border-[1.5px] border-line bg-
 function MethodDetails({ id, receipt = false }: { id: string; receipt?: boolean }) {
   const m = PAYMENT_METHODS.find((x) => x.id === id);
   if (!m) return null;
-  return (
-    <div className={`rounded-lg border border-dashed border-line bg-bg p-3 text-left text-[14px] text-mute ${receipt ? "mx-auto my-4 max-w-[420px]" : "mt-2.5"}`}>
-      <dl className="mt-0 mb-2">
-        {m.rows.map(([rowLabel, value]) => (
-          <div className="flex gap-2.5 py-[3px]" key={rowLabel}><dt className="min-w-[118px] text-mute">{rowLabel}</dt><dd className="m-0 font-semibold text-ink [word-break:break-word]">{value}</dd></div>
-        ))}
-      </dl>
-      {m.copy && <CopyButton value={m.copy} label={id === "Bank transfer" ? "Copy account number" : "Copy number"} />}
-      <p className="mt-2 mb-0">{m.note}</p>
-    </div>
-  );
+  return <PaymentDetails method={m} className={`rounded-lg border border-dashed border-line bg-bg p-3 text-left text-[14px] text-mute ${receipt ? "mx-auto my-4 max-w-[420px]" : "mt-2.5"}`} />;
 }
 
 export default function GiveForm() {
@@ -56,9 +65,10 @@ export default function GiveForm() {
     if (!valid) return setError("Choose or enter an amount greater than zero.");
     setBusy(true);
     try {
+      const recaptcha = await recaptchaToken();
       const res = await fetch("/api/gifts", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount, freq, method, name, email, message, anon }),
+        body: JSON.stringify({ amount, freq, method, name, email, message, anon, recaptchaToken: recaptcha }),
       });
       const data = await res.json();
       if (!res.ok) return setError(data.error ?? "Something went wrong. Try again.");
@@ -74,7 +84,7 @@ export default function GiveForm() {
       <div className="py-2.5 text-center" aria-live="polite">
         <div className="mx-auto mb-2.5 grid size-14 place-items-center rounded-full bg-brand text-[28px] text-gold" aria-hidden="true">✓</div>
         <h3 className={cardTitle}>Thank you, {name.split(" ")[0]}.</h3>
-        <p>Your pledge of <b>{php(receipt.amount)}{receipt.freq === "Monthly" ? " every month" : ""}</b> to the Church Building Fund is recorded.</p>
+        <p>Your pledge of <b>{php(receipt.amount)}{receipt.freq === "Monthly" ? " every month" : ""}</b> to {CHURCH.campaign} is recorded.</p>
         <p className="mb-0 font-semibold">Now send your gift and include this reference number:</p>
         <div className="my-2.5 inline-block rounded-md bg-bg px-3.5 py-1.5 text-[20px] leading-[normal] font-semibold [font-family:monospace]">{receipt.ref}</div>
         <div><CopyButton value={receipt.ref} label="Copy reference" /></div>
@@ -88,6 +98,7 @@ export default function GiveForm() {
 
   return (
     <form onSubmit={(e) => { e.preventDefault(); submit(); }} noValidate>
+      {RECAPTCHA_SITE_KEY && <Script src={`https://www.google.com/recaptcha/api.js?render=${encodeURIComponent(RECAPTCHA_SITE_KEY)}`} strategy="afterInteractive" />}
       <fieldset className={fieldset}>
         <legend className={legend}><span className={stepNo}>1</span>Choose your gift</legend>
         <div className="grid grid-cols-[repeat(3,1fr)] gap-2 max-xs:grid-cols-[repeat(2,1fr)]">
@@ -112,7 +123,7 @@ export default function GiveForm() {
         <legend className={legend}><span className={stepNo}>2</span>Your details</legend>
         <div className="grid grid-cols-[1fr_1fr] gap-3.5 max-md:grid-cols-[1fr]">
           <div><label className={label} htmlFor="name">Full name</label><input className={input} id="name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} /></div>
-          <div><label className={label} htmlFor="email">Email</label><input className={input} id="email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
+          <div><label className={label} htmlFor="email">Email <span className="font-normal text-mute">(optional)</span></label><input className={input} id="email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
         </div>
         <label className={`${label} mt-3.5`} htmlFor="msg">Message or prayer request (optional)</label>
         <textarea className={`${input} min-h-[70px] resize-y`} id="msg" value={message} onChange={(e) => setMessage(e.target.value)} />
@@ -123,7 +134,7 @@ export default function GiveForm() {
         <legend className={legend}><span className={stepNo}>3</span>How will you send it?</legend>
         <div className="flex flex-wrap gap-2">
           {PAYMENT_METHODS.map((m) => (
-            <label className={chipLabel} key={m.id}><input className={radioInput} type="radio" name="pm" checked={method === m.id} onChange={() => setMethod(m.id)} /><span className={chipSpan}>{m.id}</span></label>
+            <label className={chipLabel} key={m.id}><input className={radioInput} type="radio" name="pm" checked={method === m.id} onChange={() => setMethod(m.id)} /><span className={chipSpan}>{m.label}</span></label>
           ))}
         </div>
         <MethodDetails id={method} />
@@ -134,6 +145,8 @@ export default function GiveForm() {
         {busy ? "Recording…" : valid ? `Record my ${php(amount)}${monthly ? " monthly" : ""} gift` : "Record my gift"}
       </button>
       <p className="mt-2.5 mb-0 text-center text-[13px] text-mute">No payment is taken on this site. You’ll get a reference number, then send your gift using the method above.</p>
+      {/* Required by Google when the reCAPTCHA badge is hidden (see the base layer in app/globals.css). */}
+      {RECAPTCHA_SITE_KEY && <p className="mt-2 mb-0 text-center text-[12px] text-mute">This site is protected by reCAPTCHA and the Google <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a> and <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a> apply.</p>}
     </form>
   );
 }

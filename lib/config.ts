@@ -14,7 +14,7 @@ export const CHURCH = {
   email,
   goal: Number(process.env.NEXT_PUBLIC_GOAL) || 12_000_000,
   baseRaised: Number(process.env.NEXT_PUBLIC_BASE_RAISED) || 2_700_000, // collected before this site went live
-  campaign: "Church Building Fund",
+  campaign: "Project Nehemiah", // the church building project; the Donate page exists to support it
 };
 
 export const SCHEDULE = [
@@ -24,7 +24,10 @@ export const SCHEDULE = [
 ];
 
 export type PaymentMethod = {
+  /** Stored with each pledge and checked by the server: never rename an existing id. */
   id: string;
+  /** Name shown to donors. */
+  label: string;
   /** Lines shown to the donor, as [label, value]. `copy` is the value the Copy button puts on the clipboard. */
   rows: [string, string][];
   copy?: string;
@@ -62,30 +65,39 @@ const pending = (what: string): PaymentMethod["rows"] => [["Details", `Please em
 export const PAYMENT_METHODS: PaymentMethod[] = [
   {
     id: "GCash",
+    label: "GCash",
     rows: isSet(gcash) ? walletRows(gcash, "GCash number") : pending("GCash number"),
     copy: isSet(gcash) ? numberOf(walletRows(gcash, "GCash number")) : undefined,
     note: "Send the amount, then put your reference number in the message.",
   },
   {
     id: "Maya",
+    label: "Maya",
     rows: isSet(maya) ? walletRows(maya, "Maya number") : pending("Maya number"),
     copy: isSet(maya) ? numberOf(walletRows(maya, "Maya number")) : undefined,
     note: "Send the amount, then put your reference number in the message.",
   },
   {
     id: "Bank transfer",
+    label: "Bank Transfer",
     rows: isSet(bank) ? bankRows(bank) : pending("bank account details"),
     copy: isSet(bank) ? bankRows(bank).find(([l]) => /acc(oun)?t\.?\s*(no|num)/i.test(l))?.[1] : undefined,
     note: "Put your reference number in the transfer remarks.",
   },
   {
     id: "Cash at church",
+    label: "Cash at Church",
     rows: [["Where", "Church treasurer or offering envelope"]],
     note: "Write your reference number on an offering envelope, or hand it to the church treasurer.",
   },
 ];
 
 export const PAYMENT_IDS = PAYMENT_METHODS.map((m) => m.id);
+
+/** Google reCAPTCHA v3 public site key (safe in the browser). The secret key is server-only: see lib/recaptcha.ts. */
+export const RECAPTCHA_SITE_KEY = (process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? "").trim();
+/** reCAPTCHA v3 action for recording a gift; the client sends it and the server requires it back from Google. */
+export const RECAPTCHA_ACTION = "record_gift";
 
 export const AMOUNTS = [500, 1000, 2500, 5000, 10000, 50000];
 /** Short caption under each preset amount. Edit freely (e.g. replace with real costs from the building plan). */

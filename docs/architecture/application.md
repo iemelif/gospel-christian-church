@@ -12,10 +12,10 @@
 | Fonts | `next/font/google`: Young Serif → `--font-young-serif` → `font-serif` (headings); Figtree → `--font-figtree` → `font-sans` (body) |
 | Runtime deps | `next`, `react`, `react-dom` only (`tailwindcss` and `@tailwindcss/postcss` are dev dependencies, used only during the build) |
 | Storage | JSON file (see [data-storage.md](data-storage.md)) |
-| External services | None called by the application at runtime (Google Fonts are downloaded at build time by `next/font`) |
+| External services | **Google reCAPTCHA v3** only: the browser loads `https://www.google.com/recaptcha/api.js` on the Donate page (and `/`), and `POST /api/gifts` calls Google's `siteverify` endpoint. Google Fonts are downloaded at build time by `next/font` |
 
 **Verified absent:** no `middleware`/`proxy` file, no `instrumentation`, no custom `not-found`, `error` or
-`global-error` files, no database, no CMS, no analytics or error-monitoring SDK, no AI SDK.
+`global-error` files, no database, no CMS, no analytics or error-monitoring SDK, no AI SDK, no redirects.
 
 ## 2. Layers (verified)
 
@@ -36,7 +36,7 @@ APIs (`fs`, `crypto`) and are imported only by server code.
 
 | Mode | Routes | Why |
 | --- | --- | --- |
-| Dynamic per request (`force-dynamic`) | `/`, `/support`, all `/api/*` | Read/write `gifts.json` |
+| Dynamic per request (`force-dynamic`) | `/`, `/donate`, all `/api/*` | Read/write `gifts.json` |
 | Static, prerendered at build | `/about`, `/ministries`, `/contact`, `/leadership`, `/officers`, `/admin` (client shell) | Data is compiled in |
 | SSG with params (`generateStaticParams`, `dynamicParams = false`) | `/history/[term]` | One page per past term |
 

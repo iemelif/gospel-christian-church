@@ -11,12 +11,12 @@ These are already published on the website and are candidates for grounding a fu
 | --- | --- | --- |
 | `content/site.ts` | Church name, address, IEMELIF link, Facebook link, menu, site URLs | Address has display and structured forms |
 | `lib/config.ts` → `SCHEDULE` | Service names, days, times | |
-| `lib/config.ts` → `CHURCH` | Campaign name ("Church Building Fund"), goal, amount raised before the site, church email | Goal/base/email come from build-time public variables with code defaults |
+| `lib/config.ts` → `CHURCH` | Campaign name ("Project Nehemiah"), goal, amount raised before the site, church email | Goal/base/email come from build-time public variables with code defaults |
 | `lib/config.ts` → `PAYMENT_METHODS` | Payment method names, instruction rows, notes | Must be used **verbatim**; see [data-boundaries.md](data-boundaries.md) |
 | `lib/config.ts` → `AMOUNTS`, `AMOUNT_NOTES` | Preset amounts and captions ("A brick" …) | Whether captions reflect real costs is **Unknown** |
 | `content/officers.ts` | Current term (2026 - 2027) and past terms' officers and roles | Names of real people; published on the site. Use in AI is an open decision |
-| `lib/store.ts` → `summary()` (public fields only) | Amount raised, confirmed gift count | Already public on `/support`; must exclude personal fields |
-| `app/support/page.tsx` copy | How giving works (3 steps), trust statements, 2 Corinthians 9:7 quotation | Hard-coded page text |
+| `lib/store.ts` → `summary()` (public fields only) | Amount raised, confirmed gift count | Already public on `/donate`; must exclude personal fields (email is never part of it) |
+| `app/donate/page.tsx` copy | How giving works (3 steps), ways to send a gift, trust statements, 2 Corinthians 9:7 quotation | Hard-coded page text |
 
 ## 2. Owner-provided context (not in the repository)
 

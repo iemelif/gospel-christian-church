@@ -1,6 +1,6 @@
 # ChurchProgress
 
-Source: `components/ChurchProgress.tsx` · Type: Server · Used by: `app/support/page.tsx`
+Source: `components/ChurchProgress.tsx` · Type: Server · Used by: `app/donate/page.tsx`
 
 ## 1. Purpose
 
@@ -20,11 +20,11 @@ Outlines are stroked in gold; the fill is a gold rectangle clipped to the buildi
 
 ## 4. Data Dependencies
 
-None directly. The Support page computes `pct` from `summary().raised` and `CHURCH.goal`, already capped at 100.
+None directly. The Donate page computes `pct = fundedPercent(summary().raised, CHURCH.goal)` (`lib/progress.ts`, capped at 100) and passes the same value to `FundraisingPercent`.
 
 ## 5. Pages / Components Using It
 
-**Verified:** `app/support/page.tsx` (translucent card in the hero), and therefore `/`.
+**Verified:** `app/donate/page.tsx` (translucent card in the hero), and therefore `/`.
 
 ## 6. Layout and Structure
 
@@ -47,12 +47,12 @@ Scales with its container (max 280px wide).
 
 ## 10. Client / Server Behavior
 
-**Verified:** no directive, no state; renders on the server (per request on the dynamic Support page).
+**Verified:** no directive, no state; renders on the server (per request on the dynamic Donate page).
 
 ## 11. Reuse Guidelines
 
 Suitable for a building-fund teaser elsewhere (e.g. a future Home section — **Proposed**, pending owner
-content). Pass the same capped `pct` calculation as the Support page.
+content). Pass `pct` from `fundedPercent()`, like the Donate page.
 
 ## 12. Modification Constraints
 
@@ -75,4 +75,4 @@ None.
 
 ## 16. References
 
-`components/ChurchProgress.tsx`, `app/support/page.tsx`, `app/globals.css` (theme tokens).
+`components/ChurchProgress.tsx`, `app/donate/page.tsx`, `app/globals.css` (theme tokens).
