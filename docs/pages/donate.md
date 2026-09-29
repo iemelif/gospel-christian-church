@@ -42,6 +42,20 @@ Wall, and Google reCAPTCHA v3 on gift recording. `/support` no longer exists (40
      Nehemiah"** (`#give`) and "How giving works" (`#how`), gold-bordered verse (2 Corinthians 9:7);
    - right: translucent card with `ChurchProgress` SVG, % raised, "₱X of ₱Y", stats row (still needed;
      confirmed gifts online, shown only when > 0).
+   - **Video row (added 2026-09-29)**, full width below the two columns, inside the same crimson hero and `wrap`:
+     centred block `max-w-[960px]` (the container's inner width when smaller: 1040px at ≥1080px, full content
+     width below), 40px below the columns (`mt-10`, the grid's gap) and 72px above the hero's end (the grid's former
+     `pb-[72px]`). Centred `h2` "See what we're building" (the `h2` section string) and caption "A 3D walkthrough
+     of Project Nehemiah in Frances, Calumpit." (hero text colour `#f4dbe1`; wraps to two lines on narrow phones),
+     both from `NEHEMIAH_VIDEO` in `lib/config.ts`. Then `VideoEmbed` (`NEHEMIAH_VIDEO.url`
+     `https://www.facebook.com/gcc1984/videos/1995167554627898/`, iframe `title` "Project Nehemiah video",
+     `autoplay`) in a frame styled exactly like the progress card (`rounded-2xl`, gold `rgba(222,185,66,.35)`
+     border, `rgba(255,255,255,.08)` fill, `p-2.5`); the video is 16:9 via `aspect-ratio` (`aspect-video`) and never
+     wider than the frame. Facebook's embedded player plays **inline** (no link of ours to Facebook, no overlay of
+     ours, nothing opens a new tab); muted autoplay is **requested** but, as on Home, Facebook's player did not start
+     by itself in testing — it shows its own play overlay, normal controls (play/pause, seek, unmute, fullscreen) and,
+     when paused, its own "More in Video" suggestions. Visitors who prefer reduced motion get no autoplay request.
+     Keyboard: after "How giving works", Tab moves into the player.
 2. `section#progress` – `h2` "Project Nehemiah", intro, card with the progress bar (label "Project Nehemiah
    progress", 25/50/75% tick marks) and the raised / to-go row.
 3. `section#how` – "How your gift reaches the building", 3 numbered step cards (step 2: "Use GCash, Maya, Bank
@@ -74,7 +88,7 @@ page-related hand-written CSS is `.grecaptcha-badge { visibility: hidden }` in t
 **Verified:** `ChurchProgress` (`pct`), `GiveForm` (client; form + receipt + reCAPTCHA),
 `PaymentDetails` (detail rows, copy button and note for one payment method; used by the `#ways` cards and by
 `GiveForm`), `JoinUs` (the "Join us" section), `FundraisingPercent` ([fundraising-percent.md](../components/fundraising-percent.md)),
-`CopyButton`. Percentage helpers `fundedPercent()` / `formatPercent()` in `lib/progress.ts`.
+`CopyButton`, `VideoEmbed` (hero video, shared with Home). Percentage helpers `fundedPercent()` / `formatPercent()` in `lib/progress.ts`.
 
 ## 6. Existing Assets
 
@@ -85,6 +99,7 @@ page-related hand-written CSS is `.grecaptcha-badge { visibility: hidden }` in t
   2026-09-29; the earlier full-screenshot versions and the `*:Zone.Identifier` files are gone).
 - **Verified:** no church illustration image file exists; the church illustration is the inline-SVG component
   `ChurchProgress` (hero, and as the decorative left-side illustration in `FundraisingPercent`).
+- **Verified:** the Project Nehemiah video is Facebook-hosted (`NEHEMIAH_VIDEO`), embedded in the hero.
 - **Owner input required:** any Project Nehemiah imagery (none provided).
 
 ## 7. Content Requirements
@@ -132,7 +147,8 @@ No change proposed; §3 is the implemented structure.
 
 ## 9. Responsive Behavior
 
-**Verified:** ≤800px (`max-md:`): hero grid, the give grid and name/email stack; steps become 1 column; the
+**Verified:** ≤800px (`max-md:`): hero grid (text → progress card, then the video row at full content width), the give grid and name/email
+stack; steps become 1 column; the
 `aside` stops being sticky (the percentage then sits directly above the Giving Wall under the form); the fixed
 give bar appears and `<body>` gets 70px bottom padding. Payment cards go from 2 columns to 1 below a 900px viewport (two 420px columns + gap need 860px of content).
 ≤420px (`max-xs:`): amount buttons 2 columns. Print: header, footer, buttons and the give bar are hidden.
@@ -208,7 +224,9 @@ adds no challenge or widget to interact with.
 **Tests (Google always mocked; no real requests):** `app/api/gifts/route.test.ts` (optional/valid/invalid
 email, validation unchanged, payment ids, reCAPTCHA cases, token not stored, secret never returned, no email
 in public data), `lib/recaptcha.test.ts`, `lib/progress.test.ts`, `components/FundraisingPercent.test.ts`,
-`lib/config.test.ts` (campaign, ids/labels), `lib/nav.test.ts`, `app/sitemap.test.ts`.
+`lib/config.test.ts` (campaign, ids/labels), `lib/nav.test.ts`, `app/sitemap.test.ts`, `app/donate/page.test.ts`
+(hero: two columns kept, then heading "See what we're building", caption and video after the progress illustration and before `#progress`, 960px max width, autoplay URL, title, 16:9, one iframe on
+the page, hero CTAs `#give` / `#how`, no `target="_blank"`).
 
 ## 14. Open Questions / Owner Input
 

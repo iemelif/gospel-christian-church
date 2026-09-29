@@ -4,6 +4,8 @@
 // the file name (without the leading number) becomes the image's alt text, e.g. "04-youth-choir.jpg" → "Youth choir".
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { NEHEMIAH_VIDEO } from "@/lib/config";
+
 /** Share preview (Open Graph / Twitter) for Home. Set separately so the carousel folder can change freely. */
 export const SHARE_IMAGE = { url: "/images/hershot-carousel/01-gcc-nehemniah.png", width: 1907, height: 1043, alt: "Illustration of the new Gospel Christian Church building", type: "image/png" };
 
@@ -16,7 +18,7 @@ export const NEHEMIAH_FEATURE = {
   eyebrow: "Our church building project",
   text: "Project Nehemiah is building a new home for our church. Watch the video about the project and help us build.",
   cta: "Support Project Nehemiah",
-  video: { url: "https://www.facebook.com/gcc1984/videos/1995167554627898/", title: "Project Nehemiah video" },
+  video: NEHEMIAH_VIDEO, // shared with the Donate page (lib/config.ts)
 };
 
 /** Display labels for the leader cards on Home; officer data (content/officers.ts) keeps its own spelling. */
