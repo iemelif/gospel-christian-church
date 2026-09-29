@@ -2,9 +2,7 @@ import { NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { update, summary, type Gift } from "@/lib/store";
 import { PAYMENT_IDS } from "@/lib/config";
-import { verifyRecaptcha } from "@/lib/recaptcha";
-
-const VERIFY_FAILED = "We couldn't verify your request. Please reload the page and try again.";
+import { recaptchaError, recaptchaUnavailable, verifyRecaptcha } from "@/lib/recaptcha";
 
 export const dynamic = "force-dynamic";
 
@@ -30,11 +28,9 @@ export async function POST(req: Request) {
   // The token (b.recaptchaToken) is sent to Google only; it is not logged and not stored with the gift.
   const check = await verifyRecaptcha(b.recaptchaToken);
   if (!check.ok) {
-    if (check.reason === "not-configured" || check.reason === "request-failed") {
-      console.error(`Gift not saved: reCAPTCHA verification unavailable (${check.reason}).`);
-      return NextResponse.json({ error: "We couldn't verify your request right now. Please try again in a moment." }, { status: 503 });
-    }
-    return NextResponse.json({ error: VERIFY_FAILED }, { status: check.reason === "missing-token" ? 400 : 403 });
+    if (recaptchaUnavailable(check.reason)) console.error(`Gift not saved: reCAPTCHA verification unavailable (${check.reason}).`);
+    const { status, error } = recaptchaError(check.reason);
+    return NextResponse.json({ error }, { status });
   }
 
   const gift: Gift = {

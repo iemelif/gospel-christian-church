@@ -48,7 +48,7 @@ No redirect exists; the subdomain's future is an open owner question.
 | Fonts | `next/font/google` in `app/layout.tsx`: **Young Serif** (400) → CSS variable `--font-young-serif` → Tailwind `font-serif` (headings); **Figtree** → `--font-figtree` → `font-sans` (body) |
 | Images | `next/image` for logos; avatars are SVG files in `public/images/people/` |
 | Data storage | **JSON file** `gifts.json` in `DATA_DIR` (default `./data`; `/data` on Cloud Run = mounted GCS bucket). No database |
-| Bot protection | **Google reCAPTCHA v3** (invisible, score-based) on `POST /api/gifts`: action `record_gift`, min score 0.5 (`RECAPTCHA_MIN_SCORE`). Keys: `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` (public), `RECAPTCHA_SECRET_KEY` (server-only). The only server-side external service (Home also embeds Facebook's video player iframe in the browser) |
+| Bot protection | **Google reCAPTCHA v3** (invisible, score-based) on `POST /api/gifts` (action `record_gift`) and the Admin sign-in `POST /api/admin/session` (action `admin_sign_in`), min score 0.5 (`RECAPTCHA_MIN_SCORE`). Keys: `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` (public), `RECAPTCHA_SECRET_KEY` (server-only). The only server-side external service (Home also embeds Facebook's video player iframe in the browser) |
 | Auth | Single shared **`ADMIN_PASSWORD`** → HMAC-signed, httpOnly, 1-day cookie `gcc_admin` (`lib/auth.ts`). No user accounts |
 | Runtime deps | Only `next`, `react`, `react-dom`. Do not add dependencies without asking |
 | Lint | **ESLint 9** flat config `eslint.config.mjs` using `eslint-config-next` (core-web-vitals + typescript). ESLint 10 is not used because Next's plugins don't support it yet (peer conflicts) |
@@ -99,7 +99,7 @@ app/                       App Router
   admin/                   Treasurer dashboard (client component, noindex)
   api/gifts/route.ts       GET summary, POST new pledge (validation lives here)
   api/admin/route.ts       GET all gifts, PATCH confirm/unconfirm/delete (session required)
-  api/admin/session/route.ts  POST sign-in (rate-limited 8/15min per IP), DELETE sign-out
+  api/admin/session/route.ts  POST sign-in (reCAPTCHA v3 first, then password; rate-limited 8/15min per IP), DELETE sign-out
   robots.ts, sitemap.ts    SEO
 components/                Shared React components (default exports, PascalCase files)
 content/                   EDITABLE SITE CONTENT (non-developer friendly)
@@ -108,7 +108,9 @@ content/                   EDITABLE SITE CONTENT (non-developer friendly)
 lib/
   config.ts                CHURCH (campaign "Project Nehemiah", goal, email), SCHEDULE, PAYMENT_METHODS (id + label),
                            AMOUNTS, php(), RECAPTCHA_SITE_KEY, RECAPTCHA_ACTION ("record_gift")
-  recaptcha.ts             Server-only Google reCAPTCHA v3 verification (DEFAULT_RECAPTCHA_MIN_SCORE = 0.5)
+  recaptcha.ts             Server-only Google reCAPTCHA v3 verification (DEFAULT_RECAPTCHA_MIN_SCORE = 0.5), recaptchaError()
+  recaptchaClient.ts       Browser recaptchaToken(action), shared by GiveForm and the Admin sign-in
+  adminSignIn.ts           Admin Sign in: reCAPTCHA token first, then POST /api/admin/session
   progress.ts              fundedPercent() (capped at 100) / formatPercent() for the Donate page
   store.ts                 gifts.json read/write, serialized update(), summary()
   auth.ts                  password check, session cookie
@@ -167,7 +169,8 @@ Dockerfile, .dockerignore  3-stage build (deps → build → run), standalone se
 - Confirmed gifts must never be deletable (enforced in `api/admin/route.ts`).
 - Server-side validation of pledges lives in `api/gifts/route.ts`; keep client and server rules consistent.
   After field validation it verifies **Google reCAPTCHA v3** (`lib/recaptcha.ts`) and saves nothing on failure.
-  Never store the reCAPTCHA token; never log, return or expose `RECAPTCHA_SECRET_KEY`.
+  Never store the reCAPTCHA token; never log, return or expose `RECAPTCHA_SECRET_KEY`. The Admin sign-in reuses the
+  same verifier (action `admin_sign_in`) before checking the password; other admin actions use only the session.
 - Donor email is **optional**; if given it is validated. Email must never appear in public output (Giving
   Wall, `GET /api/gifts`, pages).
 - Payment method **ids** (`GCash`, `Maya`, `Bank transfer`, `Cash at church`) are stored with pledges — never
@@ -366,7 +369,8 @@ Still open:
   on the Donate page anyway, but ask before changing them.
 - Header "Home" is an external link; `LINKS.support` is unused; see §9 for the subdomain decision.
 - reCAPTCHA keys are not configured yet (owner action: add them locally and in GitHub, register domains, rotate
-  the previously exposed secret). Until then gifts cannot be recorded in that environment.
+  the previously exposed secret). Until then gifts cannot be recorded and nobody can sign in to `/admin` in that
+  environment.
 - The reCAPTCHA badge is hidden via `.grecaptcha-badge` in `app/globals.css` (with Google's notice in the form) —
   the one piece of hand-written CSS for a third-party element; owner may prefer the visible badge.
 - `react-hooks/set-state-in-effect` warnings in `SiteHeader.tsx` and `app/admin/page.tsx` (refactor candidates).

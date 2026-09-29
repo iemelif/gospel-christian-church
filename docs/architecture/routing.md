@@ -13,7 +13,7 @@
 | `/admin` | `app/admin/{layout,page}.tsx` | Internal page (client) | Static shell | No | No | `noindex, nofollow`; robots disallow |
 | `/api/gifts` | `app/api/gifts/route.ts` | Route handler `GET`, `POST` (POST requires reCAPTCHA v3) | Dynamic | — | — | robots disallow `/api/` |
 | `/api/admin` | `app/api/admin/route.ts` | `GET`, `PATCH` (session) | Dynamic | — | — | disallowed |
-| `/api/admin/session` | `app/api/admin/session/route.ts` | `POST`, `DELETE` | Dynamic | — | — | disallowed |
+| `/api/admin/session` | `app/api/admin/session/route.ts` | `POST` (requires reCAPTCHA v3), `DELETE` | Dynamic | — | — | disallowed |
 | `/sitemap.xml`, `/robots.txt` | `app/sitemap.ts`, `app/robots.ts` | Metadata routes | Static | — | — | — |
 
 **Verified 404s:** **`/support`** (route removed 2026-09-29; no redirect), `/history` (no index),

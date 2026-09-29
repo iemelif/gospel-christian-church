@@ -119,6 +119,8 @@ export const PAYMENT_IDS = PAYMENT_METHODS.map((m) => m.id);
 export const RECAPTCHA_SITE_KEY = (process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? "").trim();
 /** reCAPTCHA v3 action for recording a gift; the client sends it and the server requires it back from Google. */
 export const RECAPTCHA_ACTION = "record_gift";
+/** reCAPTCHA v3 action for the treasurer's Admin sign-in (a gift token can't be reused to sign in, and vice versa). */
+export const RECAPTCHA_ADMIN_ACTION = "admin_sign_in";
 
 export const AMOUNTS = [500, 1000, 2500, 5000, 10000, 50000];
 /** Short caption under each preset amount. Edit freely (e.g. replace with real costs from the building plan). */

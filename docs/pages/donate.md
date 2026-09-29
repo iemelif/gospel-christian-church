@@ -193,7 +193,10 @@ adds no challenge or widget to interact with.
     no token and the server rejects the gift.
   - The reCAPTCHA badge is hidden with `.grecaptcha-badge { visibility: hidden }`; Google allows this only if
     the form shows its notice ("This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of
-    Service apply."), which `GiveForm` renders when a site key is set. Keep both together.
+    Service apply."), which `GiveForm` renders through `RecaptchaNotice` (also used by the Admin sign-in) when a
+    site key is set. Keep both together.
+  - The same keys, verifier (`verifyRecaptcha`, with action `admin_sign_in`) and browser helper also protect the
+    Admin **Sign in** ([admin.md](admin.md) §12).
 - Server validation in `app/api/gifts/route.ts` is authoritative; client validation stays minimal.
 - `NEXT_PUBLIC_*` values are build-time; changing them requires a redeploy.
 
@@ -203,7 +206,8 @@ adds no challenge or widget to interact with.
 - **Read:** `summary()` (`lib/store.ts`) → `{ raised, wall, donors, pledged }` (raised = base + confirmed).
   `pct = fundedPercent(raised, CHURCH.goal)` (`lib/progress.ts`: `raised / goal × 100`, capped at 100, 0 when
   nothing is raised) feeds both the hero and `FundraisingPercent`, displayed with `formatPercent()`.
-- **Write:** `GiveForm` → gets a reCAPTCHA v3 token (`grecaptcha.execute(siteKey, { action: "record_gift" })`)
+- **Write:** `GiveForm` → gets a reCAPTCHA v3 token (`recaptchaToken("record_gift")` in `lib/recaptchaClient.ts`
+  → `grecaptcha.execute(siteKey, { action: "record_gift" })`; script loaded by `RecaptchaNotice`)
   → `POST /api/gifts` with `{ amount, freq, method, name, email, message, anon, recaptchaToken }`.
 - **Server (`app/api/gifts/route.ts`), in order:**
   1. Field validation: name required (trimmed, truncated to 100); email **optional** — if non-empty after
@@ -213,7 +217,7 @@ adds no challenge or widget to interact with.
   2. `verifyRecaptcha(recaptchaToken)` (`lib/recaptcha.ts`): posts the secret and token to Google's
      `siteverify`; requires `success: true`, action `record_gift`, score ≥ threshold. Missing token → 400;
      failed / wrong action / low score → 403; secret missing or Google unreachable → 503 (server logs only the
-     failure type). Nothing is saved on any failure.
+     failure type; status and message from the shared `recaptchaError()`). Nothing is saved on any failure.
   3. Save as `pending` via `update()`; response `{ ref, amount, freq, method }` (no email, token or secret).
 - The stored gift never contains the token; an omitted email is stored as `""`.
 - `GET /api/gifts` returns `summary()` (no email); no page calls it.

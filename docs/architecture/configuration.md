@@ -8,8 +8,8 @@ Values are intentionally **not** reproduced here; see `.env.example` for names a
 | --- | --- | --- |
 | `content/site.ts` | `ENVIRONMENTS` (dev/prod URLs), `SITE_URL`, `SITE`, `LINKS`, `LOGOS`, `ADDRESS`, `SOCIAL`, `NAV` | Edit + redeploy |
 | `content/officers.ts` | `BOARD_ROLES`, `LEADERSHIP_GROUPS`, `CURRENT_TERM`, `HISTORY_TERMS` | Edit + redeploy |
-| `lib/config.ts` | `CHURCH` (name, email, goal, baseRaised, `campaign: "Project Nehemiah"`), `SCHEDULE`, `PAYMENT_METHODS` (each with a stored `id` and a donor-facing `label`), `PAYMENT_IDS`, `AMOUNTS`, `AMOUNT_NOTES`, `php()`, `RECAPTCHA_SITE_KEY`, `RECAPTCHA_ACTION = "record_gift"` | Edit and/or env vars + rebuild |
-| `lib/recaptcha.ts` | Server-only reCAPTCHA v3 verification; `DEFAULT_RECAPTCHA_MIN_SCORE = 0.5`, `recaptchaMinScore()` | Edit + redeploy |
+| `lib/config.ts` | `CHURCH` (name, email, goal, baseRaised, `campaign: "Project Nehemiah"`), `SCHEDULE`, `PAYMENT_METHODS` (each with a stored `id` and a donor-facing `label`), `PAYMENT_IDS`, `AMOUNTS`, `AMOUNT_NOTES`, `php()`, `RECAPTCHA_SITE_KEY`, `RECAPTCHA_ACTION = "record_gift"`, `RECAPTCHA_ADMIN_ACTION = "admin_sign_in"` | Edit and/or env vars + rebuild |
+| `lib/recaptcha.ts` | Server-only reCAPTCHA v3 verification (`verifyRecaptcha(token, fetch, action)`, `recaptchaError()`); `DEFAULT_RECAPTCHA_MIN_SCORE = 0.5`, `recaptchaMinScore()` | Edit + redeploy |
 | `lib/progress.ts` | `fundedPercent()` (raised / goal × 100, capped at 100) and `formatPercent()` | Edit + redeploy |
 | `lib/seo.ts` | `pageMeta()`, `DONATE_TITLE` ("Donate to Project Nehemiah"), `DONATE_DESCRIPTION` (uses `CHURCH.goal`) | Edit + redeploy |
 | `next.config.ts` | `output: "standalone"` only | — |
