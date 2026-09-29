@@ -17,6 +17,7 @@ Verified against the working tree on branch `feat-ai-powered-integration`, 2026-
 | `FundraisingPercent` | `components/FundraisingPercent.tsx` | Server | Share of the Project Nehemiah goal raised, above the Giving Wall, with a large decorative church illustration on the left | `/donate` (and `/`) | [fundraising-percent.md](fundraising-percent.md) |
 | `CopyButton` | `components/CopyButton.tsx` | **Client** | Copies a string to the clipboard, shows "Copied" | Inside `GiveForm` and `PaymentDetails` | [copy-button.md](copy-button.md) |
 | `ChurchProgress` | `components/ChurchProgress.tsx` | Server | Church outline SVG filled to a percentage | `/donate` (and `/`) | [church-progress.md](church-progress.md) |
+| `JoinUs` | `components/JoinUs.tsx` | Server | "Join us" section: heading, intro and one card per service from `SCHEDULE` | `/donate` (and `/`) | [join-us.md](join-us.md) |
 | `OfficerBoard` | `components/OfficerBoard.tsx` | Server | Officer board in 3 rows for one term | `/officers`, `/history/[term]` | [officer-board.md](officer-board.md) |
 | `PersonCard` | `components/PersonCard.tsx` | Server | One person card (`<li>`): avatar, name, roles | `/leadership`; inside `OfficerBoard` | [person-card.md](person-card.md) |
 | `Avatar` | `components/Avatar.tsx` | Server | Person image, or built-in gray silhouette | Inside `PersonCard` only | [avatar.md](avatar.md) |
@@ -33,12 +34,12 @@ Categories:
 - **Shared layout:** `SiteHeader`, `SiteFooter` (rendered once in `app/layout.tsx`; never render them in pages).
 - **Giving / donation:** `GiveForm`, `PaymentDetails`, `FundraisingPercent`, `CopyButton`, `ChurchProgress`.
 - **People / officers:** `OfficerBoard` → `PersonCard` → `Avatar`.
-- **Generic building blocks:** `PageHero`, `SocialIcon`.
+- **Generic building blocks:** `PageHero`, `SocialIcon`, `JoinUs`.
 - **Data-coupled:** `SiteHeader` / `SiteFooter` (`content/site.ts`, `lib/config.ts`), `GiveForm`
   (`lib/config.ts`, `/api/gifts`), `OfficerBoard` / `PersonCard` (`content/officers.ts`, `lib/officers.ts`).
 
 Not components but page-level UI that could become components if reused (**Proposed**, only on request):
-the Donate page's hero progress card, giving wall and schedule cards (inline in `app/donate/page.tsx`), and
+the Donate page's hero progress card and giving wall (inline in `app/donate/page.tsx`), and
 the admin dashboard UI (inline in `app/admin/page.tsx`).
 
 ## PageHero (no dedicated file)

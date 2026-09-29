@@ -1,12 +1,13 @@
 import ChurchProgress from "@/components/ChurchProgress";
 import FundraisingPercent from "@/components/FundraisingPercent";
 import GiveForm from "@/components/GiveForm";
+import JoinUs from "@/components/JoinUs";
 import PaymentDetails from "@/components/PaymentDetails";
-import { CHURCH, PAYMENT_METHODS, SCHEDULE, php } from "@/lib/config";
+import { CHURCH, PAYMENT_METHODS, php } from "@/lib/config";
 import { summary } from "@/lib/store";
 import { DONATE_DESCRIPTION, DONATE_TITLE, pageMeta } from "@/lib/seo";
 import { formatPercent, fundedPercent } from "@/lib/progress";
-import { brandGradient, btn, card, cardBox, cardTitle, cards, h2, muted, sub, wrap } from "@/lib/ui";
+import { brandGradient, btn, card, cardBox, cardTitle, h2, muted, sub, wrap } from "@/lib/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -110,15 +111,7 @@ export default async function DonatePage() {
         </div>
       </div></section>
 
-      <section id="visit" className="py-14"><div className={wrap}>
-        <h2 className={h2}>Join us</h2>
-        <p className={sub}>Come worship with us this week, and see the place your gift is building.</p>
-        <div className={cards}>
-          {SCHEDULE.map((s) => (
-            <div className={card} key={s.title}><h3 className={cardTitle}>{s.title}</h3><p className="m-0">{s.day}<br /><b>{s.time}</b></p></div>
-          ))}
-        </div>
-      </div></section>
+      <JoinUs intro="Come worship with us this week, and see the place your gift is building." />
 
       <a className="fixed inset-x-3 bottom-3 z-40 hidden rounded-[10px] bg-gold p-3.5 text-center font-semibold text-[#1b1404] no-underline shadow-[0_8px_24px_rgba(43,34,38,.3)] max-md:block print:hidden" href="#give">Give to {CHURCH.campaign}</a>
     </main>

@@ -54,7 +54,9 @@ Wall, and Google reCAPTCHA v3 on gift recording. `/support` no longer exists (40
    button shows the GCash/Maya QR for the selected method) | sticky `aside` with, in order: "Give with
    confidence" trust card, **`FundraisingPercent`** (large church illustration on the left, then the percentage and
    sentence), "Giving wall".
-6. `section#visit` – "Join us", schedule cards from `SCHEDULE`.
+6. `section#visit` – "Join us", schedule cards from `SCHEDULE` — rendered by the reusable `JoinUs` component
+   ([join-us.md](../components/join-us.md)) with the intro "Come worship with us this week, and see the place your
+   gift is building."
 7. Mobile-only fixed **"Give to Project Nehemiah"** link to `#give`.
 
 ## 4. Existing Design System
@@ -71,7 +73,7 @@ page-related hand-written CSS is `.grecaptcha-badge { visibility: hidden }` in t
 
 **Verified:** `ChurchProgress` (`pct`), `GiveForm` (client; form + receipt + reCAPTCHA),
 `PaymentDetails` (detail rows, copy button and note for one payment method; used by the `#ways` cards and by
-`GiveForm`), `FundraisingPercent` ([fundraising-percent.md](../components/fundraising-percent.md)),
+`GiveForm`), `JoinUs` (the "Join us" section), `FundraisingPercent` ([fundraising-percent.md](../components/fundraising-percent.md)),
 `CopyButton`. Percentage helpers `fundedPercent()` / `formatPercent()` in `lib/progress.ts`.
 
 ## 6. Existing Assets
@@ -240,7 +242,7 @@ church illustration in `FundraisingPercent` (§8).
 ## 16. References
 
 `app/donate/page.tsx`, `app/page.tsx`, `app/sitemap.ts`, `app/api/gifts/route.ts`, `components/GiveForm.tsx`,
-`components/PaymentDetails.tsx`, `components/FundraisingPercent.tsx`, `components/ChurchProgress.tsx`,
+`components/PaymentDetails.tsx`, `components/FundraisingPercent.tsx`, `components/JoinUs.tsx`, `components/ChurchProgress.tsx`,
 `components/CopyButton.tsx`, `content/site.ts`, `lib/config.ts`, `lib/progress.ts`, `lib/recaptcha.ts`,
 `lib/seo.ts`, `lib/store.ts`, `app/globals.css`, `public/images/payments/`, `.env.example`, `Dockerfile`, `.github/workflows/deploy.yml`,
 tests listed in §13.

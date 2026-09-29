@@ -11,7 +11,7 @@
 
 No formatter (Prettier) is configured.
 
-## 2. Current tests (verified, 79 tests in 14 files, all passing on 2026-09-29)
+## 2. Current tests (verified, 82 tests in 15 files, all passing on 2026-09-29)
 
 | File | Tests | Covers |
 | --- | --- | --- |
@@ -26,6 +26,7 @@ No formatter (Prettier) is configured.
 | `components/PaymentDetails.test.ts` | 5 | GCash/Maya QR paths, intrinsic sizes, alt text, layout classes (no rounding); Bank Transfer / Cash at Church unchanged; no QR when not configured |
 | `components/GiveForm.test.ts` | 4 | GCash QR above Record Gift (initial render); `MethodDetails` for all four methods before Record Gift; GCash and Maya QR on the receipt (500px box, side-by-side classes); Bank Transfer / Cash at Church without QR on the receipt |
 | `components/ChurchProgress.test.ts` | 2 | default (labelled image) vs decorative (`aria-hidden`) accessibility |
+| `components/JoinUs.test.ts` | 3 | section id, heading, one card per `SCHEDULE` entry, shared classes, default and custom intro, no links |
 | `lib/nav.test.ts` | 2 | "Donate" → `/donate` internal, no "Support"; Leadership History submenu |
 | `lib/slug.test.ts` | 2 | `slugify` |
 | `app/sitemap.test.ts` | 1 | sitemap has `/donate`, not `/support` |

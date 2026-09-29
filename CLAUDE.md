@@ -292,11 +292,11 @@ constants in that file (e.g. the radio-card strings in `GiveForm`, the menu stri
   4. `section#ways` – "Ways to send your gift": one `PaymentDetails` card per payment method (before the form).
   5. `section#give` – 2-column grid: `cardBox` with `<GiveForm/>` | sticky `aside` with the trust card,
      `FundraisingPercent` (directly above the Giving Wall) and the Giving Wall.
-  6. `section#visit` – schedule `cards`.
+  6. `section#visit` – "Join us" schedule cards, rendered by the reusable `JoinUs` component.
   7. Mobile-only fixed "Give to Project Nehemiah" bar (≤800px, hidden in print).
 - One percentage for the whole page: `fundedPercent(summary().raised, CHURCH.goal)` (capped at 100).
 - Supporting components: `GiveForm` (3-step form → reCAPTCHA v3 token → POST `/api/gifts` → receipt with ref +
-  copy + print), `PaymentDetails`, `FundraisingPercent`, `CopyButton`, `ChurchProgress`.
+  copy + print), `PaymentDetails`, `FundraisingPercent`, `JoinUs`, `CopyButton`, `ChurchProgress`.
 
 ### Component reuse guidelines
 - Reuse before creating: `PageHero`, `PersonCard`/`OfficerBoard`/`Avatar`, `ChurchProgress`, `GiveForm`,
