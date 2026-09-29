@@ -138,7 +138,8 @@ Dockerfile, .dockerignore  3-stage build (deps → build → run), standalone se
 
 **Server vs client**
 - Components are **Server Components by default**. Add `"use client"` only when a component needs state,
-  effects or browser APIs. Current client components: `SiteHeader`, `GiveForm`, `CopyButton`, `app/admin/page.tsx`.
+  effects or browser APIs. Current client components: `SiteHeader`, `GiveForm`, `CopyButton`, `HeroShotCarousel`, `VideoEmbed`,
+  `app/admin/page.tsx`.
 - Pages that show live gift totals use `export const dynamic = "force-dynamic"` and call `summary()` from
   `lib/store.ts` directly (no fetch to own API from server components).
 - Client components talk to the server via `fetch("/api/...")` and call `router.refresh()` after mutations.
@@ -294,7 +295,9 @@ components use only the `@theme` tokens and `lib/ui.ts` strings — no new palet
   `force-dynamic`. `/` currently renders the same component via `app/page.tsx`. Structure:
   1. Hero (`brandGradient`, 2-column grid, one column ≤800px): headline, intro, two CTAs (`btn.primaryLg`
      → `#give`, `btn.ghostLgOnBrand` → `#how`), gold-bordered verse (2 Cor 9:7) | translucent card with
-     `ChurchProgress` SVG, % raised, stats row (still needed, confirmed gifts).
+     `ChurchProgress` SVG, % raised, stats row (still needed, confirmed gifts). Below both columns, a centred
+     full-width row (max 960px): `h2` "See what we're building", caption, and the Project Nehemiah video
+     (`VideoEmbed autoplay`, `NEHEMIAH_VIDEO` in `lib/config.ts`) in a frame styled like the progress card.
   2. `section#progress` – `card` with the progress bar (25/50/75% tick marks) and raised / to-go row.
   3. `section#how` – 3 numbered step cards (CSS counter).
   4. `section#ways` – "Ways to send your gift": one `PaymentDetails` card per payment method (before the form).

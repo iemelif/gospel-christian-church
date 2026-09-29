@@ -3,7 +3,8 @@ import FundraisingPercent from "@/components/FundraisingPercent";
 import GiveForm from "@/components/GiveForm";
 import JoinUs from "@/components/JoinUs";
 import PaymentDetails from "@/components/PaymentDetails";
-import { CHURCH, PAYMENT_METHODS, php } from "@/lib/config";
+import VideoEmbed from "@/components/VideoEmbed";
+import { CHURCH, NEHEMIAH_VIDEO, PAYMENT_METHODS, php } from "@/lib/config";
 import { summary } from "@/lib/store";
 import { DONATE_DESCRIPTION, DONATE_TITLE, pageMeta } from "@/lib/seo";
 import { formatPercent, fundedPercent } from "@/lib/progress";
@@ -26,7 +27,7 @@ export default async function DonatePage() {
     <main id="main">
       <div className={`${brandGradient} text-onbrand [&_:focus-visible]:outline-gold`}>
         <div className={wrap}>
-          <div className="grid grid-cols-[1.2fr_.8fr] items-center gap-10 pt-12 pb-[72px] max-md:grid-cols-[1fr]">
+          <div className="grid grid-cols-[1.2fr_.8fr] items-center gap-10 pt-12 max-md:grid-cols-[1fr]">
             <div>
               <h1 className="mb-4 text-[length:clamp(34px,5.5vw,56px)]">Help us build a home for every neighbor.</h1>
               <p className="mt-0 mb-6 max-w-[52ch] text-[#f4dbe1]">Gospel Christian Church is raising {php(CHURCH.goal)} for {CHURCH.campaign}, our new church building in Frances, Calumpit. It will be a place where our whole community can worship, learn, and serve together. We are {pctText}% of the way there, and your gift moves us closer.</p>
@@ -41,6 +42,14 @@ export default async function DonatePage() {
                 <div className="flex flex-col"><b className="font-serif text-[20px] leading-[normal] font-normal text-white">{php(toGo)}</b><span className="text-[13px] text-[#f1c9d2]">still needed</span></div>
                 {donors > 0 && <div className="flex flex-col"><b className="font-serif text-[20px] leading-[normal] font-normal text-white">{donors}</b><span className="text-[13px] text-[#f1c9d2]">confirmed gift{donors > 1 ? "s" : ""} online</span></div>}
               </div>
+            </div>
+          </div>
+          {/* Full-width video row under the two columns; the frame matches the progress card. */}
+          <div className="mx-auto mt-10 max-w-[960px] pb-[72px] text-center">
+            <h2 className={h2}>{NEHEMIAH_VIDEO.heading}</h2>
+            <p className="mt-0 mb-5 text-[#f4dbe1]">{NEHEMIAH_VIDEO.caption}</p>
+            <div className="rounded-2xl border border-[rgba(222,185,66,.35)] bg-[rgba(255,255,255,.08)] p-2.5">
+              <VideoEmbed url={NEHEMIAH_VIDEO.url} title={NEHEMIAH_VIDEO.title} autoplay />
             </div>
           </div>
         </div>

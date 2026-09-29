@@ -17,6 +17,14 @@ export const CHURCH = {
   campaign: "Project Nehemiah", // the church building project; the Donate page exists to support it
 };
 
+/** Project Nehemiah video on Facebook, embedded inline on Home and below the Donate page hero (with heading + caption). */
+export const NEHEMIAH_VIDEO = {
+  url: "https://www.facebook.com/gcc1984/videos/1995167554627898/",
+  title: "Project Nehemiah video",
+  heading: "See what we're building",
+  caption: "A 3D walkthrough of Project Nehemiah in Frances, Calumpit.",
+};
+
 export const SCHEDULE = [
   { title: "Sunday Worship Service", time: "8:30 AM – 11:00 AM", day: "Every Sunday" },
   { title: "Wednesday Worship Service", time: "7:00 PM – 9:00 PM", day: "Every Wednesday" },

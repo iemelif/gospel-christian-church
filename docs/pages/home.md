@@ -67,7 +67,8 @@ downscaled from the earlier `02-gcc-logo.jpg`.
   church family as we build together through Project Nehemiah, our church building project." No history,
   mission or statistics.
 - **Project Nehemiah:** `NEHEMIAH_FEATURE` (eyebrow, text, CTA, `video.url`
-  `https://www.facebook.com/gcc1984/videos/1995167554627898/`, `video.title` "Project Nehemiah video"); name and
+  `https://www.facebook.com/gcc1984/videos/1995167554627898/`, `video.title` "Project Nehemiah video" — both from
+  `NEHEMIAH_VIDEO` in `lib/config.ts`, shared with the Donate hero); name and
   goal from `CHURCH`.
 - **Leaders:** the current term's Pastor, Deacon, Chairman and Vice Chairman (`boardRows(CURRENT_TERM)` rows 1–2);
   labels as in `content/officers.ts` except "Deac", shown as "Deacon" (`LEADER_ROLE_LABELS`).
@@ -95,7 +96,8 @@ downscaled from the earlier `02-gcc-logo.jpg`.
    - **Autoplay:** the page **requests** muted autoplay; Facebook's player decides. **Verified (Chrome 2026-09-29,
      headless and headed, logged out):** the player honours the request by starting **muted**, but it did **not**
      start playing on its own — it shows Facebook's own play overlay until the visitor clicks. Autoplay with sound
-     is never possible (browser policy); visitors unmute with the player's controls.
+     is never possible (browser policy); visitors unmute with the player's controls. Visitors who prefer reduced
+     motion get no autoplay request (`VideoEmbed` is a client component; it drops `autoplay` after hydration).
    - **Controls:** Facebook's normal controls (play/pause, seek, volume/unmute, fullscreen). Facebook's player also
      shows its own page name, "Share" and Facebook logo, which link to Facebook in a new tab; they are inside
      Facebook's cross-origin iframe and cannot be removed by the site.
