@@ -1,25 +1,25 @@
 import ChurchProgress from "@/components/ChurchProgress";
+import FundraisingPercent from "@/components/FundraisingPercent";
 import GiveForm from "@/components/GiveForm";
-import { CHURCH, SCHEDULE, php } from "@/lib/config";
+import PaymentDetails from "@/components/PaymentDetails";
+import { CHURCH, PAYMENT_METHODS, SCHEDULE, php } from "@/lib/config";
 import { summary } from "@/lib/store";
-import { pageMeta } from "@/lib/seo";
+import { DONATE_DESCRIPTION, DONATE_TITLE, pageMeta } from "@/lib/seo";
+import { formatPercent, fundedPercent } from "@/lib/progress";
 import { brandGradient, btn, card, cardBox, cardTitle, cards, h2, muted, sub, wrap } from "@/lib/ui";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = pageMeta(
-  "Church Building Fund",
-  "Help Gospel Christian Church IEMELIF raise ₱12,000,000 for our new church building in Frances, Calumpit, Bulacan.",
-  "/support",
-);
+export const metadata = pageMeta(DONATE_TITLE, DONATE_DESCRIPTION, "/donate");
 
 // Numbered step cards: the number is drawn by a CSS counter in ::before.
 const step = "relative flex flex-col gap-1 rounded-xl border border-line bg-card py-5 pr-5 pl-16 [counter-increment:s] before:absolute before:top-[18px] before:left-[18px] before:grid before:size-[34px] before:place-items-center before:rounded-full before:bg-brand before:font-serif before:text-[17px] before:leading-[normal] before:font-normal before:text-white before:content-[counter(s)]";
 
-export default async function SupportPage() {
+/** Donate page: supports Project Nehemiah, the church building project (docs/pages/donate.md). */
+export default async function DonatePage() {
   const { raised, wall, donors } = await summary();
-  const pct = Math.min(100, (raised / CHURCH.goal) * 100);
-  const pctText = pct.toFixed(1).replace(/\.0$/, "");
+  const pct = fundedPercent(raised, CHURCH.goal); // same figure for the hero and the percentage above the Giving Wall
+  const pctText = formatPercent(pct);
   const toGo = Math.max(0, CHURCH.goal - raised);
   return (
     <main id="main">
@@ -28,8 +28,8 @@ export default async function SupportPage() {
           <div className="grid grid-cols-[1.2fr_.8fr] items-center gap-10 pt-12 pb-[72px] max-md:grid-cols-[1fr]">
             <div>
               <h1 className="mb-4 text-[length:clamp(34px,5.5vw,56px)]">Help us build a home for every neighbor.</h1>
-              <p className="mt-0 mb-6 max-w-[52ch] text-[#f4dbe1]">Gospel Christian Church is raising {php(CHURCH.goal)} for a new church building in Frances, Calumpit. It will be a place where our whole community can worship, learn, and serve together. We are {pctText}% of the way there, and your gift moves us closer.</p>
-              <a className={`${btn.primaryLg} mr-1.5 mb-2`} href="#give">Give to the building fund</a>{" "}<a className={`${btn.ghostLgOnBrand} mr-1.5 mb-2`} href="#how">How giving works</a>
+              <p className="mt-0 mb-6 max-w-[52ch] text-[#f4dbe1]">Gospel Christian Church is raising {php(CHURCH.goal)} for {CHURCH.campaign}, our new church building in Frances, Calumpit. It will be a place where our whole community can worship, learn, and serve together. We are {pctText}% of the way there, and your gift moves us closer.</p>
+              <a className={`${btn.primaryLg} mr-1.5 mb-2`} href="#give">Give to {CHURCH.campaign}</a>{" "}<a className={`${btn.ghostLgOnBrand} mr-1.5 mb-2`} href="#how">How giving works</a>
               <div className="mt-[22px] border-l-[3px] border-gold pl-3 text-[14px] text-[#f1c9d2]">“Each of you should give what you have decided in your heart to give, not reluctantly or under compulsion, for God loves a cheerful giver.” — 2 Corinthians 9:7</div>
             </div>
             <div className="rounded-2xl border border-[rgba(222,185,66,.35)] bg-[rgba(255,255,255,.08)] px-5 pt-6 pb-5 text-center">
@@ -49,7 +49,7 @@ export default async function SupportPage() {
         <h2 className={h2}>{CHURCH.campaign}</h2>
         <p className={sub}>The total moves whenever our treasurer confirms a gift, so what you see here is money actually received.</p>
         <div className={card}>
-          <div className="relative h-[18px] overflow-hidden rounded-lg bg-line" role="progressbar" aria-label="Building fund progress" aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100}>
+          <div className="relative h-[18px] overflow-hidden rounded-lg bg-line" role="progressbar" aria-label={`${CHURCH.campaign} progress`} aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100}>
             <i className="block h-full rounded-lg bg-gold" style={{ width: `${pct}%` }} />
             {[25, 50, 75].map((m) => <em key={m} style={{ left: `${m}%` }} className={`absolute inset-y-0 w-[2px] -translate-x-px ${pct >= m ? "bg-[rgba(255,255,255,.7)]" : "bg-[rgba(43,34,38,.25)]"}`} />)}
           </div>
@@ -63,9 +63,22 @@ export default async function SupportPage() {
         <p className={sub}>Three steps, and you can see the result on this page.</p>
         <ol className="m-0 grid list-none grid-cols-[repeat(3,1fr)] gap-5 p-0 [counter-reset:s] max-md:grid-cols-[1fr]">
           <li className={step}><b className="text-[17px]">Record your pledge</b><span className="text-[15px] text-mute">Choose an amount and tell us who you are. You get a reference number right away.</span></li>
-          <li className={step}><b className="text-[17px]">Send your gift</b><span className="text-[15px] text-mute">Use GCash, Maya, bank transfer, or give in person at church. Add your reference number.</span></li>
+          <li className={step}><b className="text-[17px]">Send your gift</b><span className="text-[15px] text-mute">Use GCash, Maya, Bank Transfer, or Cash at Church. Add your reference number.</span></li>
           <li className={step}><b className="text-[17px]">See it counted</b><span className="text-[15px] text-mute">Our treasurer confirms what was received, and your gift is added to the total above.</span></li>
         </ol>
+      </div></section>
+
+      <section id="ways" className="pt-0 pb-6"><div className={wrap}>
+        <h2 className={h2}>Ways to send your gift</h2>
+        <p className={sub}>Record your pledge below to get a reference number, then send it using one of these methods.</p>
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] gap-5">
+          {PAYMENT_METHODS.map((m) => (
+            <div className={card} key={m.id}>
+              <h3 className={cardTitle}>{m.label}</h3>
+              <PaymentDetails method={m} className="text-left text-[14px] text-mute" />
+            </div>
+          ))}
+        </div>
       </div></section>
 
       <section id="give" className="pt-6 pb-14"><div className={wrap}>
@@ -83,6 +96,7 @@ export default async function SupportPage() {
               </ul>
               <p className={muted}>Questions? <a href={`mailto:${CHURCH.email}`}>{CHURCH.email}</a></p>
             </div>
+            <FundraisingPercent pct={pct} goal={CHURCH.goal} campaign={CHURCH.campaign} />
             <div className={card}>
               <h3 className={cardTitle}>Giving wall</h3>
               {wall.length ? wall.map((g) => (
@@ -106,7 +120,7 @@ export default async function SupportPage() {
         </div>
       </div></section>
 
-      <a className="fixed inset-x-3 bottom-3 z-40 hidden rounded-[10px] bg-gold p-3.5 text-center font-semibold text-[#1b1404] no-underline shadow-[0_8px_24px_rgba(43,34,38,.3)] max-md:block print:hidden" href="#give">Give to the building fund</a>
+      <a className="fixed inset-x-3 bottom-3 z-40 hidden rounded-[10px] bg-gold p-3.5 text-center font-semibold text-[#1b1404] no-underline shadow-[0_8px_24px_rgba(43,34,38,.3)] max-md:block print:hidden" href="#give">Give to {CHURCH.campaign}</a>
     </main>
   );
 }

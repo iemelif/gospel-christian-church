@@ -2,6 +2,9 @@
 
 Source: `components/SiteHeader.tsx` · Type: **Client** · Rendered by: `app/layout.tsx`
 
+> The menu item **"Donate"** links internally to **`/donate`** (implemented 2026-09-29, desktop and mobile;
+> [docs/pages/donate.md](../pages/donate.md)).
+
 ## 1. Purpose
 
 **Verified:** the sticky header on every page: IEMELIF and GCC logos, brand name, and the main navigation
@@ -26,13 +29,14 @@ nested menus can stay open with their parents while siblings close.
 ## 4. Data Dependencies
 
 **Verified:**
-- `NAV` (`content/site.ts`): Home (external, `LINKS.home`), About Us `/about`, Ministries `/ministries`,
-  Church Leadership (dropdown: Church Officers `/officers`, Leadership History), Support (external,
-  `LINKS.support`), Contact Us `/contact`.
+- `NAV` (`content/site.ts`) is the **navigation configuration source**: Home (external, `LINKS.home`), About Us
+  `/about`, Ministries `/ministries`, Church Leadership (dropdown: Church Officers `/officers`, Leadership
+  History), **Donate `/donate`** (internal: `{ label: "Donate", href: "/donate" }`), Contact Us `/contact`.
 - `buildNav()` fills the item whose label is exactly "Leadership History" with one link per
   `HISTORY_TERMS` entry: "<label> Officers" → `/history/<slug>`.
-- `LINKS` (environment-dependent): production `www.gcciemelif.website` / `support.gcciemelif.website`;
-  development all `http://localhost:3000`. `LINKS.iemelif` = `https://www.iemelifchurch.com/`.
+- `LINKS` (environment-dependent): production `www.gcciemelif.website`; development `http://localhost:3000`.
+  `LINKS.iemelif` = `https://www.iemelifchurch.com/`. `LINKS.support` (`support.gcciemelif.website`) still
+  exists but is no longer used by the menu.
 - `LOGOS` (paths, alt text, intrinsic sizes) and `SITE.shortName` (`content/site.ts`).
 - `usePathname()` for the active link and closing menus on navigation.
 
@@ -68,7 +72,8 @@ items.
 
 ## 8. Responsive Behavior
 
-**Verified:** ≥1081px: horizontal menu, first-level dropdowns absolutely positioned. ≤1080px (`max-lg:`): the
+**Verified:** the desktop menu and the mobile menu are the **same** `nav#main-nav` list rendered from `NAV`;
+only its layout changes with the breakpoint, so every `NAV` item (including Donate) appears in both. ≥1081px: horizontal menu, first-level dropdowns absolutely positioned. ≤1080px (`max-lg:`): the
 menu button is shown; `nav` is hidden until opened, then shown as a full-width white panel under the header
 (scrollable, `max-h-[calc(100vh-70px)]`), with dropdowns shown in place and indented. ≤480px (`max-sm:`):
 brand name hidden (logos only). Print: header hidden (`print:hidden`).
@@ -90,7 +95,8 @@ Security: no user input; the only external link opened in a new tab uses `rel="n
 
 ## 11. Reuse Guidelines
 
-- Change the menu by editing `NAV` in `content/site.ts`, not this component.
+- Change the menu by editing `NAV` in `content/site.ts`, not this component. `SiteHeader` only renders the
+  items (desktop and mobile).
 - Don't render it in pages; the layout already does.
 - Internal routes: omit `external`. Other domains (or full URLs): `external: true`.
 
@@ -100,15 +106,17 @@ Security: no user input; the only external link opened in a new tab uses `rel="n
 - Keep `id="main-nav"` in sync with `aria-controls`.
 - `NavLink` accepts an optional `className` (default `navItem`); "split" items pass a variant with smaller right
   padding. Keep padding out of `navItemBase` so no element gets two conflicting padding utilities.
-- Changing Home/Support links is an owner decision (see `docs/pages/home.md` §14).
+- Donate is an internal item (no `external`), so it uses `next/link` and gets `aria-current="page"` (crimson
+  underline) on `/donate`. Keep it internal. The future of `LINKS.support` / the `support.` subdomain is an
+  open owner question ([docs/pages/donate.md](../pages/donate.md) §14).
+- Changing the Home link is still an owner decision (see `docs/pages/home.md` §14).
 
 ## 13. Known Issues / Technical Debt
 
 **Verified, not fixed:**
 - ESLint `react-hooks/set-state-in-effect` warning: the effect that resets state on `pathname` change
   (rule downgraded to `warn` in `eslint.config.mjs`).
-- Home and Support are external links: they never receive `aria-current`, cause full page loads, and in
-  development Support points to `localhost:3000/` rather than `/support`.
+- Home is an external link (`LINKS.home`): it never receives `aria-current` and causes a full page load.
 - `aria-haspopup="true"` announces a menu, but the ARIA menu keyboard pattern (arrow keys, focus moving
   into the menu) is not implemented; it behaves as a disclosure. Escape does not return focus to the button.
 - A `NavItem` with neither `href` nor `children` would render a link to `#`.
@@ -117,8 +125,9 @@ Security: no user input; the only external link opened in a new tab uses `rel="n
 
 ## 14. Open Questions
 
-1. **Owner input required:** should Home/Support become internal links, and should `/leadership` be added?
-2. **Proposed:** switch dropdowns to the disclosure pattern (drop `aria-haspopup`) — needs approval.
+1. **Owner input required:** should Home become an internal link, and should `/leadership` be added?
+2. **Owner input required:** keep, redirect or retire `support.gcciemelif.website` (`LINKS.support` is unused).
+3. **Proposed:** switch dropdowns to the disclosure pattern (drop `aria-haspopup`) — needs approval.
 
 ## 15. Implementation Notes
 
@@ -126,9 +135,12 @@ Security: no user input; the only external link opened in a new tab uses `rel="n
 - Opening one top-level dropdown closes siblings but keeps ancestors (see `toggle`).
 - Dropdown buttons call `stopPropagation`; the document click handler only closes dropdowns for clicks
   outside the header element.
+- The Donate item was added purely in `NAV` (`content/site.ts`); `components/SiteHeader.tsx` did not change.
+  Verified in a browser on desktop (1280px) and in the mobile menu (400px): label "Donate", `href="/donate"`,
+  no `target`, active underline on `/donate`, menu closes after navigating. `lib/nav.test.ts` checks the item.
 
 ## 16. References
 
 `components/SiteHeader.tsx`, `app/layout.tsx`, `content/site.ts` (`NAV`, `LINKS`, `LOGOS`, `SITE`),
 `lib/nav.ts`, `content/officers.ts` (`HISTORY_TERMS`), `lib/ui.ts`, `app/globals.css`, `eslint.config.mjs`,
-`docs/pages/README.md`.
+`lib/nav.test.ts`, `docs/pages/README.md`, `docs/pages/donate.md`.

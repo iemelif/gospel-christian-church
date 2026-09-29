@@ -11,18 +11,27 @@
 
 No formatter (Prettier) is configured.
 
-## 2. Current tests (verified, 22 tests, all passing on 2026-09-29)
+## 2. Current tests (verified, 63 tests in 11 files, all passing on 2026-09-29)
 
-| File | Covers |
-| --- | --- |
-| `lib/slug.test.ts` | `slugify` |
-| `lib/officers.test.ts` | `displayName`, `imageSrc`, `toPeople`, `boardRows`, `leadershipGroups` |
-| `lib/config.test.ts` | `php`, `PAYMENT_METHODS` parsing (formats, plain numbers, placeholders) |
-| `lib/auth.test.ts` | password check, session tampering/expiry/password change, cookie parsing |
-| `lib/store.test.ts` | missing/corrupt file, concurrent `update()`, `summary()` totals and anonymity |
+| File | Tests | Covers |
+| --- | --- | --- |
+| `app/api/gifts/route.test.ts` | 17 | `POST /api/gifts`: optional/valid/invalid email, name and amount validation unchanged, existing payment ids accepted (labels rejected), reCAPTCHA v3 cases (missing token, Google request failure, `success: false`, wrong action, low score, missing secret, success), gift saved only after verification, token not stored, secret never returned; `GET` public summary contains no email |
+| `lib/recaptcha.test.ts` | 12 | `verifyRecaptcha()` (request format, all failure reasons, threshold boundary, secret never in the result) and `recaptchaMinScore()` |
+| `lib/config.test.ts` | 7 | `php`, campaign "Project Nehemiah" and goal, `PAYMENT_METHODS` parsing, ids unchanged + labels |
+| `lib/auth.test.ts` | 6 | password check, session tampering/expiry/password change, cookie parsing |
+| `lib/officers.test.ts` | 5 | `displayName`, `imageSrc`, `toPeople`, `boardRows`, `leadershipGroups` |
+| `lib/progress.test.ts` | 4 | `fundedPercent()` normal, zero raised, capped at 100, no division by zero/negatives; `formatPercent()` |
+| `lib/store.test.ts` | 4 | missing/corrupt file, concurrent `update()`, `summary()` totals and anonymity |
+| `components/FundraisingPercent.test.ts` | 3 | rendered percentage and screen-reader sentence (normal, zero, capped) via `react-dom/server` |
+| `lib/nav.test.ts` | 2 | "Donate" → `/donate` internal, no "Support"; Leadership History submenu |
+| `lib/slug.test.ts` | 2 | `slugify` |
+| `app/sitemap.test.ts` | 1 | sitemap has `/donate`, not `/support` |
+
+**Google is never contacted by the test suite:** `lib/recaptcha.test.ts` passes a mocked `fetch`, and the route
+tests replace the global `fetch` with a mock of the `siteverify` response.
 
 Tests stub environment variables with `vi.stubEnv` and re-import modules, because config and store read
-`process.env` at import time. The store tests use a temporary `DATA_DIR`, never `./data`.
+`process.env` at import time. The store and route tests use a temporary `DATA_DIR`, never `./data`.
 
 ## 3. Current lint state (verified)
 
@@ -37,15 +46,17 @@ unused import (`scripts/generate-avatars.mjs`).
 
 ## 5. Coverage gaps (verified)
 
-- No tests for API route handlers (`/api/gifts` validation, `/api/admin` rules, session/rate limit).
-- No component tests (no React Testing Library / jsdom) and no browser/E2E tests.
+- `/api/gifts` is tested (above); **no** tests for `/api/admin` rules or the admin session / rate limit.
+- Component rendering is tested only for `FundraisingPercent` (server-side render, no DOM); no React Testing
+  Library / jsdom, no interaction tests, and no browser/E2E tests in the repository (browser checks during
+  development were done with a temporary script outside the repo).
 - No accessibility or visual regression checks.
 - No test for the Docker image.
 
 ## 6. Proposed (not decided; new dependencies require approval)
 
-- Route-handler tests can be written with the existing Vitest setup by calling the exported handlers with
-  `Request` objects (no new dependency).
+- `/api/admin` and `/api/admin/session` tests can follow the pattern of `app/api/gifts/route.test.ts` (call the
+  exported handlers with `Request` objects; no new dependency).
 - Component or E2E tests would need new dev dependencies — ask first (`CLAUDE.md`).
 - AI features: mock provider calls in unit tests; never call paid APIs from CI.
 

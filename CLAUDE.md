@@ -12,24 +12,25 @@ Website for **Gospel Christian Church IEMELIF** (Zone 7 Frances, Calumpit, 3003 
 
 It currently does two things:
 
-1. **Church Building Fund giving site**: donors record a pledge, get a reference number and payment
-   instructions (GCash / Maya / Bank transfer / Cash at church). No payment is processed online. A treasurer
-   confirms pledges in `/admin`; only confirmed gifts count toward the progress bar and giving wall.
-   Goal ₱12,000,000; ₱2,700,000 was raised before the site went live (`NEXT_PUBLIC_BASE_RAISED`).
+1. **Donate page for Project Nehemiah** (`/donate`): Project Nehemiah is the church building project
+   (owner-provided). Donors record a pledge, get a reference number and payment instructions (GCash / Maya /
+   Bank Transfer / Cash at Church). No payment is processed online; gift recording is protected by Google
+   reCAPTCHA v3. A treasurer confirms pledges in `/admin`; only confirmed gifts count toward the progress
+   figures and Giving Wall. Goal ₱12,000,000 (`NEXT_PUBLIC_GOAL`); ₱2,700,000 was raised before the site went
+   live (`NEXT_PUBLIC_BASE_RAISED`).
 2. **Church information pages**: Church Officers, Leadership, Leadership History, plus empty placeholders
    for About Us, Ministries and Contact Us.
 
-Production domains (from `content/site.ts`): main site `https://www.gcciemelif.website`, support/donation
-site `https://support.gcciemelif.website`. **Both domains point to this same Cloud Run service** (confirmed
-by the owner) — so any path works on either host, and `support.…/` serves the same `/` as `www.…/`.
+Production domains: main site `https://www.gcciemelif.website`; `https://support.gcciemelif.website` (still
+defined as `LINKS.support`, no longer used by the menu). **Both domains point to this same Cloud Run service**
+(confirmed by the owner) — so any path works on either host, and `support.…/` serves the same `/` as `www.…/`.
+No redirect exists; the subdomain's future is an open owner question.
 
-> **Current state of `/`:** `/` shows *the donation page* (hero + progress + how-it-works + give
-> form + giving wall + service schedule). A new Home page is planned; see §9.
+> **Current state of `/`:** `app/page.tsx` is a temporary wrapper that renders the Donate page with canonical
+> `/`. A new Home page will replace it (content and photos will come from the owner); see §9.
 >
-> **Decided (2026-09-29):** the new Home page will replace `app/page.tsx`; the donation page lives at
-> `/support`. **Done:** the full donation page now lives in `app/support/page.tsx`, and `app/page.tsx` is a
-> temporary wrapper that renders it with canonical `/`. **Not done yet:** the Home page itself (content and
-> photos will come from the owner).
+> **Donate (implemented 2026-09-29):** `/donate` (`app/donate/page.tsx`) is the only Donate route. **`/support`
+> returns 404** (removed; no redirect, not in the sitemap). Spec: `docs/pages/donate.md`.
 
 ---
 
@@ -46,6 +47,7 @@ by the owner) — so any path works on either host, and `support.…/` serves th
 | Fonts | `next/font/google` in `app/layout.tsx`: **Young Serif** (400) → CSS variable `--font-young-serif` → Tailwind `font-serif` (headings); **Figtree** → `--font-figtree` → `font-sans` (body) |
 | Images | `next/image` for logos; avatars are SVG files in `public/images/people/` |
 | Data storage | **JSON file** `gifts.json` in `DATA_DIR` (default `./data`; `/data` on Cloud Run = mounted GCS bucket). No database |
+| Bot protection | **Google reCAPTCHA v3** (invisible, score-based) on `POST /api/gifts`: action `record_gift`, min score 0.5 (`RECAPTCHA_MIN_SCORE`). Keys: `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` (public), `RECAPTCHA_SECRET_KEY` (server-only). The only runtime external service |
 | Auth | Single shared **`ADMIN_PASSWORD`** → HMAC-signed, httpOnly, 1-day cookie `gcc_admin` (`lib/auth.ts`). No user accounts |
 | Runtime deps | Only `next`, `react`, `react-dom`. Do not add dependencies without asking |
 | Lint | **ESLint 9** flat config `eslint.config.mjs` using `eslint-config-next` (core-web-vitals + typescript). ESLint 10 is not used because Next's plugins don't support it yet (peer conflicts) |
@@ -86,8 +88,8 @@ npm run test:watch   # Vitest, watch mode
 app/                       App Router
   layout.tsx               Root layout: fonts, global metadata, JSON-LD (Church), skip link, SiteHeader, SiteFooter
   globals.css              Tailwind setup: imports (no Preflight), @theme tokens, breakpoints, a few element defaults
-  page.tsx                 "/"  – TEMPORARY wrapper: renders the Support page with canonical "/"; will become the Home page
-  support/page.tsx         "/support" – THE donation page (force-dynamic, reads gifts) — see §7.3
+  page.tsx                 "/"  – TEMPORARY wrapper: renders the Donate page with canonical "/"; will become the Home page
+  donate/page.tsx          "/donate" – THE Donate page for Project Nehemiah (force-dynamic, reads gifts) — see §7.3
   about/ ministries/ contact/  Empty placeholders (PageHero only, noindex)
   leadership/page.tsx      Leadership groups for the current term (not in the header menu, but in sitemap)
   officers/page.tsx        Current-term officer board
@@ -102,7 +104,10 @@ content/                   EDITABLE SITE CONTENT (non-developer friendly)
   site.ts                  URLs per environment, SITE name, LINKS, LOGOS, ADDRESS, SOCIAL, NAV menu
   officers.ts              CURRENT_TERM, HISTORY_TERMS, BOARD_ROLES, LEADERSHIP_GROUPS
 lib/
-  config.ts                CHURCH (goal, email), SCHEDULE, PAYMENT_METHODS, AMOUNTS, php() formatter
+  config.ts                CHURCH (campaign "Project Nehemiah", goal, email), SCHEDULE, PAYMENT_METHODS (id + label),
+                           AMOUNTS, php(), RECAPTCHA_SITE_KEY, RECAPTCHA_ACTION ("record_gift")
+  recaptcha.ts             Server-only Google reCAPTCHA v3 verification (DEFAULT_RECAPTCHA_MIN_SCORE = 0.5)
+  progress.ts              fundedPercent() (capped at 100) / formatPercent() for the Donate page
   store.ts                 gifts.json read/write, serialized update(), summary()
   auth.ts                  password check, session cookie
   seo.ts                   pageMeta() helper for per-page metadata
@@ -156,6 +161,12 @@ Dockerfile, .dockerignore  3-stage build (deps → build → run), standalone se
 - `readGifts()` deliberately throws on corrupt/unreadable data so a write can't wipe pledges — keep that behaviour.
 - Confirmed gifts must never be deletable (enforced in `api/admin/route.ts`).
 - Server-side validation of pledges lives in `api/gifts/route.ts`; keep client and server rules consistent.
+  After field validation it verifies **Google reCAPTCHA v3** (`lib/recaptcha.ts`) and saves nothing on failure.
+  Never store the reCAPTCHA token; never log, return or expose `RECAPTCHA_SECRET_KEY`.
+- Donor email is **optional**; if given it is validated. Email must never appear in public output (Giving
+  Wall, `GET /api/gifts`, pages).
+- Payment method **ids** (`GCash`, `Maya`, `Bank transfer`, `Cash at church`) are stored with pledges — never
+  rename them; change the donor-facing `label` instead.
 - Cloud Run runs with `max-instances=1` because of the file store and the in-memory login rate limiter.
 
 **Style of code (match it)**
@@ -259,8 +270,8 @@ constants in that file (e.g. the radio-card strings in `GiveForm`, the menu stri
 - Menu items: internal `Link` (with `aria-current="page"`), `external: true` → plain `<a>`, `children` →
   dropdown (nested allowed; item with both `href` and `children` renders a split link + arrow button).
 - Closes on route change, outside click and Escape. Hamburger below 1080px.
-- **To change the menu edit `NAV` in `content/site.ts`**, not the component. "Home" and "Support" are
-  external links (`LINKS.home`, `LINKS.support`).
+- **To change the menu edit `NAV` in `content/site.ts`**, not the component. "Home" is an external link
+  (`LINKS.home`); **"Donate" is internal (`/donate`)**.
 
 ### 7.2 Footer — `components/SiteFooter.tsx` (server)
 - Rendered once in `app/layout.tsx`. Background `bg-paper`, stripe on top (`stripeBefore`).
@@ -270,22 +281,22 @@ constants in that file (e.g. the radio-card strings in `GiveForm`, the menu stri
   kept the actual behaviour — see §10.)
 - To add a social network: add an icon case in `components/SocialIcon.tsx` **and** an entry in `SOCIAL`.
 
-### 7.3 Support / Donation page — `app/support/page.tsx`
-- The full donation page (component `SupportPage`, `pageMeta` path `/support`, `force-dynamic`). `/` currently
-  renders the same component via `app/page.tsx`. Structure:
+### 7.3 Donate page (Project Nehemiah) — `app/donate/page.tsx`
+- Component `DonatePage`, metadata `DONATE_TITLE` / `DONATE_DESCRIPTION` (`lib/seo.ts`), canonical `/donate`,
+  `force-dynamic`. `/` currently renders the same component via `app/page.tsx`. Structure:
   1. Hero (`brandGradient`, 2-column grid, one column ≤800px): headline, intro, two CTAs (`btn.primaryLg`
      → `#give`, `btn.ghostLgOnBrand` → `#how`), gold-bordered verse (2 Cor 9:7) | translucent card with
      `ChurchProgress` SVG, % raised, stats row (still needed, confirmed gifts).
   2. `section#progress` – `card` with the progress bar (25/50/75% tick marks) and raised / to-go row.
   3. `section#how` – 3 numbered step cards (CSS counter).
-  4. `section#give` – 2-column grid: `cardBox` with `<GiveForm/>` | sticky `aside` with the trust card and
-     giving wall.
-  5. `section#visit` – schedule `cards`.
-  6. Mobile-only fixed "Give to the building fund" bar (≤800px, hidden in print).
-- The older, simpler duplicate that used to be here was replaced (2026-09-29); `/support` is in the sitemap.
-  In-page anchors (`#give`, `#how`, `#progress`) are relative, so they work on any URL.
-- Supporting components: `GiveForm` (3-step fieldset form → POST `/api/gifts` → receipt with ref + copy +
-  print), `CopyButton`, `ChurchProgress`.
+  4. `section#ways` – "Ways to send your gift": one `PaymentDetails` card per payment method (before the form).
+  5. `section#give` – 2-column grid: `cardBox` with `<GiveForm/>` | sticky `aside` with the trust card,
+     `FundraisingPercent` (directly above the Giving Wall) and the Giving Wall.
+  6. `section#visit` – schedule `cards`.
+  7. Mobile-only fixed "Give to Project Nehemiah" bar (≤800px, hidden in print).
+- One percentage for the whole page: `fundedPercent(summary().raised, CHURCH.goal)` (capped at 100).
+- Supporting components: `GiveForm` (3-step form → reCAPTCHA v3 token → POST `/api/gifts` → receipt with ref +
+  copy + print), `PaymentDetails`, `FundraisingPercent`, `CopyButton`, `ChurchProgress`.
 
 ### Component reuse guidelines
 - Reuse before creating: `PageHero`, `PersonCard`/`OfficerBoard`/`Avatar`, `ChurchProgress`, `GiveForm`,
@@ -306,7 +317,8 @@ constants in that file (e.g. the radio-card strings in `GiveForm`, the menu stri
 - **Never** push, force-push, merge to `main`, rebase shared branches, or delete branches without explicit request.
 - Commit only when asked. Keep commits focused; run `npm run build` before proposing a commit.
 - **Never commit** `.env.local`, `data/gifts.json`, `.next/`, `node_modules/` (all gitignored — keep it that way).
-- Do not print or copy secrets (`ADMIN_PASSWORD`, `.env.local` values, GitHub secrets) into code, logs or chat.
+- Do not print or copy secrets (`ADMIN_PASSWORD`, `RECAPTCHA_SECRET_KEY`, `.env.local` values, GitHub secrets)
+  into code, docs, logs or chat. `.env.example` keeps empty placeholders only.
 - Don't edit `.github/workflows/*`, `Dockerfile` or `next.config.ts` unless the task is about deployment.
 - Don't regenerate `package-lock.json` or install/upgrade packages without asking.
 
@@ -315,18 +327,16 @@ constants in that file (e.g. the radio-card strings in `GiveForm`, the menu stri
 ## 9. Guidelines for future development
 
 - **Home page (planned, not yet implemented):** build it with the existing layout (header/footer come from
-  `app/layout.tsx`), the Tailwind tokens and `lib/ui.ts` strings in §6, and the donation page structure in
+  `app/layout.tsx`), the Tailwind tokens and `lib/ui.ts` strings in §6, and the Donate page structure in
   §7.3 as the visual reference (crimson `brandGradient` hero, `card`/`cards` sections, gold `btn.*` CTAs,
   gold-bordered verse). Replace the whole of
-  `app/page.tsx` (the donation page is safe in `app/support/page.tsx`). The Home page's own `pageMeta` path
-  is `"/"`; it should no longer use the "Church Building Fund" title. Content and photos: **waiting on the owner**
+  `app/page.tsx` (the Donate page is safe in `app/donate/page.tsx`). The Home page's own `pageMeta` path
+  is `"/"`; it should no longer use the Donate title. Content and photos: **waiting on the owner**
   — don't invent copy, leaders' details or photos.
 - **When the Home page ships, decide together with it (ask the owner):**
-  - `support.gcciemelif.website/` will show the Home page (same deployment). Old donation links would need a
-    host-based redirect `support.gcciemelif.website/*` → `www.gcciemelif.website/support` (e.g. `redirects()`
-    with a `has: [{ type: "host" }]` condition in `next.config.ts`).
-  - Whether `LINKS.support` / `LINKS.home` in `content/site.ts` should become internal (`/support`, `/`)
-    instead of external full URLs (they are external today; dev links all use `localhost:3000`).
+  - `support.gcciemelif.website/` will show the Home page (same deployment). Keep, redirect or retire that
+    subdomain? (No redirect exists today.)
+  - Whether `LINKS.home` should become an internal `/` link ("Donate" is already internal).
 - New page checklist: `<main id="main">`, `pageMeta(...)`, `PageHero` (inner pages), add to `NAV` in
   `content/site.ts` if it belongs in the menu, add to `app/sitemap.ts` if indexable, remove `{ index: false }`
   when a placeholder gets real content.
@@ -344,14 +354,18 @@ constants in that file (e.g. the radio-card strings in `GiveForm`, the menu stri
 
 Resolved on 2026-09-29: Dockerfile now on Node 24; README matches `deploy.yml` (region `us-central1`,
 repository `gospel-christian-church`, bucket `<project>-gospel-christian-church-data`, no `GCS_BUCKET`) and the
-code (dev links all `:3000`, content lives in `content/`); duplicated support page replaced; payment details
-removed from `information.md` (they remain in **git history**).
+code (dev links all `:3000`, content lives in `content/`); payment details removed from `information.md` (they
+remain in **git history**); Donate page implemented at `/donate` with `/support` removed (404).
 
 Still open:
 - `/leadership` exists and is in the sitemap but not in the header menu.
 - `.env.example` (committed) contains real GCash/Maya/bank values and account names. They are shown publicly
-  on the donation page anyway, but ask before changing them.
-- Header "Support" / "Home" are external links to the subdomains; see §9 for the redirect decision.
+  on the Donate page anyway, but ask before changing them.
+- Header "Home" is an external link; `LINKS.support` is unused; see §9 for the subdomain decision.
+- reCAPTCHA keys are not configured yet (owner action: add them locally and in GitHub, register domains, rotate
+  the previously exposed secret). Until then gifts cannot be recorded in that environment.
+- The reCAPTCHA badge is hidden via `.grecaptcha-badge` in `app/globals.css` (with Google's notice in the form) —
+  the one piece of hand-written CSS for a third-party element; owner may prefer the visible badge.
 - `react-hooks/set-state-in-effect` warnings in `SiteHeader.tsx` and `app/admin/page.tsx` (refactor candidates).
 - The footer stays three columns on narrow screens: the original CSS meant to stack it at ≤800px, but a
   source-order bug stopped that rule from applying. The Tailwind migration preserved the real behaviour on

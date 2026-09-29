@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { update, summary, type Gift } from "@/lib/store";
 import { PAYMENT_IDS } from "@/lib/config";
+import { verifyRecaptcha } from "@/lib/recaptcha";
+
+const VERIFY_FAILED = "We couldn't verify your request. Please reload the page and try again.";
 
 export const dynamic = "force-dynamic";
 
@@ -18,9 +21,21 @@ export async function POST(req: Request) {
   const method = String(b.method ?? "");
   const freq = b.freq === "Monthly" ? "Monthly" : "One-time";
   if (!name) return NextResponse.json({ error: "Enter your full name." }, { status: 400 });
-  if (!/^\S+@\S+\.\S+$/.test(email)) return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 });
+  // Email is optional; when given it must look like an address. It is stored for the treasurer only (never public).
+  if (email && !/^\S+@\S+\.\S+$/.test(email)) return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 });
   if (!Number.isFinite(amount) || amount < 1 || amount > 12_000_000) return NextResponse.json({ error: "Enter an amount between ₱1 and ₱12,000,000." }, { status: 400 });
   if (!PAYMENT_IDS.includes(method)) return NextResponse.json({ error: "Choose a payment method." }, { status: 400 });
+
+  // Google reCAPTCHA v3, checked only after the fields are valid and before anything is saved.
+  // The token (b.recaptchaToken) is sent to Google only; it is not logged and not stored with the gift.
+  const check = await verifyRecaptcha(b.recaptchaToken);
+  if (!check.ok) {
+    if (check.reason === "not-configured" || check.reason === "request-failed") {
+      console.error(`Gift not saved: reCAPTCHA verification unavailable (${check.reason}).`);
+      return NextResponse.json({ error: "We couldn't verify your request right now. Please try again in a moment." }, { status: 503 });
+    }
+    return NextResponse.json({ error: VERIFY_FAILED }, { status: check.reason === "missing-token" ? 400 : 403 });
+  }
 
   const gift: Gift = {
     id: randomUUID(), ref: "GCC-" + randomUUID().slice(0, 6).toUpperCase(), name, email, amount, freq, method,

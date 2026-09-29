@@ -6,19 +6,19 @@
 
 **Repository facts:**
 - The site serves Gospel Christian Church IEMELIF, Zone 7 Frances, Calumpit, Bulacan (`content/site.ts`).
-- Current features: a donation/support page (`/support`) where donors record pledges and receive payment
+- Current features: a Donate page for Project Nehemiah (`/donate`) where donors record pledges and receive payment
   instructions (no online payment); a password-protected treasurer dashboard (`/admin`) that confirms
   pledges; officer, leadership and past-term pages; service schedule in the footer.
-- The fundraising campaign is named **"Church Building Fund"** in code (`CHURCH.campaign`,
-  `lib/config.ts`), with a default goal of ₱12,000,000 and ₱2,700,000 raised before the site went live.
+- The fundraising campaign is named **"Project Nehemiah"** in code (`CHURCH.campaign`, `lib/config.ts`), with a
+  default goal of ₱12,000,000 and ₱2,700,000 raised before the site went live.
 - About Us, Ministries and Contact Us are **empty placeholders**. The repository contains no church history,
   mission, beliefs or ministry descriptions.
 - A new Home page is planned; its content has not been provided yet (`docs/pages/home.md`).
 
 **Owner-provided context:**
-- **Project Nehemiah** is the church building project, and it is the reason the fundraising/support page
-  exists. The repository currently calls the campaign "Church Building Fund"; Project Nehemiah has **not yet
-  been added** to the repository's public content.
+- **Project Nehemiah** is the church building project, and it is the reason the Donate page exists. Since
+  2026-09-29 the site uses the name publicly (Donate page, metadata, site description); no further project
+  details have been provided.
 - Details of Project Nehemiah (story, plans, milestones, timeline, how the name should appear publicly) have
   not been provided. See [decisions.md](decisions.md).
 

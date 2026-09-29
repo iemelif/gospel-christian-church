@@ -48,7 +48,7 @@ hover:text-ink`, copyright row `mt-[22px] border-t border-line pt-3.5 text-[13px
 ## 8. Responsive Behavior
 
 **Verified:** the three-column grid is kept at **every** width (see §13). Hidden when printing (`print:hidden`).
-At ≤800px `<body>` has 70px bottom padding (`max-md:pb-[70px]` in `app/layout.tsx`), intended for the Support
+At ≤800px `<body>` has 70px bottom padding (`max-md:pb-[70px]` in `app/layout.tsx`), intended for the Donate
 page's fixed give bar.
 
 ## 9. Accessibility
@@ -60,7 +60,7 @@ page's fixed give bar.
 ## 10. Client / Server Behavior
 
 **Verified:** server component, no state or browser APIs. On statically prerendered routes it is rendered at
-build time; on dynamic routes (`/`, `/support`) on each request.
+build time; on dynamic routes (`/`, `/donate`) on each request.
 
 ## 11. Reuse Guidelines
 
@@ -79,7 +79,7 @@ in sync manually. Adding a social network requires `SocialIcon` changes (see `RE
   `/about`) it is frozen at the last build and only updates on redeploy.
 - The email line is labelled "Questions about giving?" on every page, including non-giving pages.
 - The ≤800px body bottom padding (`max-md:pb-[70px]` on `<body>`) is global, so every page (not only the
-  Support page with its fixed give bar) gets extra space below the footer on mobile.
+  Donate page with its fixed give bar) gets extra space below the footer on mobile.
 - **The footer does not stack on narrow screens.** The original CSS contained a ≤800px one-column rule, but it
   was defined before the base grid rule and never took effect. The Tailwind version deliberately reproduces
   the real (three-column) behaviour. Whether it should stack is an open design decision.

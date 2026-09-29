@@ -4,7 +4,7 @@ Route: `/admin` · Files: `app/admin/layout.tsx`, `app/admin/page.tsx` · Status
 
 ## 1. Purpose
 
-**Verified:** lets the treasurer review pledges recorded on `/support`, **confirm** them once money is
+**Verified:** lets the treasurer review pledges recorded on `/donate`, **confirm** them once money is
 received (only confirmed gifts count toward the public total and giving wall), **undo** a confirmation, and
 **delete** pending pledges.
 
@@ -21,7 +21,8 @@ appear (root layout). Inside a `wrap` with `py-10`:
   sign-in.
 - Signed in: heading row (`h2` "Treasurer dashboard" + "Log out"), summary line (confirmed total through this
   site, pending count), error line, card with a horizontally scrollable `table`: Date, Ref, Donor (name +
-  email), Amount (+ frequency), Method, Status, actions.
+  email — blank when the donor gave none, since email is optional), Amount (+ frequency), Method (the stored
+  id, e.g. `Bank transfer`, not the donor-facing label), Status, actions.
 
 ## 4. Existing Design System
 
@@ -99,7 +100,7 @@ the public total additionally includes `CHURCH.baseRaised`.
 
 Data flow: page load → `GET /api/admin` (401 → sign-in form) → sign-in `POST /api/admin/session` sets
 cookie → `GET` again → action buttons `PATCH /api/admin` → list reloaded. Confirming/undoing changes the
-public totals on `/support` and `/` on their next request (both are `force-dynamic`).
+public totals on `/donate` and `/` on their next request (both are `force-dynamic`).
 
 ## 14. Open Questions / Owner Input
 
@@ -114,4 +115,4 @@ None for this phase.
 
 `app/admin/layout.tsx`, `app/admin/page.tsx`, `app/api/admin/route.ts`, `app/api/admin/session/route.ts`,
 `lib/auth.ts`, `lib/auth.test.ts`, `lib/store.ts`, `app/robots.ts`, `.github/workflows/deploy.yml`,
-`README.md`, [support.md](support.md).
+`README.md`, [donate.md](donate.md).

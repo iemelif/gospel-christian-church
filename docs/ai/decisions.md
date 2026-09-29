@@ -12,12 +12,13 @@
 | AI-R3 | 2026-09-29 | Owner-provided | **Project Nehemiah** is the church building project and the reason the fundraising/support page exists. The repository calls the campaign "Church Building Fund"; Project Nehemiah is not yet in the repository's public content. |
 | AI-R4 | 2026-09-29 | Repository fact | No AI code, SDK, keys, endpoints or configuration exist in the repository. |
 | AI-R5 | 2026-09-29 | Owner-provided | AI documentation limited to vision, knowledge sources, data boundaries, safety/privacy and this log; no AI architecture or prompt/behaviour documentation yet. |
+| AI-R6 | 2026-09-29 | Repository fact | The Donate page (`/donate`) now names the campaign **Project Nehemiah** publicly (supersedes the "Church Building Fund" wording in AI-R3 and AI-D1). Gift recording uses Google reCAPTCHA v3 — the site's first runtime external service. |
 
 ## Open decisions (Owner input required)
 
 | ID | Question |
 | --- | --- |
-| AI-D1 | Project Nehemiah: official public name, description, story, plans, milestones and timeline. Should the site and campaign use the name (currently "Church Building Fund")? |
+| AI-D1 | Project Nehemiah: description, story, plans, milestones and timeline (the name is now used on the site — see AI-R6). |
 | AI-D2 | Which future AI capabilities (see [vision.md](vision.md)) should be explored, if any? |
 | AI-D3 | Audience and languages (e.g. English only, or also Tagalog). |
 | AI-D4 | Will the church provide About, Ministries, Contact, history and FAQ content, and should AI wait for it? |
