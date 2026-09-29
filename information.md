@@ -133,14 +133,8 @@ Information
         President of Kababaihan	Lugtu, Clarita
         President of Kalalakihan	Arnedo, Mariano
 
-    Bank Account:
-     Bank Name: Security Bank
-     Account Number: 0000077655600
-     Account Name: Lean Rose Cabral
-
-    Paymaya/Gcash Account:
-      Number: +639228656711
-      Name: Wilson Abesamis
+    Payment details: not kept in this file. They are set through NEXT_PUBLIC_GCASH_NUMBER,
+    NEXT_PUBLIC_MAYA_NUMBER and NEXT_PUBLIC_BANK_DETAILS (see .env.example and README).
 
 Requirements
 

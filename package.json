@@ -9,7 +9,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "avatars": "node --no-warnings scripts/generate-avatars.mjs"
+    "avatars": "node --no-warnings scripts/generate-avatars.mjs",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "next": "^16.3.6",
@@ -20,6 +24,9 @@
     "@types/node": "^24",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "typescript": "^5.9"
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.3.6",
+    "typescript": "^5.9",
+    "vitest": "^5.0.2"
   }
 }

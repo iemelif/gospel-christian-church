@@ -1,0 +1,59 @@
+# Component documentation index
+
+All components live in `components/` (flat folder, one default export per file, PascalCase). Styles are
+global classes in `app/globals.css` (no CSS Modules). Facts are labelled **Verified**, **Proposed**,
+**Unknown** or **Owner input required**, as in `docs/pages/`.
+
+Verified against the working tree on branch `feat-ai-powered-integration`, 2026-09-29.
+
+| Component | Source | Type | Primary purpose | Used by (pages) | Documentation |
+| --- | --- | --- | --- | --- | --- |
+| `SiteHeader` | `components/SiteHeader.tsx` | **Client** | Sticky site header: logos, brand, dropdown nav, mobile menu | Every page, via `app/layout.tsx` | [site-header.md](site-header.md) |
+| `SiteFooter` | `components/SiteFooter.tsx` | Server | Footer: logos, address, schedule, email, social links | Every page, via `app/layout.tsx` | [site-footer.md](site-footer.md) |
+| `GiveForm` | `components/GiveForm.tsx` | **Client** | 3-step pledge form + receipt; posts to `/api/gifts` | `/support` (and `/`, which renders the Support page) | [give-form.md](give-form.md) |
+| `CopyButton` | `components/CopyButton.tsx` | **Client** | Copies a string to the clipboard, shows "Copied" | Inside `GiveForm` only | [copy-button.md](copy-button.md) |
+| `ChurchProgress` | `components/ChurchProgress.tsx` | Server | Church outline SVG filled to a percentage | `/support` (and `/`) | [church-progress.md](church-progress.md) |
+| `OfficerBoard` | `components/OfficerBoard.tsx` | Server | Officer board in 3 rows for one term | `/officers`, `/history/[term]` | [officer-board.md](officer-board.md) |
+| `PersonCard` | `components/PersonCard.tsx` | Server | One person card (`<li>`): avatar, name, roles | `/leadership`; inside `OfficerBoard` | [person-card.md](person-card.md) |
+| `Avatar` | `components/Avatar.tsx` | Server | Person image, or built-in gray silhouette | Inside `PersonCard` only | [avatar.md](avatar.md) |
+| `PageHero` | `components/PageHero.tsx` | Server | Crimson inner-page banner with `h1` + optional intro | `/about`, `/ministries`, `/contact`, `/leadership`, `/officers`, `/history/[term]` | This file (below) |
+| `SocialIcon` | `components/SocialIcon.tsx` | Server | Inline SVG icon for a social network | Inside `SiteFooter` only | This file (below) |
+
+"Server" = no `"use client"` directive, so it renders as a React Server Component. It can still be rendered
+inside a client component tree (`CopyButton` is only ever rendered by the client `GiveForm`).
+
+Categories:
+- **Shared layout:** `SiteHeader`, `SiteFooter` (rendered once in `app/layout.tsx`; never render them in pages).
+- **Giving / donation:** `GiveForm`, `CopyButton`, `ChurchProgress`.
+- **People / officers:** `OfficerBoard` → `PersonCard` → `Avatar`.
+- **Generic building blocks:** `PageHero`, `SocialIcon`.
+- **Data-coupled:** `SiteHeader` / `SiteFooter` (`content/site.ts`, `lib/config.ts`), `GiveForm`
+  (`lib/config.ts`, `/api/gifts`), `OfficerBoard` / `PersonCard` (`content/officers.ts`, `lib/officers.ts`).
+
+Not components but page-level UI that could become components if reused (**Proposed**, only on request):
+the Support page's hero progress card, giving wall and schedule cards (inline in `app/support/page.tsx`), and
+the admin dashboard UI (inline in `app/admin/page.tsx`).
+
+## PageHero (no dedicated file)
+
+- **Verified:** `PageHero({ title: string; intro?: string })` renders `div.page-hero > div.wrap > h1` and an
+  optional `p`. It provides the page's only `h1`. Styles: `.page-hero` (crimson gradient, `--onbrand` text),
+  `.page-hero h1` (`clamp(30px,5vw,46px)`), `.page-hero p` in `app/globals.css` ("inner pages & people"
+  section); focus outline turns gold inside it.
+- **Verified:** used by every inner page; the Support page uses the larger `.hero` markup instead.
+- **Reuse:** standard opening for any new inner page, followed by `<div className="wrap page-body">`.
+
+## SocialIcon (no dedicated file)
+
+- **Verified:** `SocialIcon({ icon: "facebook" })` returns a 22×22 `aria-hidden` SVG; any other value
+  returns `null` (unreachable because the prop type only allows `"facebook"`). The accessible name comes from
+  the surrounding link's `aria-label` in `SiteFooter`.
+- **Adding a network:** add a case here, widen the `icon` type, and add an entry to `SOCIAL` in
+  `content/site.ts` (whose type is also `"facebook"` only).
+
+## Cross-component findings
+
+See each file's §13. Summary: `SiteHeader` has two lint-flagged effects and incomplete menu keyboard
+support; `SiteFooter`'s copyright year is frozen at build time on static pages; `ChurchProgress` uses a
+fixed SVG id `cp`; `Avatar` alt text says "Photo of" for placeholder images; `GiveForm` shows a
+misleading error for non-JSON server responses.
