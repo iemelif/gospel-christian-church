@@ -26,8 +26,9 @@ defined as `LINKS.support`, no longer used by the menu). **Both domains point to
 (confirmed by the owner) — so any path works on either host, and `support.…/` serves the same `/` as `www.…/`.
 No redirect exists; the subdomain's future is an open owner question.
 
-> **Current state of `/`:** `app/page.tsx` is a temporary wrapper that renders the Donate page with canonical
-> `/`. A new Home page will replace it (content and photos will come from the owner); see §9.
+> **Home (implemented 2026-09-29):** `/` (`app/page.tsx`) is the Home page: carousel → welcome → Project
+> Nehemiah feature (inline Facebook video, muted autoplay requested; CTA → `/donate`) → "Our Pastor, Deacon,
+> Chairman and Vice Chairman" → Join Us. Spec: `docs/pages/home.md`.
 >
 > **Donate (implemented 2026-09-29):** `/donate` (`app/donate/page.tsx`) is the only Donate route. **`/support`
 > returns 404** (removed; no redirect, not in the sitemap). Spec: `docs/pages/donate.md`.
@@ -47,7 +48,7 @@ No redirect exists; the subdomain's future is an open owner question.
 | Fonts | `next/font/google` in `app/layout.tsx`: **Young Serif** (400) → CSS variable `--font-young-serif` → Tailwind `font-serif` (headings); **Figtree** → `--font-figtree` → `font-sans` (body) |
 | Images | `next/image` for logos; avatars are SVG files in `public/images/people/` |
 | Data storage | **JSON file** `gifts.json` in `DATA_DIR` (default `./data`; `/data` on Cloud Run = mounted GCS bucket). No database |
-| Bot protection | **Google reCAPTCHA v3** (invisible, score-based) on `POST /api/gifts`: action `record_gift`, min score 0.5 (`RECAPTCHA_MIN_SCORE`). Keys: `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` (public), `RECAPTCHA_SECRET_KEY` (server-only). The only runtime external service |
+| Bot protection | **Google reCAPTCHA v3** (invisible, score-based) on `POST /api/gifts`: action `record_gift`, min score 0.5 (`RECAPTCHA_MIN_SCORE`). Keys: `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` (public), `RECAPTCHA_SECRET_KEY` (server-only). The only server-side external service (Home also embeds Facebook's video player iframe in the browser) |
 | Auth | Single shared **`ADMIN_PASSWORD`** → HMAC-signed, httpOnly, 1-day cookie `gcc_admin` (`lib/auth.ts`). No user accounts |
 | Runtime deps | Only `next`, `react`, `react-dom`. Do not add dependencies without asking |
 | Lint | **ESLint 9** flat config `eslint.config.mjs` using `eslint-config-next` (core-web-vitals + typescript). ESLint 10 is not used because Next's plugins don't support it yet (peer conflicts) |
@@ -88,7 +89,8 @@ npm run test:watch   # Vitest, watch mode
 app/                       App Router
   layout.tsx               Root layout: fonts, global metadata, JSON-LD (Church), skip link, SiteHeader, SiteFooter
   globals.css              Tailwind setup: imports (no Preflight), @theme tokens, breakpoints, a few element defaults
-  page.tsx                 "/"  – TEMPORARY wrapper: renders the Donate page with canonical "/"; will become the Home page
+  page.tsx                 "/"  – Home page (static) — see docs/pages/home.md
+  manifest.ts              Web app manifest (icons in public/icons/, made from 02-gcc-logo.jpg)
   donate/page.tsx          "/donate" – THE Donate page for Project Nehemiah (force-dynamic, reads gifts) — see §7.3
   about/ ministries/ contact/  Empty placeholders (PageHero only, noindex)
   leadership/page.tsx      Leadership groups for the current term (not in the header menu, but in sitemap)
@@ -111,6 +113,8 @@ lib/
   store.ts                 gifts.json read/write, serialized update(), summary()
   auth.ts                  password check, session cookie
   seo.ts                   pageMeta() helper for per-page metadata
+  carousel.ts              carouselSlides(): server-side discovery of the Home carousel images (every image in
+                           public/images/hershot-carousel/, alphabetical; no manual list)
   nav.ts                   buildNav(): fills "Leadership History" submenu from officers
   officers.ts              person merging, board rows, leadership groups, displayName()
   slug.ts                  slugify() for avatar file names
@@ -123,7 +127,7 @@ information.md             Original requirements + raw officer lists (CRLF line 
 postcss.config.mjs         Registers the @tailwindcss/postcss plugin (Tailwind has no other config file)
 eslint.config.mjs          ESLint flat config
 vitest.config.mts          Vitest config
-lib/*.test.ts              Unit tests (slug, officers, config, auth, store)
+lib/*.test.ts              Unit tests (slug, officers, config, auth, store, carousel)
 .github/workflows/         ci.yml, deploy.yml
 Dockerfile, .dockerignore  3-stage build (deps → build → run), standalone server
 ```
@@ -235,7 +239,8 @@ The design is desktop-first, so it mostly uses `max-*:` variants. There is no `x
 `wrap` (1080px column), `pageBody`, `brandGradient`, `stripeAfter` / `stripeBefore` (3px crimson|gold|blue
 stripe), `h2` / `h2Size`, `sub`, `muted`, `card` / `cardBox` / `cardTitle` / `cards`, `input`, `label`,
 `errorText`, `btn.*` (`primary`, `primaryLg`, `primaryFull`, `primaryFullLg`, `primarySm`, `ghost`, `ghostSm`,
-`ghostLgOnBrand`), `peopleGrid` / `peopleRowTop` / `peopleRowRest`. Styles used by only one component stay as
+`ghostLgOnBrand`), `peopleGrid` / `peopleRowTop` / `peopleRowRest`, `section` (`py-14` section rhythm),
+`eyebrow` (small gold uppercase label above a heading). Styles used by only one component stay as
 constants in that file (e.g. the radio-card strings in `GiveForm`, the menu strings in `SiteHeader`).
 
 **Writing classes (conventions that keep the design exact)**
@@ -249,6 +254,9 @@ constants in that file (e.g. the radio-card strings in `GiveForm`, the menu stri
   (the step numbers use a CSS counter via `[counter-reset:s]` / `before:content-[counter(s)]`).
 - Print: `print:hidden` on header, footer, buttons and the give bar (receipt printing).
 - `hover:` utilities only apply on devices that support hover (Tailwind v4 behaviour).
+
+**Theme rule:** the Donate page (§7.3) is the visual reference for the GCC/IEMELIF theme. New pages and
+components use only the `@theme` tokens and `lib/ui.ts` strings — no new palette, no UI libraries.
 
 **Other conventions**
 - Headings `h1–h3` are serif, weight 400 (base layer); set sizes per element (`h2` string for section headings).
@@ -326,17 +334,9 @@ constants in that file (e.g. the radio-card strings in `GiveForm`, the menu stri
 
 ## 9. Guidelines for future development
 
-- **Home page (planned, not yet implemented):** build it with the existing layout (header/footer come from
-  `app/layout.tsx`), the Tailwind tokens and `lib/ui.ts` strings in §6, and the Donate page structure in
-  §7.3 as the visual reference (crimson `brandGradient` hero, `card`/`cards` sections, gold `btn.*` CTAs,
-  gold-bordered verse). Replace the whole of
-  `app/page.tsx` (the Donate page is safe in `app/donate/page.tsx`). The Home page's own `pageMeta` path
-  is `"/"`; it should no longer use the Donate title. Content and photos: **waiting on the owner**
-  — don't invent copy, leaders' details or photos.
-- **When the Home page ships, decide together with it (ask the owner):**
-  - `support.gcciemelif.website/` will show the Home page (same deployment). Keep, redirect or retire that
-    subdomain? (No redirect exists today.)
-  - Whether `LINKS.home` should become an internal `/` link ("Donate" is already internal).
+- **Home page (implemented):** keep it on the Donate page theme; welcome copy only from verified data
+  (`content/home.ts`). Open owner questions: keep, redirect or retire `support.gcciemelif.website/` (it shows
+  Home); whether `LINKS.home` should become an internal `/` link.
 - New page checklist: `<main id="main">`, `pageMeta(...)`, `PageHero` (inner pages), add to `NAV` in
   `content/site.ts` if it belongs in the menu, add to `app/sitemap.ts` if indexable, remove `{ index: false }`
   when a placeholder gets real content.

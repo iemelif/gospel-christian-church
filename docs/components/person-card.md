@@ -1,6 +1,6 @@
 # PersonCard
 
-Source: `components/PersonCard.tsx` · Type: Server · Used by: `OfficerBoard`, `/leadership`
+Source: `components/PersonCard.tsx` · Type: Server · Used by: `OfficerBoard`, `/leadership`, `/` (Home leaders)
 
 ## 1. Purpose
 
@@ -17,6 +17,7 @@ Source: `components/PersonCard.tsx` · Type: Server · Used by: `OfficerBoard`, 
 | --- | --- | --- |
 | `person` | `Person` (`lib/officers.ts`) | `{ name: "Last, First"; roles: string[]; photo?: string }` — produced by `toPeople()` |
 | `large` | `boolean?` (default `false`) | Passes on to `Avatar` for the 124px size (officer board rows 1–2) |
+| `href` | `string?` | Makes the whole card a `next/link` (`<li class="flex">` → block link, crimson border on hover/focus, visible focus ring, no transition with reduced motion). Used on Home with `/officers` |
 
 ## 4. Data Dependencies
 

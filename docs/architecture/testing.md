@@ -11,7 +11,7 @@
 
 No formatter (Prettier) is configured.
 
-## 2. Current tests (verified, 82 tests in 15 files, all passing on 2026-09-29)
+## 2. Current tests (verified, 100 tests in 18 files, all passing on 2026-09-29)
 
 | File | Tests | Covers |
 | --- | --- | --- |
@@ -27,6 +27,9 @@ No formatter (Prettier) is configured.
 | `components/GiveForm.test.ts` | 4 | GCash QR above Record Gift (initial render); `MethodDetails` for all four methods before Record Gift; GCash and Maya QR on the receipt (500px box, side-by-side classes); Bank Transfer / Cash at Church without QR on the receipt |
 | `components/ChurchProgress.test.ts` | 2 | default (labelled image) vs decorative (`aria-hidden`) accessibility |
 | `components/JoinUs.test.ts` | 3 | section id, heading, one card per `SCHEDULE` entry, shared classes, default and custom intro, no links |
+| `lib/carousel.test.ts` | 6 | Carousel folder discovery: supported extensions, non-images ignored, alphabetical order, URLs, alt from filename, real folder = files on disk, added/removed file in a temp folder, missing folder |
+| `components/HomeSections.test.ts` | 8 | HeroShotCarousel (every discovered image in order, alt text, 16:9 contain, controls, wrap-around, 5s), VideoEmbed (URL, title, lazy by default; `autoplay` → `&autoplay=true&mute=true`, eager), WelcomeSection (verified content, h1, no About link), PersonCard link mode |
+| `app/page.test.ts` | 4 | Home section order, single `main`, no header/footer; Nehemiah video inline (one iframe, autoplay URL, no play link / "Watch … on Facebook" / `target="_blank"`), CTA → `/donate`; "Our Pastor, Deacon, Chairman and Vice Chairman" with four cards → `/officers`; Home metadata (not Donate) |
 | `lib/nav.test.ts` | 2 | "Donate" → `/donate` internal, no "Support"; Leadership History submenu |
 | `lib/slug.test.ts` | 2 | `slugify` |
 | `app/sitemap.test.ts` | 1 | sitemap has `/donate`, not `/support` |

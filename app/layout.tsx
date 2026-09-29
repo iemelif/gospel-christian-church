@@ -17,11 +17,12 @@ export const metadata: Metadata = {
   title: { default: `${SITE.name} – Calumpit, Bulacan`, template: `%s | ${SITE.shortName}` },
   description: SITE.description,
   applicationName: SITE.name,
-  // Browser tab icon from the church logo → <link rel="icon"> and <link rel="shortcut icon">
+  // Site icon (browser tab, search results, home screen): square PNGs made from the GCC logo image
+  // public/images/hershot-carousel/02-gcc-logo.jpg → public/icons/. Sizes are multiples of 48px for search engines.
   icons: {
-    icon: [{ url: LOGOS.gcc.src, type: "image/png" }],
-    shortcut: [{ url: LOGOS.gcc.src, type: "image/png" }],
-    apple: [{ url: LOGOS.gcc.src, type: "image/png" }],
+    icon: [{ url: "/icons/icon-48.png", type: "image/png", sizes: "48x48" }, { url: "/icons/icon-192.png", type: "image/png", sizes: "192x192" }, { url: "/icons/icon-512.png", type: "image/png", sizes: "512x512" }],
+    shortcut: [{ url: "/icons/icon-48.png", type: "image/png" }],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180" }],
   },
   openGraph: {
     type: "website",
@@ -41,7 +42,7 @@ const jsonLd = {
   "@type": "Church",
   name: SITE.name,
   url: SITE_URL,
-  logo: `${SITE_URL}${LOGOS.gcc.src}`,
+  logo: `${SITE_URL}/icons/icon-512.png`,
   image: `${SITE_URL}${LOGOS.iemelif.src}`,
   description: SITE.description,
   address: {

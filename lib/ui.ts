@@ -18,6 +18,11 @@ export const brandGradient = "bg-[linear-gradient(135deg,var(--color-brand),var(
 export const stripeAfter = "after:absolute after:inset-x-0 after:-bottom-[3px] after:h-[3px] after:bg-[linear-gradient(90deg,var(--color-crimson)_0_34%,var(--color-gold)_34%_67%,var(--color-blue)_67%)] after:content-['']";
 export const stripeBefore = "before:absolute before:inset-x-0 before:top-0 before:h-[3px] before:bg-[linear-gradient(90deg,var(--color-crimson)_0_34%,var(--color-gold)_34%_67%,var(--color-blue)_67%)] before:content-['']";
 
+/** Standard vertical rhythm for a page section (as on the Donate page). */
+export const section = "py-14";
+/** Small uppercase label above a heading, in the IEMELIF gold used under the brand name in the header. */
+export const eyebrow = "mb-2 block font-sans text-[12px] leading-[normal] font-bold tracking-[.16em] text-gold-dark uppercase";
+
 /** Section heading size (was the global `h2` rule); `h2` adds the default 8px bottom margin. */
 export const h2Size = "text-[length:clamp(26px,4vw,36px)]";
 export const h2 = `${h2Size} mb-2`;

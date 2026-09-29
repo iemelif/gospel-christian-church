@@ -1,6 +1,6 @@
 # JoinUs
 
-Source: `components/JoinUs.tsx` · Type: Server · Used by: `app/donate/page.tsx` (and `/`, which renders the Donate page)
+Source: `components/JoinUs.tsx` · Type: Server · Used by: `app/donate/page.tsx`, `app/page.tsx` (Home)
 
 Status: **implemented** (extracted from the Donate page 2026-09-29; the rendered HTML on `/donate` and `/` was
 verified byte-for-byte identical before and after the refactor).
@@ -28,8 +28,8 @@ Worship Service, Morning Devotion today). Edit the schedule there; the footer's 
 
 ## 5. Pages / Components Using It
 
-**Verified:** `app/donate/page.tsx`, as the last section before the mobile give bar; therefore also on `/`
-(temporary Home).
+**Verified:** `app/donate/page.tsx` (custom intro, last section before the mobile give bar) and `app/page.tsx`
+(Home, default intro, last section).
 
 ## 6. Layout and Structure
 
