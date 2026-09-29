@@ -15,17 +15,20 @@ received (only confirmed gifts count toward the public total and giving wall), *
 ## 3. Existing Layout
 
 **Verified:** `app/admin/layout.tsx` wraps content in `<main id="main">`; the site header and footer still
-appear (root layout). Inside `.wrap`:
+appear (root layout). Inside a `wrap` with `py-10`:
 - Loading: "Loading…" while checking for an existing session.
-- Signed out: `.card` form with "Admin password", error line, "Sign in" button, note about one-day sign-in.
-- Signed in: `.admin-head` (`h2` "Treasurer dashboard" + "Log out"), summary line (confirmed total through
-  this site, pending count), error line, `.card` with a scrollable `table`: Date, Ref, Donor (name + email),
-  Amount (+ frequency), Method, Status, actions.
+- Signed out: card form (max 380px) with "Admin password", error line, "Sign in" button, note about one-day
+  sign-in.
+- Signed in: heading row (`h2` "Treasurer dashboard" + "Log out"), summary line (confirmed total through this
+  site, pending count), error line, card with a horizontally scrollable `table`: Date, Ref, Donor (name +
+  email), Amount (+ frequency), Method, Status, actions.
 
 ## 4. Existing Design System
 
-**Verified:** `.card`, `.btn .sm .ghost .full`, `.err`, `.muted`, `.sub`, `table/th/td`, `.acts`,
-`.admin-head`. Several inline `style` props (padding, max-width, overflow).
+**Verified:** Tailwind classes and `lib/ui.ts` strings: `wrap`, `h2`, `card`, `label`, `input`,
+`errorText`, `muted`, `sub`, `btn.primaryFull` (Sign in), `btn.primarySm` (Confirm), `btn.ghostSm` (Delete,
+Undo, Log out). Table cells use a local `cell` string (bottom border, `px-2 py-2.5`, left-aligned, top-aligned);
+the actions cell adds `whitespace-nowrap`. No inline styles.
 
 ## 5. Existing Components to Reuse
 
@@ -46,7 +49,7 @@ No change proposed.
 
 ## 9. Responsive Behavior
 
-**Verified:** table container has `overflow-x: auto`; no admin-specific breakpoints.
+**Verified:** the table's card has `overflow-x-auto`; no admin-specific breakpoints.
 
 ## 10. Accessibility
 

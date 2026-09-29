@@ -32,22 +32,24 @@ None.
 
 ## 6. Layout and Structure
 
-**Verified:** `footer.site-footer` → `div.wrap.foot-grid` with three columns: (1) `div.foot-logos` (IEMELIF
-logo link, new tab; GCC logo link); (2) `b` church name, `address`, `p.sched` schedule, `p` "Questions about
-giving?" + mailto link; (3) only when `SOCIAL` is non-empty: `b` "Follow us" + `ul.social`. Then
-`div.wrap.copy` "© <year> <SITE.name>".
+**Verified:** `<footer>` → `wrap` + 3-column grid (`grid-cols-[auto_1fr_auto]`, gap 32px) with: (1) logo group
+(IEMELIF logo link, new tab; GCC logo link); (2) bold church name, `address`, schedule paragraph, "Questions
+about giving?" + mailto link; (3) only when `SOCIAL` is non-empty: bold "Follow us" + list of round social
+links. Then a `wrap` copyright row "© <year> <SITE.name>" with a top border.
 
 ## 7. Design System / CSS
 
-**Verified:** "footer" section of `app/globals.css`: `.site-footer` (`--paper` background),
-`.site-footer::before` (tri-colour stripe), `.foot-grid` (`auto 1fr auto`), `.foot-logos`, `.logo-sm`
-(48px high), `.social` (40px round `--brand` buttons, gold on hover), `.copy`. Links in the footer are
-`--blue`. `.sched`, `.iemelif`, `.gcc` classes have no CSS rules (hooks only).
+**Verified:** Tailwind classes in `components/SiteFooter.tsx`: `relative bg-paper pt-10 pb-5 text-[14px]
+text-ink`, the 3px crimson/gold/blue stripe on top via `stripeBefore` (`lib/ui.ts`), logos `h-12 w-auto`,
+column headings `text-brand` (local `heading` string), paragraphs `mt-0 mb-1.5 text-mute` (local `line`
+string), links `text-blue`, social links `size-10 rounded-full bg-brand text-white hover:bg-gold
+hover:text-ink`, copyright row `mt-[22px] border-t border-line pt-3.5 text-[13px] text-mute`.
 
 ## 8. Responsive Behavior
 
-**Verified:** ≤800px `.foot-grid` becomes one column. Hidden when printing. At ≤800px `body` gets 70px
-bottom padding (rule in the "donation redesign" media query, meant for the Support page's fixed `.give-bar`).
+**Verified:** the three-column grid is kept at **every** width (see §13). Hidden when printing (`print:hidden`).
+At ≤800px `<body>` has 70px bottom padding (`max-md:pb-[70px]` in `app/layout.tsx`), intended for the Support
+page's fixed give bar.
 
 ## 9. Accessibility
 
@@ -76,8 +78,11 @@ in sync manually. Adding a social network requires `SocialIcon` changes (see `RE
 - The copyright year is computed at render time, so on statically prerendered pages (e.g. `/officers`,
   `/about`) it is frozen at the last build and only updates on redeploy.
 - The email line is labelled "Questions about giving?" on every page, including non-giving pages.
-- The ≤800px `body { padding-bottom: 70px }` is global, so every page (not only those with `.give-bar`)
-  gets extra space below the footer on mobile.
+- The ≤800px body bottom padding (`max-md:pb-[70px]` on `<body>`) is global, so every page (not only the
+  Support page with its fixed give bar) gets extra space below the footer on mobile.
+- **The footer does not stack on narrow screens.** The original CSS contained a ≤800px one-column rule, but it
+  was defined before the base grid rule and never took effect. The Tailwind version deliberately reproduces
+  the real (three-column) behaviour. Whether it should stack is an open design decision.
 
 ## 14. Open Questions
 
@@ -91,4 +96,4 @@ Uses `next/image` for logos without `priority` (below the fold).
 ## 16. References
 
 `components/SiteFooter.tsx`, `components/SocialIcon.tsx`, `app/layout.tsx`, `content/site.ts`,
-`lib/config.ts`, `app/globals.css`.
+`lib/config.ts`, `lib/ui.ts`.

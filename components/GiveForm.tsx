@@ -2,22 +2,34 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AMOUNTS, AMOUNT_NOTES, PAYMENT_METHODS, php } from "@/lib/config";
+import { btn, cardTitle, errorText, input, label, muted } from "@/lib/ui";
 import CopyButton from "./CopyButton";
 
 type Receipt = { ref: string; amount: number; freq: string; method: string };
 
-function MethodDetails({ id }: { id: string }) {
+// Styles used only by this form.
+const fieldset = "m-0 mb-[18px] min-w-0 border-0 p-0";
+const legend = "mb-3 flex items-center gap-2.5 font-serif text-[17px] font-normal";
+const stepNo = "inline-grid size-[26px] place-items-center rounded-full bg-brand font-sans text-[13px] leading-[normal] font-semibold text-white";
+// Radio "cards": the real radio is transparent (opacity 0, peer); the span after it shows the checked/focused state.
+const radioInput = "peer absolute opacity-0";
+const amountSpan = "flex cursor-pointer flex-col items-center rounded-[10px] border-[1.5px] border-line bg-bg px-1.5 py-3 text-center peer-checked:border-brand peer-checked:bg-[color-mix(in_srgb,var(--color-gold)_22%,#fff)] peer-checked:shadow-[0_0_0_1px_var(--color-brand)] peer-focus-visible:outline-[3px] peer-focus-visible:outline-blue";
+const chipLabel = "relative m-0 block text-[14px] font-medium";
+const chipSpan = "block cursor-pointer rounded-lg border-[1.5px] border-line bg-bg px-4 py-2.5 peer-checked:border-brand peer-checked:bg-[color-mix(in_srgb,var(--color-gold)_18%,transparent)] peer-checked:font-semibold peer-checked:shadow-[0_0_0_1px_var(--color-brand)] peer-focus-visible:outline-[3px] peer-focus-visible:outline-blue";
+
+/** Payment instructions for one method. In the receipt the box is centred and narrower. */
+function MethodDetails({ id, receipt = false }: { id: string; receipt?: boolean }) {
   const m = PAYMENT_METHODS.find((x) => x.id === id);
   if (!m) return null;
   return (
-    <div className="how">
-      <dl>
-        {m.rows.map(([label, value]) => (
-          <div key={label}><dt>{label}</dt><dd>{value}</dd></div>
+    <div className={`rounded-lg border border-dashed border-line bg-bg p-3 text-left text-[14px] text-mute ${receipt ? "mx-auto my-4 max-w-[420px]" : "mt-2.5"}`}>
+      <dl className="mt-0 mb-2">
+        {m.rows.map(([rowLabel, value]) => (
+          <div className="flex gap-2.5 py-[3px]" key={rowLabel}><dt className="min-w-[118px] text-mute">{rowLabel}</dt><dd className="m-0 font-semibold text-ink [word-break:break-word]">{value}</dd></div>
         ))}
       </dl>
       {m.copy && <CopyButton value={m.copy} label={id === "Bank transfer" ? "Copy account number" : "Copy number"} />}
-      <p className="how-note">{m.note}</p>
+      <p className="mt-2 mb-0">{m.note}</p>
     </div>
   );
 }
@@ -59,69 +71,69 @@ export default function GiveForm() {
 
   if (receipt) {
     return (
-      <div className="receipt" aria-live="polite">
-        <div className="receipt-mark" aria-hidden="true">✓</div>
-        <h3>Thank you, {name.split(" ")[0]}.</h3>
+      <div className="py-2.5 text-center" aria-live="polite">
+        <div className="mx-auto mb-2.5 grid size-14 place-items-center rounded-full bg-brand text-[28px] text-gold" aria-hidden="true">✓</div>
+        <h3 className={cardTitle}>Thank you, {name.split(" ")[0]}.</h3>
         <p>Your pledge of <b>{php(receipt.amount)}{receipt.freq === "Monthly" ? " every month" : ""}</b> to the Church Building Fund is recorded.</p>
-        <p className="receipt-step">Now send your gift and include this reference number:</p>
-        <div className="ref">{receipt.ref}</div>
+        <p className="mb-0 font-semibold">Now send your gift and include this reference number:</p>
+        <div className="my-2.5 inline-block rounded-md bg-bg px-3.5 py-1.5 text-[20px] leading-[normal] font-semibold [font-family:monospace]">{receipt.ref}</div>
         <div><CopyButton value={receipt.ref} label="Copy reference" /></div>
-        <MethodDetails id={receipt.method} />
-        <p className="muted">Your gift is added to the total once the treasurer confirms it.</p>
-        <button className="btn ghost" onClick={() => { setReceipt(null); setMessage(""); }}>Give again</button>{" "}
-        <button className="btn ghost" onClick={() => window.print()}>Print receipt</button>
+        <MethodDetails id={receipt.method} receipt />
+        <p className={muted}>Your gift is added to the total once the treasurer confirms it.</p>
+        <button className={btn.ghost} onClick={() => { setReceipt(null); setMessage(""); }}>Give again</button>{" "}
+        <button className={btn.ghost} onClick={() => window.print()}>Print receipt</button>
       </div>
     );
   }
 
   return (
     <form onSubmit={(e) => { e.preventDefault(); submit(); }} noValidate>
-      <fieldset>
-        <legend><span className="step">1</span>Choose your gift</legend>
-        <div className="amounts">
+      <fieldset className={fieldset}>
+        <legend className={legend}><span className={stepNo}>1</span>Choose your gift</legend>
+        <div className="grid grid-cols-[repeat(3,1fr)] gap-2 max-xs:grid-cols-[repeat(2,1fr)]">
           {AMOUNTS.map((a) => (
-            <label key={a}>
-              <input type="radio" name="amt" checked={amount === a && !custom} onChange={() => { setAmount(a); setCustom(""); }} />
-              <span><b>{php(a)}</b><small>{AMOUNT_NOTES[a]}</small></span>
+            <label className="relative m-0 block text-[14px] font-semibold" key={a}>
+              <input className={radioInput} type="radio" name="amt" checked={amount === a && !custom} onChange={() => { setAmount(a); setCustom(""); }} />
+              <span className={amountSpan}><b className="text-[18px]">{php(a)}</b><small className="text-[12px] font-medium text-mute">{AMOUNT_NOTES[a]}</small></span>
             </label>
           ))}
         </div>
-        <input type="number" min={1} inputMode="numeric" placeholder="Or enter another amount (₱)" aria-label="Other amount in pesos" value={custom} style={{ marginTop: 10 }}
+        <input className={`${input} mt-2.5`} type="number" min={1} inputMode="numeric" placeholder="Or enter another amount (₱)" aria-label="Other amount in pesos" value={custom}
           onChange={(e) => { setCustom(e.target.value); setAmount(Number(e.target.value)); }} />
-        <div className="chips freq">
+        <div className="mt-3 flex flex-wrap gap-2">
           {["One-time", "Monthly"].map((f) => (
-            <label key={f}><input type="radio" name="freq" checked={freq === f} onChange={() => setFreq(f)} /><span>{f}</span></label>
+            <label className={chipLabel} key={f}><input className={radioInput} type="radio" name="freq" checked={freq === f} onChange={() => setFreq(f)} /><span className={chipSpan}>{f}</span></label>
           ))}
         </div>
-        {monthly && valid && <p className="hint">{php(amount)} a month adds up to <b>{php(amount * 12)}</b> in a year.</p>}
+        {monthly && valid && <p className="mt-2.5 mb-0 text-[14px] font-semibold text-brand">{php(amount)} a month adds up to <b>{php(amount * 12)}</b> in a year.</p>}
       </fieldset>
 
-      <fieldset>
-        <legend><span className="step">2</span>Your details</legend>
-        <div className="two">
-          <div><label htmlFor="name">Full name</label><input id="name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} /></div>
-          <div><label htmlFor="email">Email</label><input id="email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
+      <fieldset className={fieldset}>
+        <legend className={legend}><span className={stepNo}>2</span>Your details</legend>
+        <div className="grid grid-cols-[1fr_1fr] gap-3.5 max-md:grid-cols-[1fr]">
+          <div><label className={label} htmlFor="name">Full name</label><input className={input} id="name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} /></div>
+          <div><label className={label} htmlFor="email">Email</label><input className={input} id="email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
         </div>
-        <label htmlFor="msg" style={{ marginTop: 14 }}>Message or prayer request (optional)</label>
-        <textarea id="msg" value={message} onChange={(e) => setMessage(e.target.value)} />
-        <label className="check"><input type="checkbox" checked={anon} onChange={(e) => setAnon(e.target.checked)} /> Show my gift as “Anonymous” on the giving wall</label>
+        <label className={`${label} mt-3.5`} htmlFor="msg">Message or prayer request (optional)</label>
+        <textarea className={`${input} min-h-[70px] resize-y`} id="msg" value={message} onChange={(e) => setMessage(e.target.value)} />
+        <label className="mb-1.5 flex items-center gap-2 text-[14px] font-medium"><input type="checkbox" checked={anon} onChange={(e) => setAnon(e.target.checked)} /> Show my gift as “Anonymous” on the giving wall</label>
       </fieldset>
 
-      <fieldset>
-        <legend><span className="step">3</span>How will you send it?</legend>
-        <div className="chips">
+      <fieldset className={fieldset}>
+        <legend className={legend}><span className={stepNo}>3</span>How will you send it?</legend>
+        <div className="flex flex-wrap gap-2">
           {PAYMENT_METHODS.map((m) => (
-            <label key={m.id}><input type="radio" name="pm" checked={method === m.id} onChange={() => setMethod(m.id)} /><span>{m.id}</span></label>
+            <label className={chipLabel} key={m.id}><input className={radioInput} type="radio" name="pm" checked={method === m.id} onChange={() => setMethod(m.id)} /><span className={chipSpan}>{m.id}</span></label>
           ))}
         </div>
         <MethodDetails id={method} />
       </fieldset>
 
-      <p className="err" role="alert">{error}</p>
-      <button className="btn full lg" type="submit" disabled={busy}>
+      <p className={errorText} role="alert">{error}</p>
+      <button className={btn.primaryFullLg} type="submit" disabled={busy}>
         {busy ? "Recording…" : valid ? `Record my ${php(amount)}${monthly ? " monthly" : ""} gift` : "Record my gift"}
       </button>
-      <p className="fine">No payment is taken on this site. You’ll get a reference number, then send your gift using the method above.</p>
+      <p className="mt-2.5 mb-0 text-center text-[13px] text-mute">No payment is taken on this site. You’ll get a reference number, then send your gift using the method above.</p>
     </form>
   );
 }

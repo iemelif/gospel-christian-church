@@ -1,7 +1,7 @@
 export default function ChurchProgress({ pct }: { pct: number }) {
   const h = (170 * Math.min(100, pct)) / 100;
   return (
-    <svg viewBox="0 0 200 210" role="img" aria-label={`Church illustration, ${pct.toFixed(1)}% funded`}>
+    <svg className="w-full max-w-[280px]" viewBox="0 0 200 210" role="img" aria-label={`Church illustration, ${pct.toFixed(1)}% funded`}>
       <defs>
         <clipPath id="cp">
           <path d="M30 200V110L80 80V200Z" /><path d="M75 200V85L100 55L125 85V200Z" /><path d="M120 200V80L170 110V200Z" />

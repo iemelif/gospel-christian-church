@@ -9,8 +9,8 @@ chairman, then everyone else in as many columns as fit (the layout required in `
 
 ## 2. Current Implementation
 
-**Verified:** calls `boardRows(term)` (`lib/officers.ts`) and renders up to three `ul.people` lists of
-`PersonCard`s; an empty row is omitted.
+**Verified:** calls `boardRows(term)` (`lib/officers.ts`) and renders up to three `ul` lists of `PersonCard`s;
+an empty row is omitted. Cards in rows 1–2 get `large` (124px avatar).
 
 ## 3. Props / Inputs
 
@@ -31,12 +31,13 @@ entry). Renders `PersonCard`.
 
 ## 6. Layout and Structure
 
-**Verified:** `div.board` → `ul.people.row-top` (row 1) → `ul.people.row-top` (row 2) → `ul.people.row-rest`.
+**Verified:** `div` (grid, gap 24px) → `ul` row 1 → `ul` row 2 → `ul` everyone else.
 
 ## 7. Design System / CSS
 
-**Verified:** "inner pages & people" section of `app/globals.css`: `.board` (grid, gap 24px), `.people`,
-`.row-top` (centred columns up to 240px; larger 124px avatars), `.row-rest` (auto-fill, min 190px).
+**Verified:** Tailwind classes plus shared strings from `lib/ui.ts`: wrapper `grid gap-6`; each list
+`peopleGrid` (no bullets, grid, gap 20px) combined with `peopleRowTop` (rows 1–2: centred columns up to
+240px) or `peopleRowRest` (as many columns of at least 190px as fit).
 
 ## 8. Responsive Behavior
 

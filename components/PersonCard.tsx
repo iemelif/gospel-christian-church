@@ -1,14 +1,15 @@
 import Avatar from "./Avatar";
 import { displayName, type Person } from "@/lib/officers";
 
-export default function PersonCard({ person }: { person: Person }) {
+/** One person as a card. Renders an `<li>`, so place it inside a list. `large` enlarges the avatar. */
+export default function PersonCard({ person, large = false }: { person: Person; large?: boolean }) {
   const [main, ...others] = person.roles;
   return (
-    <li className="person">
-      <Avatar name={displayName(person.name)} photo={person.photo} />
-      <h3>{displayName(person.name)}</h3>
-      <p className="role">{main}</p>
-      {others.length > 0 && <p className="also">{others.join(" · ")}</p>}
+    <li className="rounded-xl border border-line bg-card px-4 py-5 text-center">
+      <Avatar name={displayName(person.name)} photo={person.photo} large={large} />
+      <h3 className="text-[18px] leading-[1.25]">{displayName(person.name)}</h3>
+      <p className="mt-1.5 mb-0 text-[14px] font-semibold text-crimson">{main}</p>
+      {others.length > 0 && <p className="mt-1 mb-0 text-[13px] text-mute">{others.join(" · ")}</p>}
     </li>
   );
 }

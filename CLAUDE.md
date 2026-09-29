@@ -42,8 +42,8 @@ by the owner) — so any path works on either host, and `support.…/` serves th
 | Language | **TypeScript 5.9**, `strict: true`, path alias `@/*` → repo root |
 | Runtime | **Node 24** everywhere: `package.json` engines `>=24 <25`, CI, and `Dockerfile` (`node:24-alpine`) |
 | Package manager | **npm** (`package-lock.json`; CI/Docker use `npm ci`) |
-| Styling | **One global plain-CSS file** `app/globals.css` with CSS custom properties. No Tailwind, no CSS Modules, no CSS-in-JS, no UI library |
-| Fonts | `next/font/google`: **Young Serif** (400) → `--font-serif` (headings), **Figtree** → `--font-sans` (body). Set in `app/layout.tsx` |
+| Styling | **Tailwind CSS v4** (dev dependencies `tailwindcss`, `@tailwindcss/postcss`), run through `postcss.config.mjs`. Configured in CSS (`app/globals.css`: `@theme` tokens, breakpoints); **no `tailwind.config` file**. **Preflight is not enabled.** Repeated patterns are shared class strings in `lib/ui.ts`. No CSS Modules, no CSS-in-JS, no UI component library — see §6 |
+| Fonts | `next/font/google` in `app/layout.tsx`: **Young Serif** (400) → CSS variable `--font-young-serif` → Tailwind `font-serif` (headings); **Figtree** → `--font-figtree` → `font-sans` (body) |
 | Images | `next/image` for logos; avatars are SVG files in `public/images/people/` |
 | Data storage | **JSON file** `gifts.json` in `DATA_DIR` (default `./data`; `/data` on Cloud Run = mounted GCS bucket). No database |
 | Auth | Single shared **`ADMIN_PASSWORD`** → HMAC-signed, httpOnly, 1-day cookie `gcc_admin` (`lib/auth.ts`). No user accounts |
@@ -61,7 +61,7 @@ by the owner) — so any path works on either host, and `support.…/` serves th
 ```bash
 npm install          # first-time setup (ask before running — changes node_modules)
 npm run dev          # dev server, http://localhost:3000
-npm run build        # production build; ALSO the only type-check (there is no separate lint/test)
+npm run build        # production build (also type-checks)
 npm start            # serve the production build
 npm run avatars      # generate placeholder SVGs for officers in content/officers.ts (never overwrites)
 npm run lint         # ESLint (must have 0 errors; CI fails on errors)
@@ -85,7 +85,7 @@ npm run test:watch   # Vitest, watch mode
 ```
 app/                       App Router
   layout.tsx               Root layout: fonts, global metadata, JSON-LD (Church), skip link, SiteHeader, SiteFooter
-  globals.css              ALL styles (tokens, layout, header, footer, donation, people cards)
+  globals.css              Tailwind setup: imports (no Preflight), @theme tokens, breakpoints, a few element defaults
   page.tsx                 "/"  – TEMPORARY wrapper: renders the Support page with canonical "/"; will become the Home page
   support/page.tsx         "/support" – THE donation page (force-dynamic, reads gifts) — see §7.3
   about/ ministries/ contact/  Empty placeholders (PageHero only, noindex)
@@ -109,11 +109,13 @@ lib/
   nav.ts                   buildNav(): fills "Leadership History" submenu from officers
   officers.ts              person merging, board rows, leadership groups, displayName()
   slug.ts                  slugify() for avatar file names
+  ui.ts                    Shared Tailwind class strings (wrap, buttons, cards, headings, inputs, …) — see §6
 public/images/             gcc-logo.png (54×98), iemelif-logo.png (274×269), people/*.svg avatars
 design/original-logos/     Untouched original logos (reference only; not served)
 scripts/generate-avatars.mjs  Avatar generator (runs .ts imports directly under Node 24)
 data/gifts.json            LIVE-LIKE PLEDGE DATA, gitignored — never edit, delete or commit
 information.md             Original requirements + raw officer lists (CRLF line endings; payment details removed)
+postcss.config.mjs         Registers the @tailwindcss/postcss plugin (Tailwind has no other config file)
 eslint.config.mjs          ESLint flat config
 vitest.config.mts          Vitest config
 lib/*.test.ts              Unit tests (slug, officers, config, auth, store)
@@ -146,7 +148,7 @@ Dockerfile, .dockerignore  3-stage build (deps → build → run), standalone se
 - Every page returns `<main id="main">` (the skip link targets `#main`).
 - Metadata: use `pageMeta(title, description, path, { index?: false })` from `lib/seo.ts`. Placeholders use
   `{ index: false }`. Add new indexable pages to `app/sitemap.ts`.
-- Inner pages use `<PageHero title intro? />` then `<div className="wrap page-body">`.
+- Inner pages use `<PageHero title intro? />` then ``<div className={`${wrap} ${pageBody}`}>`` (from `lib/ui.ts`).
 
 **Data / API safety**
 - All writes to gifts go through `update()` in `lib/store.ts` (serialises read-modify-write). Never call
@@ -162,42 +164,87 @@ Dockerfile, .dockerignore  3-stage build (deps → build → run), standalone se
 - Compact style: short components, JSX often on one line, small JSDoc `/** ... */` comments explaining *why*.
 - Double quotes, semicolons, 2-space indent, trailing commas in multi-line literals.
 - Currency always via `php(n)` → `₱12,000,000` (`en-PH`).
-- Inline `style={{...}}` is used sparingly for one-off spacing; prefer classes in `globals.css`.
+- Style with Tailwind classes in the markup (§6). Inline `style={{...}}` only for values computed at runtime
+  (e.g. progress-bar width/left); not for fixed styling.
 
 ---
 
-## 6. UI and design conventions
+## 6. UI and design conventions (Tailwind CSS v4)
 
-**Design tokens** (top of `app/globals.css`, derived from the two logos):
+The visual design was carried over **pixel-for-pixel** from the earlier plain-CSS version (verified with
+before/after screenshots, 2026-09-29). Preserve it; don't restyle as a side effect of other work.
+
+**Setup (`app/globals.css`, `postcss.config.mjs`)**
+- Imports only `tailwindcss/theme.css` and `tailwindcss/utilities.css`. **Preflight (Tailwind's reset) is
+  intentionally not imported**, so browser defaults still apply: paragraphs and lists keep their default
+  margins, `ul` keeps bullets, headings/buttons/`dl` keep UA styles. Set margins/list styles explicitly
+  (`mt-0 mb-6`, `list-none p-0`, …) where the design needs them.
+- Tailwind only scans `app/`, `components/` and `lib/ui.ts` (`@source`). Classes written anywhere else are not
+  generated. Write complete class names literally — never build them by concatenating fragments.
+- `@layer base` holds the only hand-written CSS: `color-scheme`, `* { box-sizing }`, `html` smooth scroll with
+  `scroll-padding-top: 90px` (sticky header), `h1–h3` serif / weight 400 / line-height 1.15 / margin 0,
+  `a { color: inherit }`, the blue `:focus-visible` outline, and the reduced-motion override. Add custom CSS
+  only when a utility genuinely cannot express it (none was needed for the stripe, counters or tick marks).
+
+**Theme tokens** (`@theme static` in `app/globals.css`, derived from the two logos) → utilities such as
+`bg-brand`, `text-mute`, `border-line`; also available as `var(--color-*)` inside arbitrary values:
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `--bg` | `#fbf8f2` | page background (warm off-white) |
-| `--card` | `#fff` | cards |
-| `--paper` | `#f6efe1` | footer, hover fills, trust card |
-| `--ink` / `--mute` | `#2b2226` / `#6b5f63` | text / secondary text |
-| `--line` | `#e9dfd0` | borders |
-| `--brand` / `--brand-2` | `#7f1f36` / `#a12842` | GCC crimson, hero gradient |
-| `--crimson` (= `--red`) | `#b3304a` | accents, active nav underline, errors |
-| `--gold` / `--gold-dark` | `#deb942` / `#8a6a10` | primary buttons, progress, highlights |
-| `--blue` | `#2a6f9e` | IEMELIF blue, focus ring, footer links |
-| `--onbrand` | `#fff8f0` | text on crimson |
+| `bg` | `#fbf8f2` | page background (warm off-white) |
+| `card` | `#fff` | cards |
+| `paper` | `#f6efe1` | footer, hover fills, trust card |
+| `ink` / `mute` | `#2b2226` / `#6b5f63` | text / secondary text |
+| `line` | `#e9dfd0` | borders |
+| `brand` / `brand-2` | `#7f1f36` / `#a12842` | GCC crimson, hero gradient |
+| `crimson` | `#b3304a` | accents, active nav underline, errors |
+| `gold` / `gold-dark` | `#deb942` / `#8a6a10` | primary buttons, progress, highlights |
+| `blue` | `#2a6f9e` | IEMELIF blue, focus ring, footer links |
+| `onbrand` | `#fff8f0` | text on crimson |
 
-- **Signature stripe:** 3px crimson | gold | blue gradient (thirds) under the header and on top of the footer.
-- Headings `h1–h3` use the serif font, weight 400. Body 16px/1.6 Figtree.
-- Layout container: `.wrap` (max-width 1080px, 20px side padding; header uses 1240px).
-- Sections: `section { padding: 56px 0 }`, heading `h2` + intro `p.sub`.
-- **Reusable classes:** `.hero` (crimson gradient, 2-col `.grid`), `.page-hero`, `.card`, `.cards`
-  (auto-fit grid, min 260px), `.btn` (gold) + modifiers `.ghost .sm .lg .full`, `.steps` (numbered cards),
-  `.bar` (progress), `.verse` (gold-bordered quote), `.muted`, `.sub`, `.people/.person` (avatar cards),
-  `.sr` (screen-reader only).
-- Breakpoints in use: **1080px** (header collapses to hamburger), **800px** (grids stack to 1 column,
-  mobile sticky `.give-bar`), **480px** (brand name hidden), **420px** (amount grid 2 cols).
-- **Accessibility is expected:** skip link, `:focus-visible` outline (blue; gold on crimson), `aria-*` on
-  menus/progress bars, `role="alert"` for errors, `aria-live` for status, `prefers-reduced-motion`, print styles.
-- CSS style in `globals.css` is **compact one-line rules**, grouped under `/* ---------- section ---------- */`
-  comments. Add new rules in a new commented section rather than scattering them. Reuse tokens; don't
-  introduce raw colors unless an existing rule does the same (e.g. hero text tints `#f4dbe1`, `#f1c9d2`).
+Tailwind's default palette is still loaded; only its `white` is used (`text-white`, `bg-white`,
+`border-white`). Otherwise stick to these tokens plus the few existing exact tints such as `text-[#f4dbe1]`,
+`text-[#f1c9d2]`, `text-[#1b1404]`.
+
+**Fonts:** `font-sans` = Figtree (`--font-figtree`), `font-serif` = Young Serif (`--font-young-serif`). Body is
+set on `<body>` in `app/layout.tsx`: `font-sans text-[16px] leading-[1.6]`.
+
+**Breakpoints** (custom; Tailwind's defaults are removed). They reproduce the original `max-width` media queries:
+
+| Name | Min width | Original rule | Used for |
+| --- | --- | --- | --- |
+| `xs` | 421px | ≤420px | amount buttons 3 → 2 columns (`max-xs:`) |
+| `sm` | 481px | ≤480px | header brand name hidden (`max-sm:hidden`) |
+| `md` | 801px | ≤800px | grids stack to one column, mobile give bar, body bottom padding (`max-md:`) |
+| `lg` | 1081px | ≤1080px | header collapses to the menu button (`max-lg:`) |
+
+The design is desktop-first, so it mostly uses `max-*:` variants. There is no `xl`/`2xl`.
+
+**Shared class strings — `lib/ui.ts`** (plain strings, not components; combine with template literals):
+`wrap` (1080px column), `pageBody`, `brandGradient`, `stripeAfter` / `stripeBefore` (3px crimson|gold|blue
+stripe), `h2` / `h2Size`, `sub`, `muted`, `card` / `cardBox` / `cardTitle` / `cards`, `input`, `label`,
+`errorText`, `btn.*` (`primary`, `primaryLg`, `primaryFull`, `primaryFullLg`, `primarySm`, `ghost`, `ghostSm`,
+`ghostLgOnBrand`), `peopleGrid` / `peopleRowTop` / `peopleRowRest`. Styles used by only one component stay as
+constants in that file (e.g. the radio-card strings in `GiveForm`, the menu strings in `SiteHeader`).
+
+**Writing classes (conventions that keep the design exact)**
+- Prefer exact arbitrary values from the design (`text-[14px]`, `p-[22px]`, `rounded-[10px]`) over Tailwind's
+  named scale when they differ. Named font sizes like `text-sm` also set a line-height, and `leading-normal`
+  is 1.5 (use `leading-[normal]` for the CSS keyword). Colour gradients are written as
+  `bg-[linear-gradient(…)]` because Tailwind's gradient utilities interpolate differently.
+- Never put two unprefixed utilities that set the same property on one element (e.g. `p-0` and `p-1.5`);
+  which one wins is not obvious. `lib/ui.ts` has one complete string per button variant for this reason.
+- Radio "cards" use `peer` + `peer-checked:` / `peer-focus-visible:`; pseudo-elements use `before:`/`after:`
+  (the step numbers use a CSS counter via `[counter-reset:s]` / `before:content-[counter(s)]`).
+- Print: `print:hidden` on header, footer, buttons and the give bar (receipt printing).
+- `hover:` utilities only apply on devices that support hover (Tailwind v4 behaviour).
+
+**Other conventions**
+- Headings `h1–h3` are serif, weight 400 (base layer); set sizes per element (`h2` string for section headings).
+- Signature 3px crimson | gold | blue stripe under the header and on top of the footer.
+- **Accessibility is expected:** skip link, `:focus-visible` outline (blue; gold inside crimson areas via
+  `[&_:focus-visible]:outline-gold`), `aria-*` on menus/progress bars, `role="alert"` for errors, `aria-live`
+  for status, reduced motion, print styles, `sr-only` for visually hidden text.
 - Brand language: English copy, warm and plain; Filipino role names are kept as-is (e.g. Predigador, Kalihim).
 
 ---
@@ -206,7 +253,7 @@ Dockerfile, .dockerignore  3-stage build (deps → build → run), standalone se
 
 ### 7.1 Header — `components/SiteHeader.tsx` (client)
 - Rendered once in `app/layout.tsx` as `<SiteHeader nav={buildNav()} />`. **Do not render it inside pages.**
-- Sticky, translucent white with blur, tri-colour stripe underneath (`.site-header`, `.site-header::after`).
+- Sticky, translucent white with backdrop blur, tri-colour stripe underneath (`stripeAfter` from `lib/ui.ts`).
 - Left: IEMELIF logo (external, new tab) + GCC logo (→ `LINKS.gcc`) + brand name "Gospel Christian Church /
   IEMELIF". Right: nav from `NAV` in `content/site.ts`.
 - Menu items: internal `Link` (with `aria-current="page"`), `external: true` → plain `<a>`, `children` →
@@ -216,22 +263,25 @@ Dockerfile, .dockerignore  3-stage build (deps → build → run), standalone se
   external links (`LINKS.home`, `LINKS.support`).
 
 ### 7.2 Footer — `components/SiteFooter.tsx` (server)
-- Rendered once in `app/layout.tsx`. Background `--paper`, stripe on top.
-- 3-column grid (`.foot-grid`): small logos | church name, `ADDRESS.display`, schedule line from `SCHEDULE`,
-  giving email | "Follow us" `SOCIAL` icons (`SocialIcon`, currently Facebook only). Copyright row below.
+- Rendered once in `app/layout.tsx`. Background `bg-paper`, stripe on top (`stripeBefore`).
+- 3-column grid at **every** width: small logos | church name, `ADDRESS.display`, schedule line from
+  `SCHEDULE`, giving email | "Follow us" `SOCIAL` icons (`SocialIcon`, currently Facebook only). Copyright row
+  below. (The original CSS intended a one-column layout at ≤800px, but it never took effect; the migration
+  kept the actual behaviour — see §10.)
 - To add a social network: add an icon case in `components/SocialIcon.tsx` **and** an entry in `SOCIAL`.
 
 ### 7.3 Support / Donation page — `app/support/page.tsx`
 - The full donation page (component `SupportPage`, `pageMeta` path `/support`, `force-dynamic`). `/` currently
   renders the same component via `app/page.tsx`. Structure:
-  1. `.hero` 2-col: headline, intro, two `.btn lg` CTAs (`#give`, `#how`), `.verse` (2 Cor 9:7) |
-     `.church` card with `ChurchProgress` SVG, % raised, `church-stats` (still needed, confirmed gifts).
-  2. `section#progress` – `.card` with `.bar` (25/50/75% marks) and `.meta`.
-  3. `section#how` – 3 `.steps`.
-  4. `section#give` – `.form` grid: `.card.form-card` with `<GiveForm/>` | `aside.side` with trust card and
+  1. Hero (`brandGradient`, 2-column grid, one column ≤800px): headline, intro, two CTAs (`btn.primaryLg`
+     → `#give`, `btn.ghostLgOnBrand` → `#how`), gold-bordered verse (2 Cor 9:7) | translucent card with
+     `ChurchProgress` SVG, % raised, stats row (still needed, confirmed gifts).
+  2. `section#progress` – `card` with the progress bar (25/50/75% tick marks) and raised / to-go row.
+  3. `section#how` – 3 numbered step cards (CSS counter).
+  4. `section#give` – 2-column grid: `cardBox` with `<GiveForm/>` | sticky `aside` with the trust card and
      giving wall.
-  5. `section#visit` – schedule `.cards`.
-  6. Mobile sticky `.give-bar` link.
+  5. `section#visit` – schedule `cards`.
+  6. Mobile-only fixed "Give to the building fund" bar (≤800px, hidden in print).
 - The older, simpler duplicate that used to be here was replaced (2026-09-29); `/support` is in the sitemap.
   In-page anchors (`#give`, `#how`, `#progress`) are relative, so they work on any URL.
 - Supporting components: `GiveForm` (3-step fieldset form → POST `/api/gifts` → receipt with ref + copy +
@@ -239,7 +289,7 @@ Dockerfile, .dockerignore  3-stage build (deps → build → run), standalone se
 
 ### Component reuse guidelines
 - Reuse before creating: `PageHero`, `PersonCard`/`OfficerBoard`/`Avatar`, `ChurchProgress`, `GiveForm`,
-  `CopyButton`, `SocialIcon`, and the CSS classes in §6.
+  `CopyButton`, `SocialIcon`, and the shared class strings in `lib/ui.ts` (§6).
 - Reuse data sources instead of duplicating values: `CHURCH`, `SCHEDULE`, `php` (`lib/config.ts`);
   `SITE`, `LINKS`, `LOGOS`, `ADDRESS`, `SOCIAL` (`content/site.ts`); `summary()` (`lib/store.ts`);
   `CURRENT_TERM` + `lib/officers.ts` helpers.
@@ -265,8 +315,9 @@ Dockerfile, .dockerignore  3-stage build (deps → build → run), standalone se
 ## 9. Guidelines for future development
 
 - **Home page (planned, not yet implemented):** build it with the existing layout (header/footer come from
-  `app/layout.tsx`), the design tokens and classes in §6, and the donation page structure in §7.3 as the
-  visual reference (crimson `.hero`, `.card`/`.cards` sections, gold CTAs, `.verse`). Replace the whole of
+  `app/layout.tsx`), the Tailwind tokens and `lib/ui.ts` strings in §6, and the donation page structure in
+  §7.3 as the visual reference (crimson `brandGradient` hero, `card`/`cards` sections, gold `btn.*` CTAs,
+  gold-bordered verse). Replace the whole of
   `app/page.tsx` (the donation page is safe in `app/support/page.tsx`). The Home page's own `pageMeta` path
   is `"/"`; it should no longer use the "Church Building Fund" title. Content and photos: **waiting on the owner**
   — don't invent copy, leaders' details or photos.
@@ -280,7 +331,8 @@ Dockerfile, .dockerignore  3-stage build (deps → build → run), standalone se
   `content/site.ts` if it belongs in the menu, add to `app/sitemap.ts` if indexable, remove `{ index: false }`
   when a placeholder gets real content.
 - Keep content editable by non-developers: new text lists, links and settings go into `content/` or `lib/config.ts`.
-- Mobile first: check 400px, 800px and 1080px breakpoints. Maintain keyboard access and visible focus.
+- Check layouts at 400, 800, 1100 and 1280px (around the `md`/`lg` breakpoints in §6). Maintain keyboard access
+  and visible focus.
 - Verify with `npm run lint && npm test && npm run build`. Add or update `*.test.ts` when changing logic in
   `lib/` or API validation. For UI changes, also run `npm run dev` and look at the page.
 - Component/browser tests (React Testing Library, Playwright) are not set up; ask before adding them.
@@ -301,4 +353,8 @@ Still open:
   on the donation page anyway, but ask before changing them.
 - Header "Support" / "Home" are external links to the subdomains; see §9 for the redirect decision.
 - `react-hooks/set-state-in-effect` warnings in `SiteHeader.tsx` and `app/admin/page.tsx` (refactor candidates).
+- The footer stays three columns on narrow screens: the original CSS meant to stack it at ≤800px, but a
+  source-order bug stopped that rule from applying. The Tailwind migration preserved the real behaviour on
+  purpose; whether it should stack is an owner/design decision.
+- Tailwind Preflight is off on purpose (§6). Turning it on would change spacing, lists and headings site-wide.
 - **Unknown:** any analytics, error monitoring, or DNS/domain-mapping setup (none found in the repo).

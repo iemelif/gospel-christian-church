@@ -20,25 +20,29 @@ church). No payment is processed online. The treasurer confirms received gifts i
 ## 3. Existing Layout
 
 **Verified**, top to bottom inside `<main id="main">`:
-1. `.hero` (crimson gradient), `.grid` 2 columns:
+1. Hero (crimson gradient), 2-column grid:
    - left: `h1` "Help us build a home for every neighbor.", intro paragraph with goal and %, CTAs
-     "Give to the building fund" (`#give`) and "How giving works" (`#how`), `.verse` (2 Corinthians 9:7);
-   - right: `.church` card with `ChurchProgress` SVG, % raised, "₱X of ₱Y", `.church-stats` (still needed;
+     "Give to the building fund" (`#give`) and "How giving works" (`#how`), gold-bordered verse (2 Corinthians
+     9:7);
+   - right: translucent card with `ChurchProgress` SVG, % raised, "₱X of ₱Y", stats row (still needed;
      confirmed gifts online, shown only when > 0).
-2. `section#progress` – `h2` = campaign name, `.sub`, `.card` with `.bar` (progressbar, 25/50/75% marks) and
-   `.meta` (raised / to go).
-3. `section#how` – "How your gift reaches the building", 3 numbered `.steps`.
-4. `section#give` – `.form` grid: `.card.form-card` containing `GiveForm` | `aside.side` with "Give with
-   confidence" trust card (church email) and "Giving wall".
-5. `section#visit` – "Join us", `.cards` from `SCHEDULE`.
-6. `a.give-bar` – mobile-only sticky "Give to the building fund" link to `#give`.
+2. `section#progress` – `h2` = campaign name, intro, card with the progress bar (progressbar, 25/50/75% tick
+   marks) and the raised / to-go row.
+3. `section#how` – "How your gift reaches the building", 3 numbered step cards.
+4. `section#give` – 2-column grid: card containing `GiveForm` | sticky `aside` with "Give with confidence"
+   trust card (church email) and "Giving wall".
+5. `section#visit` – "Join us", schedule cards from `SCHEDULE`.
+6. Mobile-only fixed "Give to the building fund" link to `#give`.
 
 ## 4. Existing Design System
 
-**Verified** classes (all in `app/globals.css`, "donation redesign" section plus base rules): `.hero`,
-`.grid`, `.verse`, `.btn .lg .ghost .full`, `.church`, `.pct`, `.church-stats`, `.bar`, `.marks`, `.meta`,
-`.steps`, `.form`, `.form-card`, `.side` (sticky at top 96px), `.trust`, `.gift`, `.amounts`, `.chips`,
-`.how`, `.receipt`, `.give-bar`. Gold for CTAs/progress, crimson for step numbers and selected states.
+**Verified:** Tailwind classes in `app/support/page.tsx` plus shared strings from `lib/ui.ts`: `wrap`,
+`brandGradient` (hero), `h2`, `sub`, `muted`, `card`, `cardBox`, `cardTitle`, `cards`, `btn.primaryLg`,
+`btn.ghostLgOnBrand`. A local `step` string draws the numbered step cards (CSS counter via
+`[counter-reset:s]` / `before:content-[counter(s)]`). Progress tick marks are absolutely positioned `em`
+elements whose colour depends on whether the mark is reached. The `aside` is `sticky top-24` (96px). Gold for
+CTAs/progress, crimson for step numbers and selected states. Exact tints from the original design are kept
+as arbitrary values (e.g. `text-[#f4dbe1]`, `bg-[rgba(255,255,255,.08)]`).
 
 ## 5. Existing Components to Reuse
 
@@ -68,9 +72,10 @@ No change proposed. The current structure (§3) is the reference for other pages
 
 ## 9. Responsive Behavior
 
-**Verified (CSS):** ≤800px: hero grid, `.form` and `.two` stack; `.steps` become 1 column; `.side` stops being
-sticky; `.give-bar` appears fixed at the bottom and `body` gets 70px bottom padding. ≤420px: amount buttons
-2 columns. Print: header, footer, buttons and `.give-bar` hidden (receipt printing).
+**Verified:** ≤800px (`max-md:`): hero grid, the give grid and name/email stack; steps become 1 column; the
+`aside` stops being sticky; the fixed give bar appears at the bottom and `<body>` gets 70px bottom padding.
+≤420px (`max-xs:`): amount buttons 2 columns. Print: header, footer, buttons and the give bar are hidden
+(`print:hidden`) for receipt printing.
 
 ## 10. Accessibility
 
@@ -88,6 +93,8 @@ canonical `/support`; in sitemap (priority 0.7); no `og:image` (see [README.md](
 ## 12. Implementation Constraints
 
 - Treat as stable reference; don't change markup/behaviour as a side effect of other work.
+- Styling is Tailwind; keep the exact arbitrary values (they reproduce the original design pixel for pixel —
+  see `CLAUDE.md` §6).
 - Server validation in `app/api/gifts/route.ts` is authoritative; client validation is intentionally minimal
   (see §13). Keep error messages consistent if either side changes.
 - `NEXT_PUBLIC_*` values are build-time; changing them requires a redeploy.

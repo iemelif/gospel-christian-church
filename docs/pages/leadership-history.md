@@ -21,13 +21,15 @@ and any unknown slug return **404**.
 
 ## 3. Existing Layout
 
-**Verified:** `PageHero` (title "<label> Officers", intro "Leadership history") → `.wrap.page-body` →
-`OfficerBoard` → `nav.term-links` "Other terms" with links to `/officers` ("2026 - 2027 (current)") and the
-other past terms.
+**Verified:** `PageHero` (title "<label> Officers", intro "Leadership history") → ``${wrap} ${pageBody}`` →
+`OfficerBoard` → `nav` "Other terms" with links to `/officers` ("2026 - 2027 (current)") and the other past
+terms.
 
 ## 4. Existing Design System
 
-As [officers.md](officers.md) §4, plus `.term-links` (top border, pill links with crimson hover border).
+As [officers.md](officers.md) §4, plus the "Other terms" `nav` (top border `border-line`, 22px heading) whose
+links are pill-shaped (local `termLink` string: `border-[1.5px] border-line bg-card rounded-lg`, crimson
+border on hover).
 
 ## 5. Existing Components to Reuse
 
@@ -49,7 +51,7 @@ No change proposed. **Unknown:** whether a `/history` index page is wanted.
 
 ## 9. Responsive Behavior
 
-As [officers.md](officers.md) §9; `.term-links ul` wraps.
+As [officers.md](officers.md) §9; the "Other terms" list wraps (`flex flex-wrap`).
 
 ## 10. Accessibility
 

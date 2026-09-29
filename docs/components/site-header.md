@@ -43,29 +43,40 @@ so it appears on every route including `/admin`. Not imported anywhere else.
 
 ## 6. Layout and Structure
 
-**Verified:** `header.site-header` → `div.wrap.bar-row` containing: `div.brand` (IEMELIF logo link opening in
-a new tab, GCC logo link to `LINKS.gcc`, `span.brand-name` with "IEMELIF" in `small`), `button.menu-btn`
-(hamburger/close icon), and `nav#main-nav` with a `ul` of items.
+**Verified:** `<header>` (sticky) → centred row (max 1240px, `px-5 py-2`, flex, space-between) containing: brand
+group (IEMELIF logo link opening in a new tab, GCC logo link to `LINKS.gcc`, brand name "Gospel Christian
+Church" with "IEMELIF" in a `small`), the menu button (hamburger/close icon), and `nav#main-nav` with a `ul` of
+items.
 
 ## 7. Design System / CSS
 
-**Verified:** "header (sticky)" section of `app/globals.css`: `.site-header` (sticky, translucent white, blur,
-shadow), `.site-header::after` (3px crimson/gold/blue stripe), `.bar-row`, `.brand`, `.logo-link`, `.logo`
-(50px high), `.brand-name`, `.dd-btn`, `.has-dd`, `.dd` / `.dd.show`, `.nested`, `.split`, `.menu-btn`.
-Active link: `aria-current=page` → inset crimson underline. `.site-header .wrap` widens to 1240px.
-`html { scroll-padding-top: 90px }` compensates for the sticky header on in-page anchors.
-The `iemelif` / `gcc` classes on the logo images have no CSS rules (hooks only).
+**Verified:** Tailwind classes in `components/SiteHeader.tsx`, with a few local class-string constants:
+- Header: `sticky top-0 z-50`, translucent white `bg-[rgba(255,255,255,.94)]`, backdrop `saturate(1.4) blur(10px)`
+  (arbitrary `[backdrop-filter:…]` to keep the original filter order), two-part shadow, and the 3px
+  crimson/gold/blue stripe underneath via `stripeAfter` from `lib/ui.ts`.
+- Logos `h-[50px] w-auto`; brand name `font-serif text-[19px] leading-[1.1] text-brand`, "IEMELIF" in bold
+  11px `tracking-[.16em] text-gold-dark`.
+- `navItemBase` / `navItem`: menu links and dropdown buttons (`text-[15px] font-medium`, `px-[11px] py-[9px]`,
+  `rounded-lg`, `hover:bg-paper`, `aria-expanded:bg-paper`, active link
+  `aria-[current=page]:shadow-[inset_0_-3px_0_var(--color-crimson)]`).
+- `menuList` (all menu lists: no bullets, 2px gap), `dropdown` (first level: floating white panel, 240px
+  min-width, 10px radius, shadow), `nestedDropdown` (Leadership History: in place, indented 14px). Open state
+  toggles `flex` / `hidden`.
+- The centred row is 1240px wide (wider than the 1080px `wrap` used by pages).
+- `html { scroll-padding-top: 90px }` in the base layer of `app/globals.css` compensates for the sticky header on
+  in-page anchors.
 
 ## 8. Responsive Behavior
 
-**Verified:** >1080px: horizontal menu, dropdowns absolutely positioned. ≤1080px: `.menu-btn` shown, `nav`
-hidden until `.open`, then shown as a full-width panel (scrollable, max-height viewport − 70px) with
-dropdowns inline and indented. ≤480px: `.brand-name` hidden (logos only). Print: header hidden.
+**Verified:** ≥1081px: horizontal menu, first-level dropdowns absolutely positioned. ≤1080px (`max-lg:`): the
+menu button is shown; `nav` is hidden until opened, then shown as a full-width white panel under the header
+(scrollable, `max-h-[calc(100vh-70px)]`), with dropdowns shown in place and indented. ≤480px (`max-sm:`):
+brand name hidden (logos only). Print: header hidden (`print:hidden`).
 
 ## 9. Accessibility
 
 **Verified:** `nav aria-label="Main"`; menu button has `aria-expanded`, `aria-controls="main-nav"` and
-visually hidden text "Menu"; dropdown buttons have `aria-expanded` and `aria-haspopup="true"`; split items'
+visually hidden text "Menu" (`sr-only`); dropdown buttons have `aria-expanded` and `aria-haspopup="true"`; split items'
 arrow gets `aria-label="<label> submenu"`; logo links have `aria-label`s; Escape closes menus; outside click
 closes dropdowns; focus ring `:focus-visible` (blue). Skip link lives in the layout, not here.
 See §13 for gaps.
@@ -87,6 +98,8 @@ Security: no user input; the only external link opened in a new tab uses `rel="n
 
 - Keep the literal "Leadership History" label or update `lib/nav.ts` with it.
 - Keep `id="main-nav"` in sync with `aria-controls`.
+- `NavLink` accepts an optional `className` (default `navItem`); "split" items pass a variant with smaller right
+  padding. Keep padding out of `navItemBase` so no element gets two conflicting padding utilities.
 - Changing Home/Support links is an owner decision (see `docs/pages/home.md` §14).
 
 ## 13. Known Issues / Technical Debt
@@ -99,6 +112,8 @@ Security: no user input; the only external link opened in a new tab uses `rel="n
 - `aria-haspopup="true"` announces a menu, but the ARIA menu keyboard pattern (arrow keys, focus moving
   into the menu) is not implemented; it behaves as a disclosure. Escape does not return focus to the button.
 - A `NavItem` with neither `href` nor `children` would render a link to `#`.
+- `hover:` styles apply only on devices that support hover (Tailwind v4); on touch screens a tapped item no
+  longer keeps its hover background.
 
 ## 14. Open Questions
 
@@ -115,5 +130,5 @@ Security: no user input; the only external link opened in a new tab uses `rel="n
 ## 16. References
 
 `components/SiteHeader.tsx`, `app/layout.tsx`, `content/site.ts` (`NAV`, `LINKS`, `LOGOS`, `SITE`),
-`lib/nav.ts`, `content/officers.ts` (`HISTORY_TERMS`), `app/globals.css`, `eslint.config.mjs`,
+`lib/nav.ts`, `content/officers.ts` (`HISTORY_TERMS`), `lib/ui.ts`, `app/globals.css`, `eslint.config.mjs`,
 `docs/pages/README.md`.

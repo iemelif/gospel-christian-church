@@ -6,8 +6,9 @@ import SiteFooter from "@/components/SiteFooter";
 import { ADDRESS, LOGOS, SITE, SITE_URL, SOCIAL, LINKS } from "@/content/site";
 import { buildNav } from "@/lib/nav";
 
-const serif = Young_Serif({ weight: "400", subsets: ["latin"], variable: "--font-serif" });
-const sans = Figtree({ subsets: ["latin"], variable: "--font-sans" });
+// Variable names must not be --font-sans / --font-serif: those are Tailwind theme variables (mapped in globals.css).
+const serif = Young_Serif({ weight: "400", subsets: ["latin"], variable: "--font-young-serif" });
+const sans = Figtree({ subsets: ["latin"], variable: "--font-figtree" });
 
 export const viewport: Viewport = { themeColor: "#ffffff" };
 
@@ -57,8 +58,8 @@ const jsonLd = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${serif.variable} ${sans.variable}`}>
-      <body>
-        <a className="skip" href="#main">Skip to content</a>
+      <body className="m-0 bg-bg font-sans text-[16px] leading-[1.6] font-normal text-ink max-md:pb-[70px]">
+        <a className="absolute top-[-60px] left-3 z-[100] rounded-lg bg-gold px-4 py-2.5 font-semibold text-[#1b1404] focus:top-3" href="#main">Skip to content</a>
         <SiteHeader nav={buildNav()} />
         {children}
         <SiteFooter />

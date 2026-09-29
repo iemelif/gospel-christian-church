@@ -30,12 +30,13 @@ inside `MethodDetails` when a method has a `copy` value.
 
 ## 6. Layout and Structure
 
-**Verified:** a single `button type="button" class="copy-btn"`.
+**Verified:** a single `button type="button"`.
 
 ## 7. Design System / CSS
 
-**Verified:** `.copy-btn` in the "donation redesign" section of `app/globals.css` (small crimson-outlined
-button, filled on hover). It does **not** use `.btn`, so it is not hidden by the print rule.
+**Verified:** Tailwind classes on the button: small crimson-outlined button (`border-[1.5px] border-brand
+bg-card text-brand text-[13px] font-semibold rounded-md px-3 py-[5px] leading-[normal]`), filled on hover
+(`hover:bg-brand hover:text-white`). It does not use the `btn.*` strings, so it is **not** hidden when printing.
 
 ## 8. Responsive Behavior
 
@@ -63,7 +64,8 @@ None beyond keeping `type="button"`.
 ## 13. Known Issues / Technical Debt
 
 **Verified, not fixed:** the 2-second timer is not cleared on unmount (harmless state update on an
-unmounted component); failures give no feedback.
+unmounted component); failures give no feedback. The hover fill applies only on devices that support hover
+(Tailwind v4 `hover:`).
 
 ## 14. Open Questions
 
@@ -75,4 +77,4 @@ None.
 
 ## 16. References
 
-`components/CopyButton.tsx`, `components/GiveForm.tsx`, `app/globals.css`.
+`components/CopyButton.tsx`, `components/GiveForm.tsx`.

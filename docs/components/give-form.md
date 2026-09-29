@@ -10,8 +10,9 @@ the site**; the donor pays separately and the treasurer confirms in `/admin`.
 
 ## 2. Current Implementation
 
-**Verified:** default export `GiveForm()` (no props) plus internal `MethodDetails({ id })`, which renders the
-selected payment method's detail rows, an optional `CopyButton`, and a note. Two views: the form, or the
+**Verified:** default export `GiveForm()` (no props) plus internal `MethodDetails({ id, receipt? })`, which renders
+the selected payment method's detail rows, an optional `CopyButton`, and a note (`receipt` centres and narrows
+the box on the receipt view). Two views: the form, or the
 receipt once a pledge is recorded.
 
 ## 3. Props / Inputs
@@ -28,36 +29,39 @@ Defaults: ₱1,000, One-time, first method (GCash).
 
 ## 5. Pages / Components Using It
 
-**Verified:** `app/support/page.tsx` inside `.card.form-card` in `section#give`; therefore also on `/`
+**Verified:** `app/support/page.tsx` inside a card (`cardBox`, padding 28px / 20px ≤800px) in `section#give`; therefore also on `/`
 (temporary wrapper). Renders `CopyButton`.
 
 ## 6. Layout and Structure
 
-**Verified:** `form` (`noValidate`) with three `fieldset`s, each with a numbered `legend`
-(`span.step`): 1 "Choose your gift" (`.amounts` grid, custom amount input, `.chips.freq`, monthly `.hint`
-showing the yearly total); 2 "Your details" (`.two` name/email, message `textarea`, `.check` anonymous);
-3 "How will you send it?" (`.chips` methods + `MethodDetails`). Then `p.err`, full-width submit button
-(label shows the amount), and `.fine` print. Receipt view: `.receipt` with `.receipt-mark` ✓, thank-you
-`h3` using the first word of the name, pledge summary, `.ref` reference, copy button, `MethodDetails`,
-"Give again" and "Print receipt" buttons.
+**Verified:** `form` (`noValidate`) with three `fieldset`s, each with a numbered `legend` (crimson number
+circle): 1 "Choose your gift" (grid of amount radio cards, custom amount input, One-time / Monthly chips,
+monthly hint showing the yearly total); 2 "Your details" (name/email in two columns, message `textarea`,
+"Anonymous" checkbox); 3 "How will you send it?" (payment-method chips + `MethodDetails`). Then the error
+line, full-width submit button (label shows the amount), and fine print. Receipt view: crimson ✓ circle,
+thank-you `h3` using the first word of the name, pledge summary, monospace reference, copy button,
+`MethodDetails`, "Give again" and "Print receipt" buttons.
 
 ## 7. Design System / CSS
 
-**Verified:** base rules (`.form` is on the parent page; here: `label`, `legend`, `fieldset`, inputs,
-`.chips`, `.check`, `.two`, `.err`, `.how`, `.receipt`) and the "donation redesign" section (`.step`,
-`.amounts`, `.freq`, `.hint`, `.how dl/dt/dd`, `.how-note`, `.btn.full.lg`, `.fine`, `.receipt-mark`,
-`.receipt-step`) in `app/globals.css`. Selected options: crimson border + gold tint.
+**Verified:** Tailwind classes. Shared strings from `lib/ui.ts`: `input`, `label`, `errorText`, `muted`,
+`cardTitle`, `btn.primaryFullLg` (submit), `btn.ghost` (receipt buttons). Local constants in
+`components/GiveForm.tsx`: `fieldset`, `legend`, `stepNo`, `radioInput`, `amountSpan`, `chipLabel`, `chipSpan`.
+Radio cards: the real radio is transparent (`peer absolute opacity-0`) and the following `span` shows the state
+with `peer-checked:` (crimson border + 1px crimson ring + gold tint, via `color-mix`) and
+`peer-focus-visible:` (3px blue outline).
 
 ## 8. Responsive Behavior
 
-**Verified:** ≤800px: `.two` stacks, parent `.form-card` padding shrinks. ≤420px: `.amounts` 2 columns.
-Print: buttons hidden (so the receipt prints cleanly), header/footer hidden.
+**Verified:** ≤800px (`max-md:`): name/email stack; the parent card's padding shrinks to 20px. ≤420px
+(`max-xs:`): amount buttons in 2 columns. Print: buttons are hidden (`print:hidden` in `btn.*`), so the receipt
+prints cleanly; header and footer are hidden too.
 
 ## 9. Accessibility
 
 **Verified:** `fieldset`/`legend` grouping; name, email and message have `label htmlFor`; custom amount has
 `aria-label`; radio inputs are visually hidden but focusable with a visible `:focus-visible` outline on the
-styled span; `p.err role="alert"`; receipt container `aria-live="polite"`; submit disabled while busy.
+styled span; error line `role="alert"`; receipt container `aria-live="polite"`; submit disabled while busy.
 
 ## 10. Client / Server Behavior
 
@@ -83,7 +87,7 @@ authentication and has no rate limit or bot protection.
 
 ## 11. Reuse Guidelines
 
-Use as-is inside a `.card`; it owns its state and API call. Change amounts, captions and payment methods in
+Use as-is inside a card (`card`/`cardBox` from `lib/ui.ts`); it owns its state and API call. Change amounts, captions and payment methods in
 `lib/config.ts`, not here. Don't render two instances on one page (duplicate `id`s: `name`, `email`, `msg`,
 and shared radio `name`s).
 
@@ -118,4 +122,4 @@ Selecting a preset clears the custom amount; typing a custom amount sets `amount
 ## 16. References
 
 `components/GiveForm.tsx`, `components/CopyButton.tsx`, `lib/config.ts`, `app/api/gifts/route.ts`,
-`lib/store.ts`, `app/support/page.tsx`, `app/globals.css`, `docs/pages/support.md`.
+`lib/store.ts`, `app/support/page.tsx`, `lib/ui.ts`, `docs/pages/support.md`.

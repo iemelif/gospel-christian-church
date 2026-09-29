@@ -21,12 +21,13 @@ and organization leaders), as opposed to the full officer board on `/officers`.
 ## 3. Existing Layout
 
 **Verified:** `PageHero` (title "Church Leadership", intro "Those who shepherd and serve our congregation,
-2026 - 2027.") → `.wrap.page-body` → one `section` per group with `h2` and `ul.people.row-rest` of `PersonCard`s.
+2026 - 2027.") → ``${wrap} ${pageBody}`` → one `section` per group with `h2` and a `ul` (`peopleGrid` +
+`peopleRowRest`) of `PersonCard`s.
 
 ## 4. Existing Design System
 
-Same as [officers.md](officers.md) §4 (`.people`, `.row-rest`, `.person`, `.avatar`, `.role`, `.also`).
-`.page-body section` has bottom padding 36px.
+Same as [officers.md](officers.md) §4 (`PersonCard`, `Avatar`, `peopleGrid` / `peopleRowRest`). Each group
+`section` has `pb-9` (36px); its `h2` uses `h2Size` with an 18px bottom margin (`mb-[18px]`).
 
 ## 5. Existing Components to Reuse
 
@@ -48,7 +49,7 @@ No change proposed. **Owner input required:** whether this page should appear in
 
 ## 9. Responsive Behavior
 
-**Verified:** `.row-rest` auto-fill grid (min 190px) → one column on narrow screens.
+**Verified:** the `peopleRowRest` auto-fill grid (min 190px) reflows to one column on narrow screens.
 
 ## 10. Accessibility
 

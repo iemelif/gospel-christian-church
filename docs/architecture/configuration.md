@@ -10,6 +10,9 @@ Values are intentionally **not** reproduced here; see `.env.example` for names a
 | `content/officers.ts` | `BOARD_ROLES`, `LEADERSHIP_GROUPS`, `CURRENT_TERM`, `HISTORY_TERMS` | Edit + redeploy |
 | `lib/config.ts` | `CHURCH` (name, email, goal, baseRaised, campaign), `SCHEDULE`, `PAYMENT_METHODS`, `AMOUNTS`, `AMOUNT_NOTES`, `php()` | Edit and/or env vars + rebuild |
 | `next.config.ts` | `output: "standalone"` only | — |
+| `postcss.config.mjs` | Registers the `@tailwindcss/postcss` plugin | — |
+| `app/globals.css` | Tailwind configuration (CSS-based, no `tailwind.config` file): imports of `tailwindcss/theme.css` and `tailwindcss/utilities.css` only (**no Preflight**); `@source` limits class scanning to `app/`, `components/`, `lib/ui.ts`; `@theme static` colour tokens; `@theme inline` font mapping (`--font-figtree`, `--font-young-serif`); custom breakpoints `xs` 421px, `sm` 481px, `md` 801px, `lg` 1081px; a small `@layer base` of element defaults | Edit + rebuild; see `CLAUDE.md` §6 |
+| `lib/ui.ts` | Shared Tailwind class strings (buttons, cards, headings, inputs, layout) | Edit + rebuild |
 | `tsconfig.json` | strict TS, `@/*` alias | — |
 | `eslint.config.mjs`, `vitest.config.mts` | Lint and test config ([testing.md](testing.md)) | — |
 
