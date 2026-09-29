@@ -1,4 +1,17 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
+
+/** Width/height from a JPEG's SOF header (no image library needed). */
+function jpegSize(buf: Buffer) {
+  let i = 2;
+  while (i < buf.length) {
+    const marker = buf[i + 1], len = buf.readUInt16BE(i + 2);
+    if (marker >= 0xc0 && marker <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(marker)) return { width: buf.readUInt16BE(i + 7), height: buf.readUInt16BE(i + 5) };
+    i += 2 + len;
+  }
+  throw new Error("not a JPEG");
+}
 
 // config.ts reads NEXT_PUBLIC_* when it is first imported, so each test stubs env and re-imports it.
 async function load(env: Record<string, string>) {
@@ -27,6 +40,23 @@ describe("PAYMENT_METHODS", () => {
   it("always lists all four methods", async () => {
     const { PAYMENT_IDS } = await load({});
     expect(PAYMENT_IDS).toEqual(["GCash", "Maya", "Bank transfer", "Cash at church"]);
+  });
+
+  it("adds QR codes to GCash and Maya only (when configured), pointing to real files with their true size", async () => {
+    const { PAYMENT_METHODS } = await load({
+      NEXT_PUBLIC_GCASH_NUMBER: "GCash Number: +639000000000 · Account name: A",
+      NEXT_PUBLIC_MAYA_NUMBER: "Maya Number: +639000000001 · Account name: A",
+      NEXT_PUBLIC_BANK_DETAILS: "Bank: B · Account name: A · Account no.: 1",
+    });
+    const qr = Object.fromEntries(PAYMENT_METHODS.map((m) => [m.id, m.qr]));
+    expect(qr["GCash"]?.src).toBe("/images/payments/qrcode-gcash.jpg");
+    expect(qr["Maya"]?.src).toBe("/images/payments/qrcode-maya.jpg");
+    expect(qr["Bank transfer"]).toBeUndefined();
+    expect(qr["Cash at church"]).toBeUndefined();
+    for (const q of [qr["GCash"]!, qr["Maya"]!]) {
+      expect(q.alt).toMatch(/QR code for sending your gift$/);
+      expect(jpegSize(readFileSync(path.join(process.cwd(), "public", q.src)))).toEqual({ width: q.width, height: q.height });
+    }
   });
 
   it("keeps the stored ids unchanged and shows the donor-facing labels", async () => {

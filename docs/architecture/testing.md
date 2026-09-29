@@ -11,18 +11,21 @@
 
 No formatter (Prettier) is configured.
 
-## 2. Current tests (verified, 63 tests in 11 files, all passing on 2026-09-29)
+## 2. Current tests (verified, 79 tests in 14 files, all passing on 2026-09-29)
 
 | File | Tests | Covers |
 | --- | --- | --- |
 | `app/api/gifts/route.test.ts` | 17 | `POST /api/gifts`: optional/valid/invalid email, name and amount validation unchanged, existing payment ids accepted (labels rejected), reCAPTCHA v3 cases (missing token, Google request failure, `success: false`, wrong action, low score, missing secret, success), gift saved only after verification, token not stored, secret never returned; `GET` public summary contains no email |
 | `lib/recaptcha.test.ts` | 12 | `verifyRecaptcha()` (request format, all failure reasons, threshold boundary, secret never in the result) and `recaptchaMinScore()` |
-| `lib/config.test.ts` | 7 | `php`, campaign "Project Nehemiah" and goal, `PAYMENT_METHODS` parsing, ids unchanged + labels |
+| `lib/config.test.ts` | 8 | `php`, campaign "Project Nehemiah" and goal, `PAYMENT_METHODS` parsing, ids unchanged + labels, GCash/Maya QR paths and sizes matching the image files |
 | `lib/auth.test.ts` | 6 | password check, session tampering/expiry/password change, cookie parsing |
 | `lib/officers.test.ts` | 5 | `displayName`, `imageSrc`, `toPeople`, `boardRows`, `leadershipGroups` |
 | `lib/progress.test.ts` | 4 | `fundedPercent()` normal, zero raised, capped at 100, no division by zero/negatives; `formatPercent()` |
 | `lib/store.test.ts` | 4 | missing/corrupt file, concurrent `update()`, `summary()` totals and anonymity |
-| `components/FundraisingPercent.test.ts` | 3 | rendered percentage and screen-reader sentence (normal, zero, capped) via `react-dom/server` |
+| `components/FundraisingPercent.test.ts` | 7 | rendered percentage and screen-reader sentence (normal, zero, capped); church illustration rendered first (left of the percentage and text), decorative, using the `ChurchProgress` drawing, with its size and layout classes |
+| `components/PaymentDetails.test.ts` | 5 | GCash/Maya QR paths, intrinsic sizes, alt text, layout classes (no rounding); Bank Transfer / Cash at Church unchanged; no QR when not configured |
+| `components/GiveForm.test.ts` | 4 | GCash QR above Record Gift (initial render); `MethodDetails` for all four methods before Record Gift; GCash and Maya QR on the receipt (500px box, side-by-side classes); Bank Transfer / Cash at Church without QR on the receipt |
+| `components/ChurchProgress.test.ts` | 2 | default (labelled image) vs decorative (`aria-hidden`) accessibility |
 | `lib/nav.test.ts` | 2 | "Donate" → `/donate` internal, no "Support"; Leadership History submenu |
 | `lib/slug.test.ts` | 2 | `slugify` |
 | `app/sitemap.test.ts` | 1 | sitemap has `/donate`, not `/support` |
@@ -47,7 +50,8 @@ unused import (`scripts/generate-avatars.mjs`).
 ## 5. Coverage gaps (verified)
 
 - `/api/gifts` is tested (above); **no** tests for `/api/admin` rules or the admin session / rate limit.
-- Component rendering is tested only for `FundraisingPercent` (server-side render, no DOM); no React Testing
+- Component rendering is tested with server-side rendering only (`FundraisingPercent`, `PaymentDetails`,
+  `ChurchProgress`, `GiveForm` initial render / `MethodDetails`; no DOM or state changes); no React Testing
   Library / jsdom, no interaction tests, and no browser/E2E tests in the repository (browser checks during
   development were done with a temporary script outside the repo).
 - No accessibility or visual regression checks.

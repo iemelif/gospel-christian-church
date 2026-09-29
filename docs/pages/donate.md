@@ -7,6 +7,10 @@ The Donate page exists specifically to support **Project Nehemiah**, the church 
 Nehemiah naming, prominent payment methods, optional donor email, fundraising percentage above the Giving
 Wall, and Google reCAPTCHA v3 on gift recording. `/support` no longer exists (404).
 
+> Also implemented 2026-09-29 (verified in the rendered page): GCash/Maya QR codes in the payment details (in the
+> "Ways to send your gift" cards, above the Record Gift button and on the receipt) and a small church
+> illustration in the fundraising percentage card.
+
 ## 1. Purpose
 
 - **Owner-provided:** Project Nehemiah is the church building project; this page exists to support it. Goal
@@ -43,10 +47,13 @@ Wall, and Google reCAPTCHA v3 on gift recording. `/support` no longer exists (40
 3. `section#how` – "How your gift reaches the building", 3 numbered step cards (step 2: "Use GCash, Maya, Bank
    Transfer, or Cash at Church. …").
 4. **`section#ways` – "Ways to send your gift"**: one card per payment method (GCash, Maya, Bank Transfer, Cash
-   at Church) with its details, a copy button where a number exists, and its note. Two columns on wide
+   at Church) with its details, a copy button where a number exists, and its note. GCash and Maya also show
+   their **QR code** (left of the details at 180px, or stacked above them at up to 240px in narrow cards). Two columns on wide
    screens, one on narrow screens. Shown **before** the form.
-5. `section#give` – 2-column grid: card containing `GiveForm` | sticky `aside` with, in order: "Give with
-   confidence" trust card, **`FundraisingPercent`**, "Giving wall".
+5. `section#give` – 2-column grid: card containing `GiveForm` (whose payment details box above the Record Gift
+   button shows the GCash/Maya QR for the selected method) | sticky `aside` with, in order: "Give with
+   confidence" trust card, **`FundraisingPercent`** (large church illustration on the left, then the percentage and
+   sentence), "Giving wall".
 6. `section#visit` – "Join us", schedule cards from `SCHEDULE`.
 7. Mobile-only fixed **"Give to Project Nehemiah"** link to `#give`.
 
@@ -71,6 +78,11 @@ page-related hand-written CSS is `.grecaptcha-badge { visibility: hidden }` in t
 
 - **Verified:** no images; the church illustration is inline SVG (`components/ChurchProgress.tsx`). Logos come
   from the shared header/footer.
+- **Verified:** QR-only code images `public/images/payments/qrcode-gcash.jpg` (441×442) and
+  `public/images/payments/qrcode-maya.jpg` (663×663), used by `PaymentDetails` (replaced by the owner on
+  2026-09-29; the earlier full-screenshot versions and the `*:Zone.Identifier` files are gone).
+- **Verified:** no church illustration image file exists; the church illustration is the inline-SVG component
+  `ChurchProgress` (hero, and as the decorative left-side illustration in `FundraisingPercent`).
 - **Owner input required:** any Project Nehemiah imagery (none provided).
 
 ## 7. Content Requirements
@@ -102,6 +114,20 @@ page-related hand-written CSS is `.grecaptcha-badge { visibility: hidden }` in t
 
 No change proposed; §3 is the implemented structure.
 
+**QR codes and church illustration (implemented 2026-09-29):**
+- **QR codes** — details in [payment-details.md](../components/payment-details.md). GCash and Maya show their QR
+  (alt "GCash/Maya QR code for sending your gift", files `public/images/payments/qrcode-gcash.jpg` and
+  `qrcode-maya.jpg`, set in the payment-method configuration) with the account details in the "Ways to send your
+  gift" cards, in the form's payment details box **before Record Gift**, and on the **receipt**. QR on the left at
+  180px and details on the right when the box is ≥460px wide (desktop cards, form box, and the receipt box — max
+  500px — from ~600px viewports); otherwise stacked above the details at up to 240px (phones). Bank Transfer and
+  Cash at Church have no QR and are unchanged. Payment method ids and details are unchanged.
+- **Church illustration** — details in [fundraising-percent.md](../components/fundraising-percent.md). The
+  existing `ChurchProgress` SVG (decorative) is on the **left** of the percentage card: 76×80px next to the
+  percentage-above-sentence block in the desktop sidebar and on phones ≥ ~360px; 54×57px in the one-row layout on
+  wider cards (e.g. 480–800px viewports). Hidden at 320–350px and in the narrow tablet sidebar (810–960px). The
+  sentence never exceeds two lines where it is shown; the card is taller than before (91 / 119px).
+
 ## 9. Responsive Behavior
 
 **Verified:** ≤800px (`max-md:`): hero grid, the give grid and name/email stack; steps become 1 column; the
@@ -132,7 +158,9 @@ adds no challenge or widget to interact with.
 ## 12. Implementation Constraints
 
 - Keep the current visual design; styling is Tailwind (`CLAUDE.md` §6).
-- **Payment details** only from `PAYMENT_METHODS` / `NEXT_PUBLIC_*`; never hard-coded or invented.
+- **Payment details** only from `PAYMENT_METHODS` / `NEXT_PUBLIC_*`; never hard-coded or invented. QR images are
+  part of the GCash/Maya configuration (`qr` in `lib/config.ts`, with the files' real sizes) and must match the
+  configured accounts; they are shown only when that method's details are set.
 - **Payment method ids must not change** (`GCash`, `Maya`, `Bank transfer`, `Cash at church`): they are stored
   in existing pledges, validated by the server, shown in `/admin`, and compared in `PaymentDetails`
   (`id === "Bank transfer"` selects "Copy account number"). Change the `label` for display instead.
@@ -196,17 +224,23 @@ in public data), `lib/recaptcha.test.ts`, `lib/progress.test.ts`, `components/Fu
    the church building project); "Give to Project Nehemiah" (CTAs); "Ways to send your gift" and its intro;
    "… of the ₱12,000,000 Project Nehemiah goal raised" (percentage).
 6. `/admin` still shows the stored method id (e.g. "Bank transfer"), not the label. Change?
+7. **QR codes:** confirm by scanning with the GCash and Maya apps that both codes open the configured accounts;
+   confirm the alt text wording. Add a Security Bank QR later?
+8. **Illustration:** it is hidden in a few narrow width bands where it would make the text wrap (see
+   [fundraising-percent.md](../components/fundraising-percent.md) §8) — acceptable?
 
 ## 15. Implementation Plan
 
 Done (2026-09-29): steps for `/donate`, header, Project Nehemiah naming, payment methods, optional email,
 fundraising percentage, reCAPTCHA v3, `/support` removal, sitemap/metadata, site description.
 Remaining: the owner actions in §14.
+Also done (2026-09-29): GCash/Maya QR codes in `PaymentDetails` (cards, form before Record Gift, receipt) and the
+church illustration in `FundraisingPercent` (§8).
 
 ## 16. References
 
 `app/donate/page.tsx`, `app/page.tsx`, `app/sitemap.ts`, `app/api/gifts/route.ts`, `components/GiveForm.tsx`,
 `components/PaymentDetails.tsx`, `components/FundraisingPercent.tsx`, `components/ChurchProgress.tsx`,
 `components/CopyButton.tsx`, `content/site.ts`, `lib/config.ts`, `lib/progress.ts`, `lib/recaptcha.ts`,
-`lib/seo.ts`, `lib/store.ts`, `app/globals.css`, `.env.example`, `Dockerfile`, `.github/workflows/deploy.yml`,
+`lib/seo.ts`, `lib/store.ts`, `app/globals.css`, `public/images/payments/`, `.env.example`, `Dockerfile`, `.github/workflows/deploy.yml`,
 tests listed in §13.

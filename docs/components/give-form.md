@@ -12,7 +12,11 @@ Google reCAPTCHA v3 (invisible).
 ## 2. Current Implementation
 
 **Verified:** default export `GiveForm()` (no props), an internal `MethodDetails({ id, receipt? })` that looks
-up the method and renders `PaymentDetails` in a dashed box (`receipt` centres and narrows it), and a module
+up the method and renders `PaymentDetails` in a dashed box (`receipt` centres it at max 500px, enough for the QR on
+the left and the details on the right from ~600px viewports; it stacks on phones). For GCash and Maya
+the box shows the **QR code** plus the account details — both **before Record Gift** (for the selected method) and
+**on the receipt**; Bank Transfer and Cash at Church show details only (see [payment-details.md](payment-details.md)).
+`MethodDetails` is exported for tests, and a module
 helper `recaptchaToken()` that asks reCAPTCHA v3 for a token. Two views: the form, or the receipt once a pledge
 is recorded.
 
