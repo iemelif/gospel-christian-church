@@ -24,16 +24,18 @@ None directly. The Support page computes `pct` from `summary().raised` and `CHUR
 
 ## 5. Pages / Components Using It
 
-**Verified:** `app/support/page.tsx` (hero `.church` card), and therefore `/`.
+**Verified:** `app/support/page.tsx` (translucent card in the hero), and therefore `/`.
 
 ## 6. Layout and Structure
 
-**Verified:** one `svg` (`role="img"`) with a `clipPath`, a fill `rect`, a stroked outline group, and a door path.
+**Verified:** one `svg` (`role="img"`, `className="w-full max-w-[280px]"`) with a `clipPath`, a fill `rect`, a
+stroked outline group, and a door path.
 
 ## 7. Design System / CSS
 
-**Verified:** sized by the parent: `.church svg { width: 100%; max-width: 280px }` in `app/globals.css`.
-Colours are **hard-coded** in the SVG (`#deb942` = `--gold`, `#7f1f36` = `--brand`), not CSS variables.
+**Verified:** the SVG sizes itself with Tailwind classes `w-full max-w-[280px]` (full width of its container,
+at most 280px). Colours are **hard-coded** in the SVG (`#deb942` = theme `gold`, `#7f1f36` = theme `brand`),
+not theme variables.
 
 ## 8. Responsive Behavior
 
@@ -73,4 +75,4 @@ None.
 
 ## 16. References
 
-`components/ChurchProgress.tsx`, `app/support/page.tsx`, `app/globals.css`.
+`components/ChurchProgress.tsx`, `app/support/page.tsx`, `app/globals.css` (theme tokens).

@@ -9,15 +9,18 @@ Route: `/ministries` · File: `app/ministries/page.tsx` · Status: **Placeholder
 
 ## 2. Current State
 
-**Verified:** renders only `PageHero` with title "Ministries" and an empty `.wrap.page-body`; noindex.
+**Verified:** renders only `PageHero` with title "Ministries" and an empty content container (`wrap` + `pageBody`); noindex.
 
 ## 3. Existing Layout
 
-**Verified:** `<main id="main">` → `PageHero title="Ministries"` (no intro) → empty `div.wrap.page-body`.
+**Verified:** `<main id="main">` → `PageHero title="Ministries"` (no intro) → empty
+``<div className={`${wrap} ${pageBody}`} />``.
 
 ## 4. Existing Design System
 
-**Verified:** `.page-hero`, `.page-body`, `.card` / `.cards` grid, `.sub` (see `CLAUDE.md` §6).
+**Verified:** Tailwind CSS v4 (see `CLAUDE.md` §6). `PageHero` banner (crimson gradient, `text-onbrand`), then
+``<div className={`${wrap} ${pageBody}`}>`` (1080px column, `pt-10 pb-16`) from `lib/ui.ts`.
+Shared strings available for future content: `card` / `cards` grid, `h2`, `sub` (`lib/ui.ts`).
 
 ## 5. Existing Components to Reuse
 
@@ -37,12 +40,12 @@ Route: `/ministries` · File: `app/ministries/page.tsx` · Status: **Placeholder
 
 ## 8. Proposed Page Structure
 
-**Proposed (pattern only):** `PageHero` with intro → `.cards` grid, one card per ministry → optional leaders
+**Proposed (pattern only):** `PageHero` with intro → `cards` grid, one card per ministry → optional leaders
 using `PersonCard`.
 
 ## 9. Responsive Behavior
 
-**Verified:** `.cards` is `auto-fit minmax(260px,1fr)`; shared breakpoints apply.
+**Verified:** the shared `cards` grid is `grid-cols-[repeat(auto-fit,minmax(260px,1fr))]`; site breakpoints apply.
 
 ## 10. Accessibility
 

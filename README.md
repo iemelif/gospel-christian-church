@@ -27,7 +27,7 @@ Giving settings are in `lib/config.ts`: goal, amount already raised, service sch
 - **Pictures:** every line has `image: "<slug of the name>"` (e.g. `ocampo-juanito-jr-s`), which loads `/images/people/<slug>.svg`.
   - New person → add the line with their slug, then run `npm run avatars` to create the placeholder SVG (existing files are never overwritten; it also warns about lines missing `image`).
   - Real photo → put the file in `public/images/people/` and set the full path: `image: "/images/people/ocampo-juanito-jr-s.jpg"`.
-- **Theme:** colors are CSS variables at the top of `app/globals.css`, taken from the two logos (GCC crimson, IEMELIF gold and blue, dark brown of the cross). The header is sticky.
+- **Theme and styling:** the site uses Tailwind CSS v4. Colors are theme tokens in the `@theme` block at the top of `app/globals.css` (used as classes like `bg-brand`, `text-gold`), taken from the two logos (GCC crimson, IEMELIF gold and blue, dark brown of the cross). Repeated styles (buttons, cards, headings) are shared class strings in `lib/ui.ts`. The header is sticky.
 - **Logos:** `public/images/*.png` now have transparent backgrounds; the untouched originals are in `design/original-logos/`.
 - Pages: `/support` (building fund), `/leadership`, `/officers`, `/history/<term>`. `/about`, `/ministries`, `/contact` are empty placeholders (noindex until they have content).
 - SEO: per-page titles/descriptions/canonical URLs, Open Graph, church structured data (JSON-LD), `/sitemap.xml`, `/robots.txt`, GCC logo as favicon (`icon` + `shortcut icon`). `/admin` is noindex.

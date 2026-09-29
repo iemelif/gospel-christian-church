@@ -33,9 +33,11 @@ Route: `/` · File: `app/page.tsx` · Status: **Temporary**
 
 ## 4. Existing Design System
 
-- **Verified:** tokens and classes in `app/globals.css` (summarised in `CLAUDE.md` §6): crimson gradient
-  `.hero` with 2-column `.grid`, `.card` / `.cards`, gold `.btn` (+ `.ghost`, `.lg`), `.verse`, `.sub`,
-  `section` padding 56px, `.wrap` max-width 1080px, serif headings (Young Serif) and Figtree body.
+- **Verified:** Tailwind CSS v4 — theme tokens, fonts, breakpoints and conventions in `CLAUDE.md` §6; shared class
+  strings in `lib/ui.ts`. Patterns available from the Support page: crimson hero (`brandGradient`, 2-column grid
+  that stacks ≤800px), `card` / `cards`, gold buttons (`btn.primaryLg`, `btn.ghostLgOnBrand` on crimson), the
+  gold-bordered verse, section headings (`h2`) with intro (`sub`), `wrap` (1080px column), serif headings (Young
+  Serif) and Figtree body.
 - **Verified (owner instruction):** the existing Header, Footer and Support page are the visual references
   for the Home page.
 
@@ -43,7 +45,7 @@ Route: `/` · File: `app/page.tsx` · Status: **Temporary**
 
 - **Verified available:** `PageHero` (inner-page banner), `ChurchProgress` (church SVG filled to %),
   `PersonCard` / `Avatar` (people cards), `SocialIcon`.
-- **Proposed:** use the `.hero` pattern from the Support page rather than `PageHero` for Home.
+- **Proposed:** use the Support page's hero pattern (`brandGradient` banner) rather than `PageHero` for Home.
 - **Verified available data helpers:** `summary()` (`lib/store.ts`) for raised/donors; `php()`, `CHURCH`,
   `SCHEDULE` (`lib/config.ts`); `SITE`, `LINKS`, `ADDRESS`, `SOCIAL`, `LOGOS` (`content/site.ts`);
   `CURRENT_TERM` + `boardRows()` / `leadershipGroups()` (`content/officers.ts`, `lib/officers.ts`).
@@ -70,14 +72,15 @@ Route: `/` · File: `app/page.tsx` · Status: **Temporary**
 ## 8. Proposed Page Structure
 
 - **Owner input required.** No structure is approved. Draft one only after the owner's content arrives,
-  following the Support page's pattern (`.hero` → `section`s with `h2` + `.sub` → `.card`/`.cards`).
+  following the Support page's pattern (hero → `section`s with `h2` + `sub` → `card`/`cards`, all from
+  `lib/ui.ts`).
 
 ## 9. Responsive Behavior
 
-- **Verified (current):** as the Support page: hero grid stacks at ≤800px, mobile sticky `.give-bar` at
-  ≤800px, header collapses to a menu button at ≤1080px.
-- **Proposed:** the Home page should use the same breakpoints (1080 / 800 / 480 / 420px) and be checked at
-  ~400px width.
+- **Verified (current):** as the Support page: hero grid stacks at ≤800px, mobile fixed give bar at ≤800px,
+  header collapses to a menu button at ≤1080px.
+- **Proposed:** the Home page should use the same Tailwind breakpoints (`max-lg:` ≤1080, `max-md:` ≤800,
+  `max-sm:` ≤480, `max-xs:` ≤420) and be checked at 400, 800, 1100 and 1280px.
 
 ## 10. Accessibility
 
@@ -105,6 +108,7 @@ Route: `/` · File: `app/page.tsx` · Status: **Temporary**
 - Server Component by default; `"use client"` only for interactive parts.
 - Content belongs in `content/` or `lib/config.ts`, not hard-coded, so non-developers can edit it.
 - No new dependencies without approval. Verify with `npm run lint && npm test && npm run build`.
+- Style with Tailwind classes and `lib/ui.ts` strings; no new global CSS (see `CLAUDE.md` §6).
 
 ## 13. Data / Dependencies
 

@@ -9,17 +9,19 @@ Route: `/about` · File: `app/about/page.tsx` · Status: **Placeholder**
 
 ## 2. Current State
 
-**Verified:** renders only `PageHero` with title "About Us" and an empty `.wrap.page-body`. Marked noindex
+**Verified:** renders only `PageHero` with title "About Us" and an empty content container (`wrap` + `pageBody`). Marked noindex
 until it has content.
 
 ## 3. Existing Layout
 
-**Verified:** `<main id="main">` → `PageHero title="About Us"` (no intro) → empty `div.wrap.page-body`.
+**Verified:** `<main id="main">` → `PageHero title="About Us"` (no intro) → empty
+``<div className={`${wrap} ${pageBody}`} />``.
 
 ## 4. Existing Design System
 
-**Verified:** `.page-hero`, `.page-body`, plus shared classes (`.card`, `.cards`, `.sub`, `.btn`) in
-`app/globals.css`; see `CLAUDE.md` §6.
+**Verified:** Tailwind CSS v4 (see `CLAUDE.md` §6). `PageHero` banner (crimson gradient, `text-onbrand`), then
+``<div className={`${wrap} ${pageBody}`}>`` (1080px column, `pt-10 pb-16`) from `lib/ui.ts`.
+Shared strings available for future content: `h2`, `sub`, `card`, `cards`, `btn.*` (`lib/ui.ts`).
 
 ## 5. Existing Components to Reuse
 
@@ -38,11 +40,12 @@ affiliation link `LINKS.iemelif`, Facebook `SOCIAL`.
 ## 8. Proposed Page Structure
 
 **Proposed (pattern only, pending content):** `PageHero` with intro → `section`s with `h2` + text/cards inside
-`.page-body`, like the other inner pages.
+the `wrap` + `pageBody` container, like the other inner pages.
 
 ## 9. Responsive Behavior
 
-**Verified:** `PageHero` title scales with `clamp(30px,5vw,46px)`; shared breakpoints apply.
+**Verified:** `PageHero` title scales with `text-[length:clamp(30px,5vw,46px)]`; site breakpoints apply
+(`CLAUDE.md` §6).
 
 ## 10. Accessibility
 

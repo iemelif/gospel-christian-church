@@ -20,13 +20,14 @@ deac first, chairman and vice chairman second, everyone else after.
 ## 3. Existing Layout
 
 **Verified:** `<main id="main">` → `PageHero` (title "Church Officers", intro "Our officers for 2026 - 2027.")
-→ `.wrap.page-body` → `OfficerBoard` (three `ul.people` lists: two `.row-top`, one `.row-rest`).
+→ ``${wrap} ${pageBody}`` → `OfficerBoard` (three lists: rows 1–2 with large avatars, then everyone else).
 
 ## 4. Existing Design System
 
-**Verified:** `.page-hero` (crimson gradient), `.page-body`, `.board`, `.people`, `.row-top` (centred, up to
-240px cards, 124px avatars), `.row-rest` (auto-fill, min 190px), `.person` card, `.avatar` (gold ring),
-`.role` (crimson, first role), `.also` (muted, other roles joined with " · ").
+**Verified:** Tailwind CSS v4. `PageHero` (crimson gradient banner), `wrap` + `pageBody` from `lib/ui.ts`,
+`OfficerBoard` (grid, gap 24px; lists use `peopleGrid` + `peopleRowTop` / `peopleRowRest`), `PersonCard`
+(white card, 12px radius; first role crimson and bold; other roles muted, joined with " · "), `Avatar`
+(96px circle with white border and gold ring; 124px in rows 1–2). Details: `docs/components/`.
 
 ## 5. Existing Components to Reuse
 
@@ -51,8 +52,9 @@ No change proposed.
 
 ## 9. Responsive Behavior
 
-**Verified:** `.row-top` uses `repeat(auto-fit, minmax(min(100%,200px), 240px))`, `.row-rest` uses
-`auto-fill minmax(min(100%,190px), 1fr)`, so cards reflow to one column on narrow screens.
+**Verified:** rows 1–2 use `grid-cols-[repeat(auto-fit,minmax(min(100%,200px),240px))]`, the rest
+`grid-cols-[repeat(auto-fill,minmax(min(100%,190px),1fr))]` (`lib/ui.ts`), so cards reflow to one column on
+narrow screens.
 
 ## 10. Accessibility
 

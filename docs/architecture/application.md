@@ -8,9 +8,9 @@
 | UI | React **19.3**, function components |
 | Language | TypeScript 5.9, `strict`, alias `@/*` → repo root |
 | Runtime | Node 24 (`engines`, CI, `node:24-alpine`) |
-| Styling | One global stylesheet `app/globals.css` with CSS custom properties |
-| Fonts | `next/font/google`: Young Serif (headings), Figtree (body) |
-| Runtime deps | `next`, `react`, `react-dom` only |
+| Styling | **Tailwind CSS v4**, compiled at build time by `@tailwindcss/postcss` (`postcss.config.mjs`); configured in `app/globals.css` (`@theme` tokens, custom breakpoints, `@source`), no `tailwind.config` file, **Preflight not enabled**. Utility classes in the markup; shared class strings in `lib/ui.ts`. Design rules: `CLAUDE.md` §6 |
+| Fonts | `next/font/google`: Young Serif → `--font-young-serif` → `font-serif` (headings); Figtree → `--font-figtree` → `font-sans` (body) |
+| Runtime deps | `next`, `react`, `react-dom` only (`tailwindcss` and `@tailwindcss/postcss` are dev dependencies, used only during the build) |
 | Storage | JSON file (see [data-storage.md](data-storage.md)) |
 | External services | None called by the application at runtime (Google Fonts are downloaded at build time by `next/font`) |
 
@@ -23,7 +23,8 @@
 app/            routes: pages, route handlers (app/api), layout, robots, sitemap
 components/     React components (see docs/components/)
 content/        editable site content: site.ts (links, menu, address), officers.ts (terms)
-lib/            logic: config (settings, payment methods), store (gifts.json), auth, seo, nav, officers, slug
+lib/            logic: config (settings, payment methods), store (gifts.json), auth, seo, nav, officers, slug;
+                ui.ts = shared Tailwind class strings
 public/         static assets (logos, avatar SVGs)
 scripts/        generate-avatars.mjs (dev tool)
 ```
@@ -54,7 +55,8 @@ APIs (`fs`, `crypto`) and are imported only by server code.
 
 ## 5. Root layout (verified)
 
-`app/layout.tsx`: font CSS variables on `<html>`, site-wide metadata (title template, icons, Open Graph,
+`app/layout.tsx`: imports `globals.css`; font CSS variables on `<html>`; body typography/background classes
+(and the ≤800px bottom padding for the mobile give bar) on `<body>`; site-wide metadata (title template, icons, Open Graph,
 Twitter), `themeColor`, skip link, `SiteHeader`, page content, `SiteFooter`, and a Church JSON-LD script.
 `app/admin/layout.tsx` only adds `<main id="main">` and admin metadata (noindex).
 

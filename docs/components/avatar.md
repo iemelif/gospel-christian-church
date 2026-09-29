@@ -8,7 +8,7 @@ Source: `components/Avatar.tsx` · Type: Server · Used by: `PersonCard`
 
 ## 2. Current Implementation
 
-**Verified:** if `photo` is set → `next/image` `<Image>` (200×200, `unoptimized`, class `avatar`, alt
+**Verified:** if `photo` is set → `next/image` `<Image>` (200×200, `unoptimized`, alt
 "Photo of <name>"). Otherwise → inline SVG gray silhouette (`role="img"`, `aria-label="No photo available
 for <name>"`).
 
@@ -18,6 +18,7 @@ for <name>"`).
 | --- | --- | --- |
 | `name` | `string` | Display name (already "First Last") used in alt text |
 | `photo` | `string?` | URL/path from `imageSrc()` — `/images/people/<slug>.svg` or a custom path |
+| `large` | `boolean?` (default `false`) | 124px instead of 96px (officer board rows 1–2, via `PersonCard`) |
 
 ## 4. Data Dependencies
 
@@ -30,17 +31,18 @@ for <name>"`).
 
 ## 6. Layout and Structure
 
-Single `img` or `svg` element with class `avatar`.
+Single `img` or `svg` element with the same Tailwind classes.
 
 ## 7. Design System / CSS
 
-**Verified:** `.avatar` (96px circle, white border, gold ring) and `.row-top .avatar` (124px) in
-`app/globals.css`. The gray fallback colours (`#e6ebf1`, `#a9b3c1`) are hard-coded and differ from the
-brand-tinted generated SVGs.
+**Verified:** Tailwind classes in `components/Avatar.tsx`: `block mx-auto mb-3 rounded-full overflow-hidden
+object-cover border-[3px] border-white ring-2 ring-gold`, size `size-24` (96px) or `size-[124px]` when
+`large`. The gray fallback colours (`#e6ebf1`, `#a9b3c1`) are hard-coded and differ from the brand-tinted
+generated SVGs.
 
 ## 8. Responsive Behavior
 
-Fixed size per context (96px / 124px).
+Fixed size: 96px, or 124px with `large`.
 
 ## 9. Accessibility
 
@@ -79,4 +81,4 @@ unreachable with today's data; real photos would not be resized.
 ## 16. References
 
 `components/Avatar.tsx`, `components/PersonCard.tsx`, `lib/officers.ts`, `content/officers.ts`,
-`scripts/generate-avatars.mjs`, `app/globals.css`, `docs/pages/officers.md`.
+`scripts/generate-avatars.mjs`, `docs/pages/officers.md`.

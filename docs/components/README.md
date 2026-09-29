@@ -1,8 +1,10 @@
 # Component documentation index
 
-All components live in `components/` (flat folder, one default export per file, PascalCase). Styles are
-global classes in `app/globals.css` (no CSS Modules). Facts are labelled **Verified**, **Proposed**,
-**Unknown** or **Owner input required**, as in `docs/pages/`.
+All components live in `components/` (flat folder, one default export per file, PascalCase). Styling is
+**Tailwind CSS v4** utility classes in the markup; repeated patterns come from the shared class strings in
+`lib/ui.ts`, and styles used by one component only are local string constants in that file (see `CLAUDE.md`
+§6). There are no component-specific CSS files. Facts are labelled **Verified**, **Proposed**, **Unknown** or
+**Owner input required**, as in `docs/pages/`.
 
 Verified against the working tree on branch `feat-ai-powered-integration`, 2026-09-29.
 
@@ -36,16 +38,18 @@ the admin dashboard UI (inline in `app/admin/page.tsx`).
 
 ## PageHero (no dedicated file)
 
-- **Verified:** `PageHero({ title: string; intro?: string })` renders `div.page-hero > div.wrap > h1` and an
-  optional `p`. It provides the page's only `h1`. Styles: `.page-hero` (crimson gradient, `--onbrand` text),
-  `.page-hero h1` (`clamp(30px,5vw,46px)`), `.page-hero p` in `app/globals.css` ("inner pages & people"
-  section); focus outline turns gold inside it.
-- **Verified:** used by every inner page; the Support page uses the larger `.hero` markup instead.
-- **Reuse:** standard opening for any new inner page, followed by `<div className="wrap page-body">`.
+- **Verified:** `PageHero({ title: string; intro?: string })` renders a banner `div` → `wrap` → `h1` and an
+  optional `p`. It provides the page's only `h1`. Tailwind classes: crimson diagonal gradient
+  (`bg-[linear-gradient(135deg,…brand,…brand-2)]`, same as `brandGradient` in `lib/ui.ts`), `text-onbrand`,
+  `pt-9 pb-10`; heading `text-[length:clamp(30px,5vw,46px)]`; intro `mt-2.5 mb-0 text-[#f4dbe1]`; focus outline
+  turns gold inside it (`[&_:focus-visible]:outline-gold`).
+- **Verified:** used by every inner page; the Support page has its own larger hero markup instead.
+- **Reuse:** standard opening for any new inner page, followed by ``<div className={`${wrap} ${pageBody}`}>``.
 
 ## SocialIcon (no dedicated file)
 
-- **Verified:** `SocialIcon({ icon: "facebook" })` returns a 22×22 `aria-hidden` SVG; any other value
+- **Verified:** `SocialIcon({ icon: "facebook" })` returns a 22×22 `aria-hidden` SVG (sized by its `width`/`height`
+  attributes, no classes; colour comes from the link via `currentColor`); any other value
   returns `null` (unreachable because the prop type only allows `"facebook"`). The accessible name comes from
   the surrounding link's `aria-label` in `SiteFooter`.
 - **Adding a network:** add a case here, widen the `icon` type, and add an entry to `SOCIAL` in
@@ -56,4 +60,5 @@ the admin dashboard UI (inline in `app/admin/page.tsx`).
 See each file's §13. Summary: `SiteHeader` has two lint-flagged effects and incomplete menu keyboard
 support; `SiteFooter`'s copyright year is frozen at build time on static pages; `ChurchProgress` uses a
 fixed SVG id `cp`; `Avatar` alt text says "Photo of" for placeholder images; `GiveForm` shows a
-misleading error for non-JSON server responses.
+misleading error for non-JSON server responses; `SiteFooter` keeps three columns on narrow screens (a
+pre-migration quirk preserved on purpose). Tailwind `hover:` styles apply only on devices that support hover.

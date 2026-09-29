@@ -11,7 +11,8 @@ export default function CopyButton({ value, label = "Copy" }: { value: string; l
     } catch { /* clipboard blocked: the value is still visible to copy by hand */ }
   }
   return (
-    <button type="button" className="copy-btn" onClick={copy} aria-live="polite">
+    <button type="button" onClick={copy} aria-live="polite"
+      className="cursor-pointer rounded-md border-[1.5px] border-brand bg-card px-3 py-[5px] font-sans text-[13px] leading-[normal] font-semibold text-brand hover:bg-brand hover:text-white">
       {done ? "Copied" : label}
     </button>
   );

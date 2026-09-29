@@ -8,14 +8,15 @@ Source: `components/PersonCard.tsx` · Type: Server · Used by: `OfficerBoard`, 
 
 ## 2. Current Implementation
 
-**Verified:** renders `li.person` → `Avatar` → `h3` (display name) → `p.role` (first role) → `p.also` (other
-roles joined with " · ", only if any).
+**Verified:** renders `li` → `Avatar` → `h3` (display name) → `p` (first role) → `p` (other roles joined with
+" · ", only if any).
 
 ## 3. Props / Inputs
 
 | Prop | Type | Notes |
 | --- | --- | --- |
 | `person` | `Person` (`lib/officers.ts`) | `{ name: "Last, First"; roles: string[]; photo?: string }` — produced by `toPeople()` |
+| `large` | `boolean?` (default `false`) | Passes on to `Avatar` for the 124px size (officer board rows 1–2) |
 
 ## 4. Data Dependencies
 
@@ -28,17 +29,18 @@ roles joined with " · ", only if any).
 
 ## 6. Layout and Structure
 
-**Verified:** the root element is an `<li>`, so it **must** be placed inside a `ul`/`ol` (callers use
-`ul.people`).
+**Verified:** the root element is an `<li>`, so it **must** be placed inside a `ul`/`ol` (callers use a `ul`
+with `peopleGrid` from `lib/ui.ts`).
 
 ## 7. Design System / CSS
 
-**Verified:** `.person` (white card, border, radius 12px, centred), `.person h3` (18px), `.person .role`
-(bold crimson), `.person .also` (muted 13px) in the "inner pages & people" section of `app/globals.css`.
+**Verified:** Tailwind classes: card `rounded-xl border border-line bg-card px-4 py-5 text-center`; name
+`text-[18px] leading-[1.25]` (serif from the base heading rule); main role `mt-1.5 mb-0 text-[14px]
+font-semibold text-crimson`; other roles `mt-1 mb-0 text-[13px] text-mute`.
 
 ## 8. Responsive Behavior
 
-Width is controlled by the parent grid (`.row-top` / `.row-rest`).
+Width is controlled by the parent grid (`peopleRowTop` / `peopleRowRest` in `lib/ui.ts`).
 
 ## 9. Accessibility
 
@@ -71,4 +73,4 @@ None.
 ## 16. References
 
 `components/PersonCard.tsx`, `components/Avatar.tsx`, `lib/officers.ts`, `components/OfficerBoard.tsx`,
-`app/leadership/page.tsx`, `app/globals.css`.
+`app/leadership/page.tsx`, `lib/ui.ts`.

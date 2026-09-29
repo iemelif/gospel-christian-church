@@ -9,17 +9,20 @@ Route: `/contact` · File: `app/contact/page.tsx` · Status: **Placeholder**
 
 ## 2. Current State
 
-**Verified:** renders only `PageHero` with title "Contact Us" and an empty `.wrap.page-body`; noindex.
+**Verified:** renders only `PageHero` with title "Contact Us" and an empty content container (`wrap` + `pageBody`); noindex.
 
 ## 3. Existing Layout
 
-**Verified:** `<main id="main">` → `PageHero title="Contact Us"` (no intro) → empty `div.wrap.page-body`.
+**Verified:** `<main id="main">` → `PageHero title="Contact Us"` (no intro) → empty
+``<div className={`${wrap} ${pageBody}`} />``.
 
 ## 4. Existing Design System
 
-**Verified:** `.page-hero`, `.page-body`, `.card`, `.cards`, `.social` (global class: round brand-coloured
-icon links). Note: `address` styling exists only as `.site-footer address` (footer-scoped), so an `address`
-on this page would need its own rule (see `CLAUDE.md` §6).
+**Verified:** Tailwind CSS v4 (see `CLAUDE.md` §6). `PageHero` banner (crimson gradient, `text-onbrand`), then
+``<div className={`${wrap} ${pageBody}`}>`` (1080px column, `pt-10 pb-16`) from `lib/ui.ts`.
+Shared strings available for future content: `card`, `cards`, `h2`, `sub`, `muted` (`lib/ui.ts`). The round
+social-link style exists only inside `components/SiteFooter.tsx` (not a shared string), and there is no
+general `address` style (the footer's `address` uses its own classes).
 
 ## 5. Existing Components to Reuse
 
@@ -46,12 +49,12 @@ service in the project).
 
 ## 8. Proposed Page Structure
 
-**Proposed (pattern only):** `PageHero` → `.cards` with address, email, Facebook, service times → optional
+**Proposed (pattern only):** `PageHero` → `cards` with address, email, Facebook, service times → optional
 map. Reuse existing data; don't duplicate values.
 
 ## 9. Responsive Behavior
 
-**Verified:** shared breakpoints; `.cards` auto-fit grid.
+**Verified:** site breakpoints apply; the shared `cards` grid auto-fits (min 260px).
 
 ## 10. Accessibility
 
