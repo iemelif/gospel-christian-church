@@ -6,7 +6,7 @@ import JoinUs from "@/components/JoinUs";
 import PaymentDetails from "@/components/PaymentDetails";
 import VideoEmbed from "@/components/VideoEmbed";
 import { ADDRESS, SHARE_IMAGES } from "@/content/site";
-import { CHURCH, NEHEMIAH_PICTURE, NEHEMIAH_VIDEO, PAYMENT_METHODS, php } from "@/lib/config";
+import { CHURCH, NEHEMIAH_PICTURE, NEHEMIAH_VIDEO, PAYMENT_METHODS, php, phpCents, toCentavos } from "@/lib/config";
 import { summary } from "@/lib/store";
 import { DONATE_DESCRIPTION, DONATE_TITLE, pageMeta } from "@/lib/seo";
 import { formatPercent, fundedPercent } from "@/lib/progress";
@@ -24,7 +24,7 @@ export default async function DonatePage() {
   const { raised, wall, donors } = await summary();
   const pct = fundedPercent(raised, CHURCH.goal); // same figure for the hero and the percentage above the Giving Wall
   const pctText = formatPercent(pct);
-  const toGo = Math.max(0, CHURCH.goal - raised);
+  const toGo = Math.max(0, toCentavos(CHURCH.goal) - toCentavos(raised)) / 100;
   return (
     <main id="main">
       <div className={`${brandGradient} text-onbrand [&_:focus-visible]:outline-gold`}>
@@ -39,9 +39,9 @@ export default async function DonatePage() {
             <div className="rounded-2xl border border-[rgba(222,185,66,.35)] bg-[rgba(255,255,255,.08)] px-5 pt-6 pb-5 text-center">
               <ChurchProgress pct={pct} />
               <div className="font-serif text-[44px] leading-none text-gold">{pctText}%</div>
-              <small className="mt-1.5 block text-[#f1c9d2]">{php(raised)} of {php(CHURCH.goal)}</small>
+              <small className="mt-1.5 block text-[#f1c9d2]">{phpCents(raised)} of {phpCents(CHURCH.goal)}</small>
               <div className="mt-4 flex justify-center gap-7 border-t border-[rgba(255,248,240,.2)] pt-3.5">
-                <div className="flex flex-col"><b className="font-serif text-[20px] leading-[normal] font-normal text-white">{php(toGo)}</b><span className="text-[13px] text-[#f1c9d2]">still needed</span></div>
+                <div className="flex flex-col"><b className="font-serif text-[20px] leading-[normal] font-normal text-white">{phpCents(toGo)}</b><span className="text-[13px] text-[#f1c9d2]">still needed</span></div>
                 {donors > 0 && <div className="flex flex-col"><b className="font-serif text-[20px] leading-[normal] font-normal text-white">{donors}</b><span className="text-[13px] text-[#f1c9d2]">confirmed gift{donors > 1 ? "s" : ""} online</span></div>}
               </div>
             </div>
@@ -79,7 +79,7 @@ export default async function DonatePage() {
             {[25, 50, 75].map((m) => <em key={m} style={{ left: `${m}%` }} className={`absolute inset-y-0 w-[2px] -translate-x-px ${pct >= m ? "bg-[rgba(255,255,255,.7)]" : "bg-[rgba(43,34,38,.25)]"}`} />)}
           </div>
           <div className="mt-1.5 flex justify-between text-[12px] text-mute" aria-hidden="true"><span>₱0</span><span>25%</span><span>50%</span><span>75%</span><span>{php(CHURCH.goal)}</span></div>
-          <div className="mt-2.5 flex justify-between text-[15px] text-mute"><span><b className="text-ink">{php(raised)}</b> raised</span><span><b className="text-ink">{php(toGo)}</b> to go</span></div>
+          <div className="mt-2.5 flex justify-between text-[15px] text-mute"><span><b className="text-ink">{phpCents(raised)}</b> raised</span><span><b className="text-ink">{phpCents(toGo)}</b> to go</span></div>
         </div>
       </div></section>
 
@@ -126,7 +126,7 @@ export default async function DonatePage() {
               <h3 className={cardTitle}>Giving wall</h3>
               {wall.length ? wall.map((g) => (
                 <div className="flex justify-between gap-2.5 border-b border-line py-2.5 text-[14px] last-of-type:border-0" key={g.id}>
-                  <div><b>{g.name}</b>{g.message && <em className="block text-[13px] text-mute not-italic">“{g.message.slice(0, 60)}”</em>}</div><b>{php(g.amount)}</b>
+                  <div><b>{g.name}</b>{g.message && <em className="block text-[13px] text-mute not-italic">“{g.message.slice(0, 60)}”</em>}</div><b className="whitespace-nowrap">{phpCents(g.amount)}</b>
                 </div>
               )) : <p className={muted}>No confirmed gifts yet. Be the first to give.</p>}
               {donors > 0 && <p className={`${muted} mt-3`}>{donors} confirmed gift{donors > 1 ? "s" : ""} on this site</p>}

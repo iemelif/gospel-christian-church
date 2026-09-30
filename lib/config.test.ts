@@ -28,6 +28,25 @@ describe("php", () => {
   });
 });
 
+describe("gift amounts with centavos", () => {
+  it("phpCents always shows 2 decimal places", async () => {
+    const { phpCents } = await load({});
+    expect(phpCents(2_701_248)).toBe("₱2,701,248.00");
+    expect(phpCents(2_701_248.5)).toBe("₱2,701,248.50");
+    expect(phpCents(9_298_751.25)).toBe("₱9,298,751.25");
+  });
+  it("isGiftAmount allows ₱1–₱12,000,000 with up to 2 decimals", async () => {
+    const { isGiftAmount } = await load({});
+    for (const n of [1, 1.5, 1.29, 1000.99, 11_999_999.99, 12_000_000]) expect(isGiftAmount(n)).toBe(true);
+    for (const n of [0, 0.99, 1.001, 100.555, 12_000_000.01, NaN, Infinity]) expect(isGiftAmount(n)).toBe(false);
+  });
+  it("sumPesos adds in centavos", async () => {
+    const { sumPesos } = await load({});
+    expect(sumPesos([0.1, 0.2])).toBe(0.3);
+    expect(sumPesos([2_700_000, 1248.35, 0.4])).toBe(2_701_248.75);
+  });
+});
+
 describe("CHURCH", () => {
   it("names the campaign Project Nehemiah with the ₱12,000,000 default goal", async () => {
     const { CHURCH } = await load({ NEXT_PUBLIC_GOAL: "" });

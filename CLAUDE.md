@@ -182,7 +182,10 @@ Dockerfile, .dockerignore  3-stage build (deps → build → run), standalone se
 - Imports use the `@/` alias for cross-folder imports; `./X` inside `components/`.
 - Compact style: short components, JSX often on one line, small JSDoc `/** ... */` comments explaining *why*.
 - Double quotes, semicolons, 2-space indent, trailing commas in multi-line literals.
-- Currency always via `php(n)` → `₱12,000,000` (`en-PH`).
+- Currency always via `lib/config.ts`: `php(n)` → `₱12,000,000` for the goal and preset amounts; `phpCents(n)` →
+  `₱2,701,248.50` for gift amounts, total raised, amount still needed, Giving Wall, receipt and admin. Gifts accept
+  centavos (`isGiftAmount`: ₱1–₱12,000,000, max 2 decimals, same rule in `GiveForm` and `POST /api/gifts`); add money
+  with `sumPesos()` / `toCentavos()`, never raw `+` on floats.
 - Style with Tailwind classes in the markup (§6). Inline `style={{...}}` only for values computed at runtime
   (e.g. progress-bar width/left); not for fixed styling.
 

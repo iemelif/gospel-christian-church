@@ -1,6 +1,6 @@
 import { promises as fs } from "fs";
 import path from "path";
-import { CHURCH } from "./config";
+import { CHURCH, sumPesos } from "./config";
 
 export type Gift = {
   id: string; ref: string; name: string; email: string; amount: number;
@@ -44,7 +44,7 @@ export async function summary() {
   let gifts: Gift[] = [];
   try { gifts = await readGifts(); } catch (e) { console.error("Could not read gifts:", e); }
   const confirmed = gifts.filter((g) => g.status === "confirmed");
-  const raised = CHURCH.baseRaised + confirmed.reduce((s, g) => s + g.amount, 0);
+  const raised = sumPesos([CHURCH.baseRaised, ...confirmed.map((g) => g.amount)]);
   const wall = confirmed.slice(-8).reverse().map((g) => ({
     id: g.id, name: g.anon ? "Anonymous" : g.name, amount: g.amount, message: g.message,
   }));
