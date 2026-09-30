@@ -34,13 +34,14 @@ describe("Home page", () => {
     expect(roles).toEqual(["Pastor", "Deacon", "Chairman", "Vice Chairman"]);
     expect(html).not.toContain(">Ministries</h2>");
   });
-  it("has Home metadata with the Nehemiah image as share preview, not the Donate metadata", () => {
+  it("has Home metadata with the search-results home image as share preview, not the Donate metadata", () => {
     expect(metadata.title).toBe("Gospel Christian Church IEMELIF – Calumpit, Bulacan");
     expect(metadata.description).toMatch(/GCC IEMELIF.*Calumpit, Bulacan/);
     expect(metadata.title).not.toBe(DONATE_TITLE);
     expect(metadata.description).not.toBe(DONATE_DESCRIPTION);
     expect(metadata.alternates?.canonical).toBe("/");
-    expect(JSON.stringify(metadata.openGraph)).toContain("/images/hershot-carousel/01-gcc-nehemniah.png");
+    expect(JSON.stringify(metadata.openGraph)).toContain("/images/search-results-thumbs/home.png");
     expect(JSON.stringify(metadata.twitter)).toContain("summary_large_image");
+    expect(metadata.robots).toMatchObject({ index: true, "max-image-preview": "large" });
   });
 });

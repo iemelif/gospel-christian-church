@@ -4,7 +4,7 @@ import path from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterAll, describe, expect, it, vi } from "vitest";
 import { facebookEmbedSrc } from "@/components/VideoEmbed";
-import { NEHEMIAH_VIDEO } from "@/lib/config";
+import { NEHEMIAH_PICTURE, NEHEMIAH_VIDEO } from "@/lib/config";
 
 // GiveForm (a client component) calls useRouter(), which needs the App Router outside of Next.
 vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh() {}, push() {} }) }));
@@ -31,9 +31,26 @@ describe("Donate page hero", async () => {
     expect(hero).toContain("aspect-video");
     expect(html.match(/<iframe /g)).toHaveLength(1);
   });
+  it("shows the building picture under the Project Nehemiah intro, above the progress bar, not in the hero", () => {
+    const img = 'src="/images/search-results-thumbs/donate.png"';
+    expect(hero).not.toContain(img);
+    const at = (m: string) => html.indexOf(m);
+    expect(at(img)).toBeGreaterThan(at("so what you see here is money actually received."));
+    expect(at(img)).toBeLessThan(at('role="progressbar"'));
+    expect(html).toContain(`${NEHEMIAH_PICTURE.title}</span>`);
+  });
   it("keeps the hero CTAs and opens nothing in a new tab", () => {
     expect(hero).toMatch(/href="#give"[^>]*>Give to Project Nehemiah</);
     expect(hero).toMatch(/href="#how"[^>]*>How giving works</);
     expect(hero).not.toContain('target="_blank"');
+  });
+});
+
+describe("Donate page metadata", async () => {
+  const { metadata } = await import("./page");
+  it("uses the search-results donate image as share preview and allows large Google image previews", () => {
+    expect(JSON.stringify(metadata.openGraph)).toContain("/images/search-results-thumbs/donate.png");
+    expect(JSON.stringify(metadata.twitter)).toContain("summary_large_image");
+    expect(metadata.robots).toMatchObject({ index: true, "max-image-preview": "large" });
   });
 });

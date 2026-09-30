@@ -171,7 +171,7 @@ adds no challenge or widget to interact with.
   follows `NEXT_PUBLIC_GOAL`).
 - Canonical **`/donate`**; `/donate` is in the sitemap (priority 0.7); `/support` is not (it returns 404).
 - The temporary Home (`/`) uses the same title/description with canonical `/`.
-- No `og:image` (see [README.md](README.md)).
+- `og:image` / `twitter:image` = `/images/search-results-thumbs/donate.png` (`SHARE_IMAGES.donate` in `content/site.ts`), also shown (framed, with caption and % raised badge) under the `#progress` intro, above the progress bar; robots `max-image-preview:large`.
 
 ## 12. Implementation Constraints
 

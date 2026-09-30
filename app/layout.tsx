@@ -3,8 +3,9 @@ import { Young_Serif, Figtree } from "next/font/google";
 import "./globals.css";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import { ADDRESS, LOGOS, SITE, SITE_URL, SOCIAL, LINKS } from "@/content/site";
+import { ADDRESS, LOGOS, SHARE_IMAGES, SITE, SITE_URL, SOCIAL, LINKS } from "@/content/site";
 import { buildNav } from "@/lib/nav";
+import { INDEX_ROBOTS } from "@/lib/seo";
 
 // Variable names must not be --font-sans / --font-serif: those are Tailwind theme variables (mapped in globals.css).
 const serif = Young_Serif({ weight: "400", subsets: ["latin"], variable: "--font-young-serif" });
@@ -17,8 +18,9 @@ export const metadata: Metadata = {
   title: { default: `${SITE.name} – Calumpit, Bulacan`, template: `%s | ${SITE.shortName}` },
   description: SITE.description,
   applicationName: SITE.name,
+  robots: INDEX_ROBOTS,
   // Site icon (browser tab, search results, home screen): square PNGs made from the GCC logo image
-  // public/images/hershot-carousel/02-gcc-logo.jpg → public/icons/. Sizes are multiples of 48px for search engines.
+  // the GCC logo → public/icons/. Sizes are multiples of 48px for search engines.
   icons: {
     icon: [{ url: "/icons/icon-48.png", type: "image/png", sizes: "48x48" }, { url: "/icons/icon-192.png", type: "image/png", sizes: "192x192" }, { url: "/icons/icon-512.png", type: "image/png", sizes: "512x512" }],
     shortcut: [{ url: "/icons/icon-48.png", type: "image/png" }],
@@ -43,7 +45,8 @@ const jsonLd = {
   name: SITE.name,
   url: SITE_URL,
   logo: `${SITE_URL}/icons/icon-512.png`,
-  image: `${SITE_URL}${LOGOS.iemelif.src}`,
+  // Photos first: Google may use them for the image beside search results.
+  image: [`${SITE_URL}${SHARE_IMAGES.home.url}`, `${SITE_URL}${LOGOS.iemelif.src}`],
   description: SITE.description,
   address: {
     "@type": "PostalAddress",

@@ -4,8 +4,9 @@ import JoinUs from "@/components/JoinUs";
 import NehemiahFeature from "@/components/NehemiahFeature";
 import PersonCard from "@/components/PersonCard";
 import WelcomeSection from "@/components/WelcomeSection";
-import { LEADER_ROLE_LABELS, SHARE_IMAGE } from "@/content/home";
+import { LEADER_ROLE_LABELS } from "@/content/home";
 import { CURRENT_TERM } from "@/content/officers";
+import { SHARE_IMAGES } from "@/content/site";
 import { carouselSlides } from "@/lib/carousel";
 import { boardRows } from "@/lib/officers";
 import { pageMeta } from "@/lib/seo";
@@ -15,7 +16,7 @@ export const metadata = pageMeta(
   "Gospel Christian Church IEMELIF – Calumpit, Bulacan",
   "Gospel Christian Church IEMELIF (GCC IEMELIF) is a church in Frances, Calumpit, Bulacan. Join our worship services, meet our pastor and church leaders, and support Project Nehemiah, our church building project.",
   "/",
-  { image: SHARE_IMAGE },
+  { image: SHARE_IMAGES.home },
 );
 
 // Pastor, Deacon ("Deac" in the data), Chairman and Vice Chairman of the current term — the officer board's first two rows.

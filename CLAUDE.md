@@ -103,7 +103,7 @@ app/                       App Router
   robots.ts, sitemap.ts    SEO
 components/                Shared React components (default exports, PascalCase files)
 content/                   EDITABLE SITE CONTENT (non-developer friendly)
-  site.ts                  URLs per environment, SITE name, LINKS, LOGOS, ADDRESS, SOCIAL, NAV menu
+  site.ts                  URLs per environment, SITE name, LINKS, LOGOS, SHARE_IMAGES (search/share thumbnails), ADDRESS, SOCIAL, NAV menu
   officers.ts              CURRENT_TERM, HISTORY_TERMS, BOARD_ROLES, LEADERSHIP_GROUPS
 lib/
   config.ts                CHURCH (campaign "Project Nehemiah", goal, email), SCHEDULE, PAYMENT_METHODS (id + label),
@@ -301,7 +301,8 @@ components use only the `@theme` tokens and `lib/ui.ts` strings — no new palet
      `ChurchProgress` SVG, % raised, stats row (still needed, confirmed gifts). Below both columns, a centred
      full-width row (max 960px): `h2` "See what we're building", caption, and the Project Nehemiah video
      (`VideoEmbed autoplay`, `NEHEMIAH_VIDEO` in `lib/config.ts`) in a frame styled like the progress card.
-  2. `section#progress` – `card` with the progress bar (25/50/75% tick marks) and raised / to-go row.
+  2. `section#progress` – framed building picture (`SHARE_IMAGES.donate`, brand stripe, "% raised" badge, caption from
+     `NEHEMIAH_PICTURE` in `lib/config.ts`), then a `card` with the progress bar (25/50/75% tick marks) and raised / to-go row.
   3. `section#how` – 3 numbered step cards (CSS counter).
   4. `section#ways` – "Ways to send your gift": one `PaymentDetails` card per payment method (before the form).
   5. `section#give` – 2-column grid: `cardBox` with `<GiveForm/>` | sticky `aside` with the trust card,
