@@ -76,6 +76,18 @@ describe("POST /api/gifts — other validation unchanged", () => {
   it("still limits the amount", async () => {
     expect((await post({ ...valid, amount: 0 })).status).toBe(400);
     expect((await post({ ...valid, amount: 12_000_001 })).status).toBe(400);
+    expect((await post({ ...valid, amount: 0.99 })).status).toBe(400);
+    expect(existsSync(file())).toBe(false);
+  });
+  it("accepts centavos (up to 2 decimals) and keeps them exactly", async () => {
+    expect((await post({ ...valid, amount: 1250.75 })).data.amount).toBe(1250.75);
+    expect((await post({ ...valid, amount: "99.5" })).data.amount).toBe(99.5);
+    expect((await post({ ...valid, amount: 0.29 + 1 })).data.amount).toBe(1.29);
+  });
+  it("rejects more than 2 decimal places instead of rounding the pledge", async () => {
+    const { status, data } = await post({ ...valid, amount: 100.555 });
+    expect(status).toBe(400);
+    expect(data.error).toMatch(/up to 2 decimal places/);
     expect(existsSync(file())).toBe(false);
   });
   it("accepts every existing payment-method id and rejects others (including display labels)", async () => {

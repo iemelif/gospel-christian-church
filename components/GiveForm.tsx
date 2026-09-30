@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { AMOUNTS, AMOUNT_NOTES, CHURCH, PAYMENT_METHODS, RECAPTCHA_ACTION, php } from "@/lib/config";
+import { AMOUNTS, AMOUNT_NOTES, CHURCH, GIFT_AMOUNT_ERROR, PAYMENT_METHODS, RECAPTCHA_ACTION, isGiftAmount, php, phpCents, toCentavos } from "@/lib/config";
 import { recaptchaToken } from "@/lib/recaptchaClient";
 import { btn, cardTitle, errorText, input, label, muted } from "@/lib/ui";
 import CopyButton from "./CopyButton";
@@ -41,12 +41,12 @@ export default function GiveForm() {
   const [busy, setBusy] = useState(false);
   const [receipt, setReceipt] = useState<Receipt | null>(null);
 
-  const valid = amount > 0;
+  const valid = isGiftAmount(amount);
   const monthly = freq === "Monthly";
 
   async function submit() {
     setError("");
-    if (!valid) return setError("Choose or enter an amount greater than zero.");
+    if (!valid) return setError(GIFT_AMOUNT_ERROR);
     setBusy(true);
     try {
       const recaptcha = await recaptchaToken(RECAPTCHA_ACTION); // Google reCAPTCHA v3, loaded by <RecaptchaNotice />
@@ -68,7 +68,7 @@ export default function GiveForm() {
       <div className="py-2.5 text-center" aria-live="polite">
         <div className="mx-auto mb-2.5 grid size-14 place-items-center rounded-full bg-brand text-[28px] text-gold" aria-hidden="true">✓</div>
         <h3 className={cardTitle}>Thank you, {name.split(" ")[0]}.</h3>
-        <p>Your pledge of <b>{php(receipt.amount)}{receipt.freq === "Monthly" ? " every month" : ""}</b> to {CHURCH.campaign} is recorded.</p>
+        <p>Your pledge of <b>{phpCents(receipt.amount)}{receipt.freq === "Monthly" ? " every month" : ""}</b> to {CHURCH.campaign} is recorded.</p>
         <p className="mb-0 font-semibold">Now send your gift and include this reference number:</p>
         <div className="my-2.5 inline-block rounded-md bg-bg px-3.5 py-1.5 text-[20px] leading-[normal] font-semibold [font-family:monospace]">{receipt.ref}</div>
         <div><CopyButton value={receipt.ref} label="Copy reference" /></div>
@@ -92,14 +92,14 @@ export default function GiveForm() {
             </label>
           ))}
         </div>
-        <input className={`${input} mt-2.5`} type="number" min={1} inputMode="numeric" placeholder="Or enter another amount (₱)" aria-label="Other amount in pesos" value={custom}
+        <input className={`${input} mt-2.5`} type="number" min={1} step="0.01" inputMode="decimal" placeholder="Or enter another amount (₱)" aria-label="Other amount in pesos" value={custom}
           onChange={(e) => { setCustom(e.target.value); setAmount(Number(e.target.value)); }} />
         <div className="mt-3 flex flex-wrap gap-2">
           {["One-time", "Monthly"].map((f) => (
             <label className={chipLabel} key={f}><input className={radioInput} type="radio" name="freq" checked={freq === f} onChange={() => setFreq(f)} /><span className={chipSpan}>{f}</span></label>
           ))}
         </div>
-        {monthly && valid && <p className="mt-2.5 mb-0 text-[14px] font-semibold text-brand">{php(amount)} a month adds up to <b>{php(amount * 12)}</b> in a year.</p>}
+        {monthly && valid && <p className="mt-2.5 mb-0 text-[14px] font-semibold text-brand">{phpCents(amount)} a month adds up to <b>{phpCents(toCentavos(amount) * 12 / 100)}</b> in a year.</p>}
       </fieldset>
 
       <fieldset className={fieldset}>
@@ -125,7 +125,7 @@ export default function GiveForm() {
 
       <p className={errorText} role="alert">{error}</p>
       <button className={btn.primaryFullLg} type="submit" disabled={busy}>
-        {busy ? "Recording…" : valid ? `Record my ${php(amount)}${monthly ? " monthly" : ""} gift` : "Record my gift"}
+        {busy ? "Recording…" : valid ? `Record my ${phpCents(amount)}${monthly ? " monthly" : ""} gift` : "Record my gift"}
       </button>
       <p className="mt-2.5 mb-0 text-center text-[13px] text-mute">No payment is taken on this site. You’ll get a reference number, then send your gift using the method above.</p>
       <RecaptchaNotice />

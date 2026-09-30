@@ -50,4 +50,12 @@ describe("store", () => {
     expect(s.pledged).toBe(1);
     expect(s.wall.map((w) => w.name)).toEqual(["Anonymous", "Ana"]);
   });
+
+  it("summary adds centavos exactly (no floating-point drift)", async () => {
+    const { update, summary } = await import("./store");
+    await update(() => [gift({ id: "1", amount: 0.1 + 1, status: "confirmed" }), gift({ id: "2", amount: 0.2 + 1, status: "confirmed" })]);
+    const s = await summary();
+    expect(s.raised).toBe(1000 + 2.3);
+    expect(s.wall.map((w) => w.amount)).toEqual([1.2, 1.1]);
+  });
 });

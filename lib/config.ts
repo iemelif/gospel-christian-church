@@ -133,4 +133,17 @@ export const AMOUNTS = [500, 1000, 2500, 5000, 10000, 50000];
 export const AMOUNT_NOTES: Record<number, string> = {
   500: "A brick", 1000: "A row of bricks", 2500: "A window", 5000: "A wall", 10000: "A room", 50000: "A foundation stone",
 };
+/** Whole pesos, e.g. ₱12,000,000 — for the goal and preset amounts. */
 export const php = (n: number) => "₱" + n.toLocaleString("en-PH");
+/** Pesos with centavos, e.g. ₱2,701,248.50 — for gift amounts, the total raised and the amount still needed. */
+export const phpCents = (n: number) => "₱" + n.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+/** Gift amounts are pesos with up to 2 decimal places. Money maths is done in whole centavos so sums don't drift
+ *  (0.1 + 0.2 ≠ 0.3 in floating point). */
+export const toCentavos = (n: number) => Math.round(n * 100);
+export const sumPesos = (amounts: number[]) => amounts.reduce((s, n) => s + toCentavos(n), 0) / 100;
+export const MIN_GIFT = 1;
+export const MAX_GIFT = 12_000_000;
+/** A valid gift: ₱1 to ₱12,000,000 with at most 2 decimal places (checked in the form and in POST /api/gifts). */
+export const isGiftAmount = (n: number) => Number.isFinite(n) && n >= MIN_GIFT && n <= MAX_GIFT && Math.abs(n * 100 - toCentavos(n)) < 1e-6;
+export const GIFT_AMOUNT_ERROR = `Enter an amount between ${php(MIN_GIFT)} and ${php(MAX_GIFT)}, with up to 2 decimal places.`;

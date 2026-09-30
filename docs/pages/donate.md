@@ -211,7 +211,7 @@ adds no challenge or widget to interact with.
   → `POST /api/gifts` with `{ amount, freq, method, name, email, message, anon, recaptchaToken }`.
 - **Server (`app/api/gifts/route.ts`), in order:**
   1. Field validation: name required (trimmed, truncated to 100); email **optional** — if non-empty after
-     trimming/truncating to 120 it must match `^\S+@\S+\.\S+$`; amount rounded, ₱1–₱12,000,000; method must be
+     trimming/truncating to 120 it must match `^\S+@\S+\.\S+$`; amount ₱1–₱12,000,000 with up to 2 decimals (centavos; more decimals are rejected, not rounded); method must be
      one of `PAYMENT_IDS`; `freq` "Monthly" or "One-time"; message truncated to 300. Invalid → 400, and Google is
      not contacted.
   2. `verifyRecaptcha(recaptchaToken)` (`lib/recaptcha.ts`): posts the secret and token to Google's

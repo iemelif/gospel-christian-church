@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import RecaptchaNotice from "@/components/RecaptchaNotice";
 import { signInWithRecaptcha } from "@/lib/adminSignIn";
 import type { Gift } from "@/lib/store";
-import { php } from "@/lib/config";
+import { phpCents, sumPesos } from "@/lib/config";
 import { btn, card, errorText, h2, input, label, muted, sub, wrap } from "@/lib/ui";
 
 // Table cells (was the global th/td rule).
@@ -52,7 +52,7 @@ export default function Admin() {
     if (!res.ok) setErr((await res.json()).error ?? "Something went wrong.");
     load();
   }
-  const total = (gifts ?? []).filter((g) => g.status === "confirmed").reduce((s, g) => s + g.amount, 0);
+  const total = sumPesos((gifts ?? []).filter((g) => g.status === "confirmed").map((g) => g.amount));
   const pending = (gifts ?? []).filter((g) => g.status === "pending").length;
 
   if (checking) return <div className={`${wrap} py-10`}><p className={muted}>Loading…</p></div>;
@@ -74,7 +74,7 @@ export default function Admin() {
         </form>
       ) : (
         <>
-          <p className={sub}>Confirmed through this site: <b>{php(total)}</b> · {pending} waiting for confirmation. Confirm a pledge only after you have received the money.</p>
+          <p className={sub}>Confirmed through this site: <b>{phpCents(total)}</b> · {pending} waiting for confirmation. Confirm a pledge only after you have received the money.</p>
           <p className={errorText} role="alert">{err}</p>
           <div className={`${card} overflow-x-auto`}>
             <table className="w-full border-collapse text-[14px]">
@@ -83,7 +83,7 @@ export default function Admin() {
                 {gifts.map((g) => (
                   <tr key={g.id}>
                     <td className={cell}>{new Date(g.createdAt).toLocaleDateString("en-PH")}</td><td className={cell}>{g.ref}</td>
-                    <td className={cell}>{g.name}<br /><small>{g.email}</small></td><td className={cell}>{php(g.amount)}<br /><small>{g.freq}</small></td>
+                    <td className={cell}>{g.name}<br /><small>{g.email}</small></td><td className={cell}>{phpCents(g.amount)}<br /><small>{g.freq}</small></td>
                     <td className={cell}>{g.method}</td><td className={cell}>{g.status}</td>
                     <td className={`${cell} whitespace-nowrap`}>
                       {g.status === "pending" ? (
