@@ -119,6 +119,7 @@ lib/
   carousel.ts              carouselSlides(): server-side discovery of the Home carousel images (every image in
                            public/images/hershot-carousel/, alphabetical; no manual list)
   nav.ts                   buildNav(): fills "Leadership History" submenu from officers
+  menu.ts                  Header dropdown state: activeMenuKeys() / toggleMenu() (auto-expands the current page's submenu)
   officers.ts              person merging, board rows, leadership groups, displayName()
   slug.ts                  slugify() for avatar file names
   ui.ts                    Shared Tailwind class strings (wrap, buttons, cards, headings, inputs, …) — see §6
@@ -286,6 +287,8 @@ components use only the `@theme` tokens and `lib/ui.ts` strings — no new palet
 - Menu items: internal `Link` (with `aria-current="page"`), `external: true` → plain `<a>`, `children` →
   dropdown (nested allowed; item with both `href` and `children` renders a split link + arrow button).
 - Closes on route change, outside click and Escape. Hamburger below 1080px.
+- Opening a dropdown also expands the submenu that contains the current page (e.g. Leadership History on
+  `/history/…`); logic in `lib/menu.ts` (`activeMenuKeys`, `toggleMenu`), tested in `lib/menu.test.ts`.
 - **To change the menu edit `NAV` in `content/site.ts`**, not the component. "Home" is an external link
   (`LINKS.home`); **"Donate" is internal (`/donate`)**.
 
