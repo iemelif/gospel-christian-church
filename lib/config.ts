@@ -34,7 +34,7 @@ export const NEHEMIAH_PICTURE = {
 export const SCHEDULE = [
   { title: "Sunday Worship Service", time: "8:30 AM – 11:00 AM", day: "Every Sunday" },
   { title: "Wednesday Worship Service", time: "7:00 PM – 9:00 PM", day: "Every Wednesday" },
-  { title: "Morning Devotion", time: "5:30 AM – 7:00 AM", day: "Every Saturday" },
+  { title: "Morning Devotion", time: "5:30 AM – 6:30 AM", day: "Every Saturday" },
 ];
 
 export type PaymentMethod = {
