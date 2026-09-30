@@ -1,9 +1,10 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LINKS, LOGOS, SITE, type NavItem } from "@/content/site";
+import { activeMenuKeys, menuKey, toggleMenu } from "@/lib/menu";
 import { stripeAfter } from "@/lib/ui";
 
 // Menu links and dropdown buttons share one look; padding is separate because "split" items adjust it.
@@ -29,7 +30,7 @@ function NavLink({ item, pathname, className = navItem }: { item: NavItem; pathn
 type Ctx = { pathname: string; openKeys: string[]; toggle: (key: string) => void };
 
 function Item({ item, depth, parentKey, ctx }: { item: NavItem; depth: number; parentKey: string; ctx: Ctx }) {
-  const key = parentKey ? `${parentKey}/${item.label}` : item.label;
+  const key = menuKey(parentKey, item.label);
   if (!item.children?.length) return <li><NavLink item={item} pathname={ctx.pathname} /></li>;
 
   const open = ctx.openKeys.includes(key);
@@ -70,12 +71,9 @@ export default function SiteHeader({ nav }: { nav: NavItem[] }) {
     return () => { document.removeEventListener("click", onClick); document.removeEventListener("keydown", onKey); };
   }, []);
 
-  const toggle = (key: string) =>
-    setOpenKeys((cur) =>
-      cur.includes(key)
-        ? cur.filter((k) => k !== key && !k.startsWith(`${key}/`)) // close it and its submenus
-        : [...cur.filter((k) => key.startsWith(`${k}/`)), key],    // open it, closing siblings but keeping ancestors
-    );
+  // Dropdowns containing the current page: opening a parent also expands these (e.g. Leadership History on /history/…).
+  const active = useMemo(() => activeMenuKeys(nav, pathname), [nav, pathname]);
+  const toggle = (key: string) => setOpenKeys((cur) => toggleMenu(cur, key, active));
 
   const ctx: Ctx = { pathname, openKeys, toggle };
 

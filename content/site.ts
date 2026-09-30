@@ -83,9 +83,10 @@ export const SOCIAL: { label: string; href: string; icon: "facebook" }[] = [
 export type NavItem = { label: string; href?: string; external?: boolean; children?: NavItem[] };
 
 export const NAV: NavItem[] = [
+  // Order follows the usual church-site pattern: who we are → our people → what we do → how to reach us,
+  // with the call to action (Donate) last, in the right-most spot where visitors look for it.
   { label: "Home", href: LINKS.home, external: true },
   { label: "About Us", href: "/about" },
-  { label: "Ministries", href: "/ministries" },
   {
     // No href: clicking the label just opens the dropdown.
     label: "Church Leadership",
@@ -94,6 +95,7 @@ export const NAV: NavItem[] = [
       { label: "Leadership History", children: [] }, // filled from HISTORY_TERMS
     ],
   },
-  { label: "Donate", href: "/donate" }, // internal page for Project Nehemiah (was "Support" → LINKS.support)
+  { label: "Ministries", href: "/ministries" },
   { label: "Contact Us", href: "/contact" },
+  { label: "Donate", href: "/donate" }, // internal page for Project Nehemiah (was "Support" → LINKS.support)
 ];
