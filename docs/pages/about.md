@@ -1,6 +1,6 @@
 # About Us
 
-Route: `/about` · File: `app/about/page.tsx` · Status: **Placeholder**
+Route: `/about` · File: `app/about/page.tsx` · Status: **Placeholder ("Coming soon")**
 
 ## 1. Purpose
 
@@ -8,6 +8,10 @@ Route: `/about` · File: `app/about/page.tsx` · Status: **Placeholder**
 - **Owner input required:** what the page should cover.
 
 ## 2. Current State
+
+**Current (2026-09-30):** `PageHero` → `<ComingSoon>` card (brand stripe, cross emblem, "Coming soon" label, title "Our story is on its way" and
+text from `COMING_SOON.about` in `content/coming-soon.ts`, Donate + Facebook buttons, address) → `JoinUs`. Still noindex.
+When real content arrives, replace the card (and remove its `COMING_SOON` entry). The notes below describe the earlier empty page.
 
 **Verified:** renders only `PageHero` with title "About Us" and an empty content container (`wrap` + `pageBody`). Marked noindex
 until it has content.

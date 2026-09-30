@@ -1,15 +1,19 @@
+import ComingSoon from "@/components/ComingSoon";
+import JoinUs from "@/components/JoinUs";
 import PageHero from "@/components/PageHero";
+import { COMING_SOON, COMING_SOON_JOIN_INTRO } from "@/content/coming-soon";
 import { pageMeta } from "@/lib/seo";
-import { pageBody, wrap } from "@/lib/ui";
+import { wrap } from "@/lib/ui";
 
-// Placeholder: kept out of search results until real content is added.
+// Placeholder ("Coming soon"): kept out of search results until real content is added.
 export const metadata = pageMeta("About Us", "About Us – Gospel Christian Church IEMELIF, Calumpit, Bulacan.", "/about", { index: false });
 
 export default function Page() {
   return (
     <main id="main">
       <PageHero title="About Us" />
-      <div className={`${wrap} ${pageBody}`} />
+      <div className={`${wrap} pt-10`}><ComingSoon {...COMING_SOON.about} /></div>
+      <JoinUs intro={COMING_SOON_JOIN_INTRO} />
     </main>
   );
 }
