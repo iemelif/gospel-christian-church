@@ -1,18 +1,20 @@
+import Image from "next/image";
 import ChurchProgress from "@/components/ChurchProgress";
 import FundraisingPercent from "@/components/FundraisingPercent";
 import GiveForm from "@/components/GiveForm";
 import JoinUs from "@/components/JoinUs";
 import PaymentDetails from "@/components/PaymentDetails";
 import VideoEmbed from "@/components/VideoEmbed";
-import { CHURCH, NEHEMIAH_VIDEO, PAYMENT_METHODS, php } from "@/lib/config";
+import { ADDRESS, SHARE_IMAGES } from "@/content/site";
+import { CHURCH, NEHEMIAH_PICTURE, NEHEMIAH_VIDEO, PAYMENT_METHODS, php } from "@/lib/config";
 import { summary } from "@/lib/store";
 import { DONATE_DESCRIPTION, DONATE_TITLE, pageMeta } from "@/lib/seo";
 import { formatPercent, fundedPercent } from "@/lib/progress";
-import { brandGradient, btn, card, cardBox, cardTitle, h2, muted, sub, wrap } from "@/lib/ui";
+import { brandGradient, btn, card, cardBox, cardTitle, h2, muted, stripeBefore, sub, wrap } from "@/lib/ui";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = pageMeta(DONATE_TITLE, DONATE_DESCRIPTION, "/donate");
+export const metadata = pageMeta(DONATE_TITLE, DONATE_DESCRIPTION, "/donate", { image: SHARE_IMAGES.donate });
 
 // Numbered step cards: the number is drawn by a CSS counter in ::before.
 const step = "relative flex flex-col gap-1 rounded-xl border border-line bg-card py-5 pr-5 pl-16 [counter-increment:s] before:absolute before:top-[18px] before:left-[18px] before:grid before:size-[34px] before:place-items-center before:rounded-full before:bg-brand before:font-serif before:text-[17px] before:leading-[normal] before:font-normal before:text-white before:content-[counter(s)]";
@@ -58,6 +60,19 @@ export default async function DonatePage() {
       <section id="progress" className="pt-14 pb-6"><div className={wrap}>
         <h2 className={h2}>{CHURCH.campaign}</h2>
         <p className={sub}>The total moves whenever our treasurer confirms a gift, so what you see here is money actually received.</p>
+        {/* Building picture (also the share / search-result image): white frame with the brand stripe, caption over a dark
+            fade on wide screens, below the picture on narrow ones. */}
+        <figure className={`relative m-0 mb-6 overflow-hidden rounded-2xl border border-line bg-card px-2.5 pt-[13px] pb-2.5 shadow-[0_24px_48px_-24px_rgba(127,31,54,.45)] ${stripeBefore}`}>
+          <div className="relative overflow-hidden rounded-xl bg-paper">
+            <Image src={SHARE_IMAGES.donate.url} alt={SHARE_IMAGES.donate.alt} width={SHARE_IMAGES.donate.width} height={SHARE_IMAGES.donate.height} sizes="(max-width: 1080px) 100vw, 1080px" unoptimized className="block h-auto w-full" />
+            <span className="absolute top-4 left-4 rounded-full bg-gold px-3.5 py-1.5 text-[13px] leading-[normal] font-bold text-[#1b1404] shadow-[0_2px_8px_rgba(43,34,38,.25)]">{pctText}% raised</span>
+            <figcaption className="absolute inset-x-0 bottom-0 bg-[linear-gradient(to_top,rgba(43,34,38,.92)_0%,rgba(43,34,38,.65)_55%,rgba(43,34,38,0)_100%)] px-7 pt-20 pb-6 text-white max-md:static max-md:bg-brand max-md:bg-none max-md:px-5 max-md:pt-4 max-md:pb-4">
+              <span className="mb-1.5 block text-[12px] leading-[normal] font-bold tracking-[.16em] text-gold uppercase">{NEHEMIAH_PICTURE.eyebrow}</span>
+              <span className="block font-serif text-[length:clamp(22px,3vw,32px)] leading-[1.15]">{NEHEMIAH_PICTURE.title}</span>
+              <span className="mt-1 block text-[14px] text-[#f1c9d2]">{ADDRESS.street}, {ADDRESS.city}, {ADDRESS.region}</span>
+            </figcaption>
+          </div>
+        </figure>
         <div className={card}>
           <div className="relative h-[18px] overflow-hidden rounded-lg bg-line" role="progressbar" aria-label={`${CHURCH.campaign} progress`} aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100}>
             <i className="block h-full rounded-lg bg-gold" style={{ width: `${pct}%` }} />

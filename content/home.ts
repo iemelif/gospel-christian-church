@@ -6,9 +6,6 @@
 
 import { NEHEMIAH_VIDEO } from "@/lib/config";
 
-/** Share preview (Open Graph / Twitter) for Home. Set separately so the carousel folder can change freely. */
-export const SHARE_IMAGE = { url: "/images/hershot-carousel/01-gcc-nehemniah.png", width: 1907, height: 1043, alt: "Illustration of the new Gospel Christian Church building", type: "image/png" };
-
 /** Welcome paragraph (one paragraph; built only from verified facts in content/site.ts). */
 export const WELCOME_TEXT =
   "We are glad you are here. Gospel Christian Church IEMELIF gathers in Frances, Calumpit, Bulacan, and you are warmly invited to worship with us, meet our pastor, leaders and officers, and become part of our church family as we build together through Project Nehemiah, our church building project.";

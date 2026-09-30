@@ -55,8 +55,8 @@ paper, line…); no new palette or dependency.
 - **URL:** `/images/hershot-carousel/<filename>` (URL-encoded).
 
 Currently (2026-09-29) **3 images**: `01-gcc-nehemniah.png` (1907×1043), `02-gcc-logo.png` (1852×1078),
-`03-gcc-family.png` (1841×1077). Separately, `01-gcc-nehemniah.png` is the Open Graph / Twitter image of `/`
-(`SHARE_IMAGE` in `content/home.ts`, independent of the carousel), and the site icons in `public/icons/` were
+`03-gcc-family.png` (1841×1077). Separately, `public/images/search-results-thumbs/home.png` is the Open Graph / Twitter image of `/`
+(`SHARE_IMAGES.home` in `content/site.ts`, independent of the carousel), and the site icons in `public/icons/` were
 downscaled from the earlier `02-gcc-logo.jpg`.
 
 ## 7. Content Requirements
@@ -135,8 +135,8 @@ visible gold focus outline (Enter activates); no autoplay with sound; informativ
   IEMELIF) is a church in Frances, Calumpit, Bulacan. Join our worship services, meet our pastor and church
   leaders, and support Project Nehemiah, our church building project."; canonical `https://www.gcciemelif.website/`.
   No Donate metadata on `/`.
-- **Share image:** `og:image` and `twitter:image` = `/images/hershot-carousel/01-gcc-nehemniah.png`, 1907×1043,
-  `image/png` (`SHARE_IMAGE` in `content/home.ts` — set on its own, so it does not change with the carousel folder), `twitter:card` `summary_large_image` (via `pageMeta(…, { image })` in `lib/seo.ts`).
+- **Share image:** `og:image` and `twitter:image` = `/images/search-results-thumbs/home.png`, 1066×1072,
+  `image/png` (`SHARE_IMAGES.home` in `content/site.ts` — set on its own, so it does not change with the carousel folder), `twitter:card` `summary_large_image` (via `pageMeta(…, { image })` in `lib/seo.ts`).
 - **Icons** (site-wide, `app/layout.tsx`): `/icons/icon-48.png` (favicon/shortcut), `icon-192.png`,
   `icon-512.png`, `apple-touch-icon.png` (180×180) — downscaled from `02-gcc-logo.jpg`; `app/manifest.ts` →
   `/manifest.webmanifest` (192/512).

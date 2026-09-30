@@ -48,6 +48,14 @@ export const LOGOS = {
   iemelif: { src: "/images/iemelif-logo.png", alt: "IEMELIF logo", width: 274, height: 269 },
 };
 
+/** Share / search-result pictures (files in /public/images/search-results-thumbs). Used for link previews
+ *  (Facebook, Messenger, X) and as the picture Google may show beside the Home and Donate results.
+ *  If you replace a file, update its width and height here too. */
+export const SHARE_IMAGES = {
+  home: { url: "/images/search-results-thumbs/home.png", width: 1066, height: 1072, alt: "Gospel Christian Church IEMELIF – Equipped to Serve with Excellence, 42nd Church Founding Anniversary", type: "image/png" },
+  donate: { url: "/images/search-results-thumbs/donate.png", width: 1907, height: 1043, alt: "Illustration of the new Gospel Christian Church building", type: "image/png" },
+};
+
 /** Church address – shown in the footer and in structured data. */
 export const ADDRESS = {
   /** Text shown in the footer. */

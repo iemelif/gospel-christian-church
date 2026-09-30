@@ -25,6 +25,12 @@ export const NEHEMIAH_VIDEO = {
   caption: "A 3D walkthrough of Project Nehemiah in Frances, Calumpit.",
 };
 
+/** Caption on the building picture under "Project Nehemiah" on the Donate page (picture: SHARE_IMAGES.donate in content/site.ts). */
+export const NEHEMIAH_PICTURE = {
+  eyebrow: "The church we are building",
+  title: "A new home for Gospel Christian Church",
+};
+
 export const SCHEDULE = [
   { title: "Sunday Worship Service", time: "8:30 AM – 11:00 AM", day: "Every Sunday" },
   { title: "Wednesday Worship Service", time: "7:00 PM – 9:00 PM", day: "Every Wednesday" },
