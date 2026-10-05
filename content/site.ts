@@ -49,10 +49,12 @@ export const LOGOS = {
 };
 
 /** Share / search-result pictures (files in /public/images/search-results-thumbs). Used for link previews
- *  (Facebook, Messenger, X) and as the picture Google may show beside the Home and Donate results.
+ *  (Facebook, Messenger, X) and as the picture Google may show beside each result. `family` is also shown on the
+ *  Officers, Leadership and History pages (Google prefers a picture that is visible on the page).
  *  If you replace a file, update its width and height here too. */
 export const SHARE_IMAGES = {
   home: { url: "/images/search-results-thumbs/home.png", width: 1066, height: 1072, alt: "Gospel Christian Church IEMELIF – Equipped to Serve with Excellence, 42nd Church Founding Anniversary", type: "image/png" },
+  family: { url: "/images/search-results-thumbs/church-family.jpg", width: 1600, height: 936, alt: "The Gospel Christian Church IEMELIF family gathered inside the church", type: "image/jpeg" },
   donate: { url: "/images/search-results-thumbs/donate.png", width: 1907, height: 1043, alt: "Illustration of the new Gospel Christian Church building", type: "image/png" },
 };
 

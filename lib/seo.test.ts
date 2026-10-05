@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { SHARE_IMAGES } from "@/content/site";
-import { pageMeta } from "./seo";
+import { pageMeta, webPageJsonLd } from "./seo";
 
 describe("pageMeta", () => {
-  it("gives indexable pages the Home share image by default", () => {
+  it("gives indexable pages the church family photo by default", () => {
     const m = pageMeta("Church Officers", "d", "/officers");
-    expect(m.openGraph?.images).toEqual([SHARE_IMAGES.home]);
+    expect(m.openGraph?.images).toEqual([SHARE_IMAGES.family]);
     expect(m.twitter).toMatchObject({ card: "summary_large_image" });
   });
 
@@ -17,5 +17,13 @@ describe("pageMeta", () => {
     const m = pageMeta("About Us", "d", "/about", { index: false });
     expect(m.openGraph?.images).toBeUndefined();
     expect(m.twitter).toBeUndefined();
+  });
+});
+
+describe("webPageJsonLd", () => {
+  it("points primaryImageOfPage at an absolute image URL", () => {
+    const ld = webPageJsonLd("Church Officers", "/officers");
+    expect(ld.url).toMatch(/\/officers$/);
+    expect(ld.primaryImageOfPage.url).toMatch(/^https?:\/\/.+\/church-family\.jpg$/);
   });
 });

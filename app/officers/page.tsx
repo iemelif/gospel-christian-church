@@ -1,4 +1,6 @@
 import PageHero from "@/components/PageHero";
+import PageJsonLd from "@/components/PageJsonLd";
+import PagePhoto from "@/components/PagePhoto";
 import OfficerBoard from "@/components/OfficerBoard";
 import { CURRENT_TERM } from "@/content/officers";
 import { pageMeta } from "@/lib/seo";
@@ -15,8 +17,10 @@ export default function OfficersPage() {
     <main id="main">
       <PageHero title="Church Officers" intro={`Our officers for ${CURRENT_TERM.label}.`} />
       <div className={`${wrap} ${pageBody}`}>
+        <PagePhoto />
         <OfficerBoard term={CURRENT_TERM} />
       </div>
+      <PageJsonLd title={"Church Officers"} path={"/officers"} />
     </main>
   );
 }

@@ -3,6 +3,7 @@ import ChurchProgress from "@/components/ChurchProgress";
 import FundraisingPercent from "@/components/FundraisingPercent";
 import GiveForm from "@/components/GiveForm";
 import JoinUs from "@/components/JoinUs";
+import PageJsonLd from "@/components/PageJsonLd";
 import PaymentDetails from "@/components/PaymentDetails";
 import VideoEmbed from "@/components/VideoEmbed";
 import { ADDRESS, SHARE_IMAGES } from "@/content/site";
@@ -138,6 +139,7 @@ export default async function DonatePage() {
       <JoinUs intro="Come worship with us this week, and see the place your gift is building." />
 
       <a className="fixed inset-x-3 bottom-3 z-40 hidden rounded-[10px] bg-gold p-3.5 text-center font-semibold text-[#1b1404] no-underline shadow-[0_8px_24px_rgba(43,34,38,.3)] max-md:block print:hidden" href="#give">Give to {CHURCH.campaign}</a>
+      <PageJsonLd title={DONATE_TITLE} path="/donate" image={SHARE_IMAGES.donate} />
     </main>
   );
 }

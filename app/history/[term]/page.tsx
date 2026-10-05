@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import PageHero from "@/components/PageHero";
+import PageJsonLd from "@/components/PageJsonLd";
+import PagePhoto from "@/components/PagePhoto";
 import OfficerBoard from "@/components/OfficerBoard";
 import { CURRENT_TERM, HISTORY_TERMS } from "@/content/officers";
 import { pageMeta } from "@/lib/seo";
@@ -32,6 +34,7 @@ export default async function HistoryPage({ params }: Props) {
     <main id="main">
       <PageHero title={`${term.label} Officers`} intro="Leadership history" />
       <div className={`${wrap} ${pageBody}`}>
+        <PagePhoto />
         <OfficerBoard term={term} />
         <nav className="mt-5 border-t border-line pt-6" aria-label="Other terms">
           <h2 className="mb-[18px] text-[22px]">Other terms</h2>
@@ -43,6 +46,7 @@ export default async function HistoryPage({ params }: Props) {
           </ul>
         </nav>
       </div>
+      <PageJsonLd title={`${term.label} Officers`} path={`/history/${term.slug}`} />
     </main>
   );
 }
