@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { SITE } from "@/content/site";
+import { SHARE_IMAGES, SITE } from "@/content/site";
 import { CHURCH, php } from "./config";
 
 /** Donate page title and description (also used by the temporary Home page, which renders the Donate page).
@@ -13,9 +13,10 @@ export type ShareImage = { url: string; width: number; height: number; alt: stri
 export const INDEX_ROBOTS = { index: true, follow: true, "max-image-preview": "large" } as const;
 
 /** Per-page metadata: title, description, canonical URL, Open Graph. `path` is the page's own path, e.g. "/officers".
- *  `image` adds an Open Graph / Twitter (X) large-card preview image. */
+ *  `image` is the Open Graph / Twitter (X) large-card preview image; indexable pages default to the Home share image,
+ *  because a page's `openGraph` replaces the layout's (and its image), and Google needs one to show a thumbnail. */
 export function pageMeta(title: string, description: string, path: string, opts: { index?: boolean; image?: ShareImage } = {}): Metadata {
-  const { image } = opts;
+  const image = opts.image ?? (opts.index === false ? undefined : SHARE_IMAGES.home);
   return {
     title,
     description,
