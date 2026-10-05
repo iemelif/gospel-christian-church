@@ -50,11 +50,15 @@ export const LOGOS = {
 
 /** Share / search-result pictures (files in /public/images/search-results-thumbs). Used for link previews
  *  (Facebook, Messenger, X) and as the picture Google may show beside each result. `family` is also shown on the
- *  Officers, Leadership and History pages (Google prefers a picture that is visible on the page).
+ *  Officers, Leadership and History pages (Google prefers a picture that is visible on the page); a term in
+ *  content/officers.ts can pick another one with `photo`, e.g. photo: "family2".
  *  If you replace a file, update its width and height here too. */
 export const SHARE_IMAGES = {
   home: { url: "/images/search-results-thumbs/home.png", width: 1066, height: 1072, alt: "Gospel Christian Church IEMELIF – Equipped to Serve with Excellence, 42nd Church Founding Anniversary", type: "image/png" },
   family: { url: "/images/search-results-thumbs/church-family.jpg", width: 1600, height: 936, alt: "The Gospel Christian Church IEMELIF family gathered inside the church", type: "image/jpeg" },
+  family2: { url: "/images/hershot-carousel/02-gcc-family.png", width: 1841, height: 1077, alt: "The Gospel Christian Church IEMELIF family", type: "image/png" },
+  family3: { url: "/images/hershot-carousel/03-gcc-family.png", width: 1902, height: 1061, alt: "The Gospel Christian Church IEMELIF family", type: "image/png" },
+  family4: { url: "/images/hershot-carousel/04-gcc-family.png", width: 1798, height: 1027, alt: "The Gospel Christian Church IEMELIF family", type: "image/png" },
   donate: { url: "/images/search-results-thumbs/donate.png", width: 1907, height: 1043, alt: "Illustration of the new Gospel Christian Church building", type: "image/png" },
 };
 

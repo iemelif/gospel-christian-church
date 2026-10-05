@@ -7,6 +7,8 @@
 // A person who holds several roles simply appears on several lines – the
 // website merges them into one card. Names are written "Last, First".
 // `image` is the slug of the person's name → /images/people/<slug>.svg (see `npm run avatars`).
+// `photo` (optional) picks the church photo shown at the top of the term's page, from SHARE_IMAGES in
+// content/site.ts ("family2", "family3", …); without it the page shows the default "family" photo.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type Entry = {
@@ -21,11 +23,15 @@ export type Entry = {
    */
   image?: string;
 };
+import type { SHARE_IMAGES } from "./site";
+
 export type Term = {
   /** URL-safe id, e.g. "2025-2026" → /history/2025-2026 */
   slug: string;
   /** Label shown on the site, e.g. "2025 - 2026" */
   label: string;
+  /** Church photo at the top of the page (key of SHARE_IMAGES in content/site.ts). Default: "family". */
+  photo?: keyof typeof SHARE_IMAGES;
   entries: Entry[];
 };
 
@@ -53,6 +59,7 @@ export const LEADERSHIP_GROUPS: { title: string; roles: string[] }[] = [
 export const CURRENT_TERM: Term = {
   slug: "2026-2027",
   label: "2026 - 2027",
+  photo: "family2",
   entries: [
     { role: "Pastor", name: "Ocampo, Juanito Jr. S.", image: "ocampo-juanito-jr-s" },
     { role: "Deac", name: "Ocampo, Zenaida F.", image: "ocampo-zenaida-f" },
@@ -99,6 +106,7 @@ export const HISTORY_TERMS: Term[] = [
   {
     slug: "2025-2026",
     label: "2025 - 2026",
+    photo: "family2",
     entries: [
       { role: "Pastor", name: "Ocampo, Juanito Jr. S.", image: "ocampo-juanito-jr-s" },
       { role: "Deac", name: "Ocampo, Zenaida F.", image: "ocampo-zenaida-f" },
@@ -142,9 +150,10 @@ export const HISTORY_TERMS: Term[] = [
   {
     slug: "2024-2025",
     label: "2024 - 2025",
+    photo: "family2",
     entries: [
-      { role: "Pastor", name: "Cortez, Arnel", image: "cortez-arnel" },
-      { role: "Deac", name: "Cortez, Celia", image: "cortez-celia" },
+      { role: "Pastor", name: "Ocampo, Juanito Jr. S.", image: "ocampo-juanito-jr-s" },
+      { role: "Deac", name: "Ocampo, Zenaida F.", image: "ocampo-zenaida-f" },
       { role: "Predigador", name: "Daluz, Sonia", image: "daluz-sonia" },
       { role: "Predigador", name: "Victor, Marvin", image: "victor-marvin" },
       { role: "Predigador", name: "Sunga, Victor R.", image: "sunga-victor-r" },
@@ -183,6 +192,79 @@ export const HISTORY_TERMS: Term[] = [
       { role: "President of Youth", name: "Cano, Christine Joy", image: "cano-christine-joy" },
       { role: "President of Kababaihan", name: "Lugtu, Clarita", image: "lugtu-clarita" },
       { role: "President of Kalalakihan", name: "Arnedo, Mariano", image: "arnedo-mariano" },
+    ],
+  },
+  {
+    slug: "2023-2024",
+    label: "2023 - 2024",
+    photo: "family3",
+    entries: [
+      { role: "Pastor", name: "Cortez, Arnel", image: "cortez-arnel" },
+      { role: "Deac", name: "Cortez, Celia", image: "cortez-celia" },
+      { role: "Predigador", name: "Daluz, Sonia", image: "daluz-sonia" },
+      { role: "Predigador", name: "Victor, Marvin", image: "victor-marvin" },
+    ],
+  },
+  {
+    slug: "2022-2023",
+    label: "2022 - 2023",
+    photo: "family3",
+    entries: [
+      { role: "Pastor", name: "Cortez, Arnel", image: "cortez-arnel" },
+      { role: "Deac", name: "Cortez, Celia", image: "cortez-celia" },
+    ],
+  },
+  {
+    slug: "2021-2022",
+    label: "2021 - 2022",
+    photo: "family3",
+    entries: [
+      { role: "Pastor", name: "Cortez, Arnel", image: "cortez-arnel" },
+      { role: "Deac", name: "Cortez, Celia", image: "cortez-celia" },
+    ],
+  },
+  {
+    slug: "2020-2021",
+    label: "2020 - 2021",
+    photo: "family3",
+    entries: [
+      { role: "Pastor", name: "Cortez, Arnel", image: "cortez-arnel" },
+      { role: "Deac", name: "Cortez, Celia", image: "cortez-celia" },
+    ],
+  },
+  {
+    slug: "2019-2020",
+    label: "2019 - 2020",
+    photo: "family3",
+    entries: [
+      { role: "Pastor", name: "Cortez, Arnel", image: "cortez-arnel" },
+      { role: "Deac", name: "Cortez, Celia", image: "cortez-celia" },
+    ],
+  },
+  {
+    slug: "2018-2019",
+    label: "2018 - 2019",
+    photo: "family4",
+    entries: [
+      { role: "Pastor", name: "Luna, Mumar", image: "luna-mumar" },
+      { role: "Deac", name: "Luna, Marites", image: "luna-marites" },
+    ],
+  },
+  {
+    slug: "2017-2018",
+    label: "2017 - 2018",
+    photo: "family4",
+    entries: [
+      { role: "Pastor", name: "Luna, Mumar", image: "luna-mumar" },
+      { role: "Deac", name: "Luna, Marites", image: "luna-marites" },
+    ],
+  },
+  {
+    slug: "2016-2017",
+    label: "2016 - 2017",
+    entries: [
+      { role: "Pastor", name: "de Mesa, Jonathan", image: "de-mesa-jonathan" },
+      { role: "Deac", name: "de Mesa, Yolly", image: "de-mesa-yolly" },
     ],
   },
 ];
