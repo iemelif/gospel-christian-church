@@ -1,4 +1,6 @@
 import PageHero from "@/components/PageHero";
+import PageJsonLd from "@/components/PageJsonLd";
+import PagePhoto from "@/components/PagePhoto";
 import PersonCard from "@/components/PersonCard";
 import { CURRENT_TERM } from "@/content/officers";
 import { leadershipGroups } from "@/lib/officers";
@@ -17,6 +19,7 @@ export default function LeadershipPage() {
     <main id="main">
       <PageHero title="Church Leadership" intro={`Those who shepherd and serve our congregation, ${CURRENT_TERM.label}.`} />
       <div className={`${wrap} ${pageBody}`}>
+        <PagePhoto />
         {groups.map((g) => (
           <section className="pb-9" key={g.title} aria-labelledby={`g-${g.title}`}>
             <h2 className={`${h2Size} mb-[18px]`} id={`g-${g.title}`}>{g.title}</h2>
@@ -24,6 +27,7 @@ export default function LeadershipPage() {
           </section>
         ))}
       </div>
+      <PageJsonLd title={"Church Leadership"} path={"/leadership"} />
     </main>
   );
 }

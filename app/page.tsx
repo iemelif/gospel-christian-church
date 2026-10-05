@@ -2,6 +2,7 @@ import Link from "next/link";
 import HeroShotCarousel from "@/components/HeroShotCarousel";
 import JoinUs from "@/components/JoinUs";
 import NehemiahFeature from "@/components/NehemiahFeature";
+import PageJsonLd from "@/components/PageJsonLd";
 import PersonCard from "@/components/PersonCard";
 import WelcomeSection from "@/components/WelcomeSection";
 import { LEADER_ROLE_LABELS } from "@/content/home";
@@ -44,6 +45,7 @@ export default function HomePage() {
       </div></section>
 
       <div className="border-t border-line bg-paper"><JoinUs /></div>
+      <PageJsonLd title="Gospel Christian Church IEMELIF – Calumpit, Bulacan" path="/" image={SHARE_IMAGES.home} />
     </main>
   );
 }

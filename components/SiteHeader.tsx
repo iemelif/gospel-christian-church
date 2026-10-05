@@ -14,8 +14,9 @@ const navItem = `${navItemBase} px-[11px]`;
 const menuList = "m-0 list-none gap-[2px] flex-col items-stretch";
 // First-level dropdown: floating panel on desktop, indented list in the mobile menu.
 const dropdown = `${menuList} absolute top-[calc(100%+8px)] right-0 min-w-[240px] rounded-[10px] border border-line bg-card p-1.5 shadow-[0_14px_32px_rgba(43,34,38,.18)] max-lg:static max-lg:border-0 max-lg:bg-transparent max-lg:py-0 max-lg:pr-0 max-lg:pl-3.5 max-lg:shadow-none`;
-// Nested dropdown (Leadership History) opens in place inside its parent dropdown, at every width.
-const nestedDropdown = `${menuList} static min-w-0 py-0 pr-0 pl-3.5`;
+// Nested dropdown (Leadership History) opens in place inside its parent dropdown, at every width; it scrolls
+// once it holds more terms than fit, so the menu stays short.
+const nestedDropdown = `${menuList} static min-w-0 max-h-[min(300px,50vh)] overflow-y-auto overscroll-contain py-0 pr-0 pl-3.5`;
 
 const Chevron = () => (
   <svg viewBox="0 0 12 12" width="10" height="10" aria-hidden="true"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.8" /></svg>

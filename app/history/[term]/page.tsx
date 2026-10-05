@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import PageHero from "@/components/PageHero";
+import PageJsonLd from "@/components/PageJsonLd";
+import PagePhoto from "@/components/PagePhoto";
 import OfficerBoard from "@/components/OfficerBoard";
 import { CURRENT_TERM, HISTORY_TERMS } from "@/content/officers";
+import { SHARE_IMAGES } from "@/content/site";
 import { pageMeta } from "@/lib/seo";
 import { pageBody, wrap } from "@/lib/ui";
 
@@ -21,6 +24,7 @@ export async function generateMetadata({ params }: Props) {
     `${term.label} Officers`,
     `Church officers of Gospel Christian Church IEMELIF in Calumpit, Bulacan for ${term.label}.`,
     `/history/${term.slug}`,
+    { image: SHARE_IMAGES[term.photo ?? "family"] },
   );
 }
 
@@ -28,10 +32,12 @@ export default async function HistoryPage({ params }: Props) {
   const { term: slug } = await params;
   const term = HISTORY_TERMS.find((t) => t.slug === slug);
   if (!term) notFound();
+  const photo = SHARE_IMAGES[term.photo ?? "family"];
   return (
     <main id="main">
       <PageHero title={`${term.label} Officers`} intro="Leadership history" />
       <div className={`${wrap} ${pageBody}`}>
+        <PagePhoto img={photo} />
         <OfficerBoard term={term} />
         <nav className="mt-5 border-t border-line pt-6" aria-label="Other terms">
           <h2 className="mb-[18px] text-[22px]">Other terms</h2>
@@ -43,6 +49,7 @@ export default async function HistoryPage({ params }: Props) {
           </ul>
         </nav>
       </div>
+      <PageJsonLd title={`${term.label} Officers`} path={`/history/${term.slug}`} image={photo} />
     </main>
   );
 }

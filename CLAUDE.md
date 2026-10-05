@@ -321,7 +321,7 @@ components use only the `@theme` tokens and `lib/ui.ts` strings — no new palet
   copy + print), `PaymentDetails`, `FundraisingPercent`, `JoinUs`, `CopyButton`, `ChurchProgress`.
 
 ### Component reuse guidelines
-- Reuse before creating: `PageHero`, `ComingSoon` (placeholder pages), `PersonCard`/`OfficerBoard`/`Avatar`, `ChurchProgress`, `GiveForm`,
+- Reuse before creating: `PageHero`, `PagePhoto` (church family photo on Officers/Leadership/History — also their search-result picture), `PageJsonLd` (WebPage `primaryImageOfPage`), `ComingSoon` (placeholder pages), `PersonCard`/`OfficerBoard`/`Avatar`, `ChurchProgress`, `GiveForm`,
   `CopyButton`, `SocialIcon`, and the shared class strings in `lib/ui.ts` (§6).
 - Reuse data sources instead of duplicating values: `CHURCH`, `SCHEDULE`, `php` (`lib/config.ts`);
   `SITE`, `LINKS`, `LOGOS`, `ADDRESS`, `SOCIAL` (`content/site.ts`); `summary()` (`lib/store.ts`);
