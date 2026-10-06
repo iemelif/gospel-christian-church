@@ -387,5 +387,13 @@ Still open:
 - The footer stays three columns on narrow screens: the original CSS meant to stack it at ≤800px, but a
   source-order bug stopped that rule from applying. The Tailwind migration preserved the real behaviour on
   purpose; whether it should stack is an owner/design decision.
+- `npm ci` still warns that `eslint@9` is deprecated (2026-10-06). ESLint 10 is blocked because `eslint-plugin-react`,
+  `-import` and `-jsx-a11y` (via `eslint-config-next`) only accept ESLint 9.
+- `overrides` in `package.json` swaps `fast-glob` for `tinyglobby` (same `globSync` API) inside
+  `@next/eslint-plugin-next`. `fast-glob` → `micromatch` → `braces` had a high-severity advisory (GHSA-vfj7-8cjw-p6xm)
+  with no patched `braces` release. Remove the override once Next drops `fast-glob`. **Never run
+  `npm audit fix --force`**: it would downgrade `eslint-config-next` to 14.
+- `allowScripts` in `package.json` denies `unrs-resolver`'s postinstall script, which is not needed: the resolver's
+  native binding installs as a normal optional dependency.
 - Tailwind Preflight is off on purpose (§6). Turning it on would change spacing, lists and headings site-wide.
 - **Unknown:** any analytics, error monitoring, or DNS/domain-mapping setup (none found in the repo).
