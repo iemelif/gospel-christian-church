@@ -8,8 +8,8 @@ const HISTORY = "Church Leadership/Leadership History";
 
 describe("activeMenuKeys", () => {
   const nav = buildNav();
-  it("finds Church Leadership and Leadership History for every past-term page", () => {
-    for (const t of HISTORY_TERMS) expect(activeMenuKeys(nav, `/history/${t.slug}`)).toEqual([LEADERSHIP, HISTORY]);
+  it("finds Church Leadership, Leadership History and the term's pastor period for every past-term page", () => {
+    for (const t of HISTORY_TERMS) expect(activeMenuKeys(nav, `/history/${t.slug}`)).toEqual([LEADERSHIP, HISTORY, expect.stringMatching(/^Church Leadership\/Leadership History\/\d{4} – (\d{4}|present)$/)]);
   });
   it("finds only Church Leadership on /officers, and nothing on pages outside dropdowns", () => {
     expect(activeMenuKeys(nav, "/officers")).toEqual([LEADERSHIP]);

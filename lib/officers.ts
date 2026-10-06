@@ -48,3 +48,29 @@ export function leadershipGroups(term: Term) {
     return { title: g.title, people: toPeople(entries, g.roles) };
   }).filter((g) => g.people.length);
 }
+
+/** Consecutive terms with the same Pastor and Deac. `slugs` are its terms, newest first. */
+export type PastorPeriod = { pastors: string[]; deacs: string[]; from: number; to: number; current: boolean; slugs: string[] };
+
+/** First and last year of a term slug: "2008-2009" → [2008, 2009]. */
+const termYears = (slug: string) => slug.split("-").map(Number) as [number, number];
+
+/** About Us "Pastors through the years": terms (newest first) merged into periods with the same Pastor and Deac. */
+export function pastorPeriods(terms: Term[]): PastorPeriod[] {
+  const names = (t: Term, role: string) => t.entries.filter((e) => e.role === role).map((e) => e.name);
+  const periods: PastorPeriod[] = [];
+  terms.forEach((t, i) => {
+    const pastors = names(t, "Pastor"), deacs = names(t, "Deac");
+    if (!pastors.length) return;
+    const [from, to] = termYears(t.slug);
+    const last = periods.at(-1);
+    if (last && last.from === to && last.pastors.join("|") === pastors.join("|") && last.deacs.join("|") === deacs.join("|")) {
+      last.from = from;
+      last.slugs.push(t.slug);
+    } else periods.push({ pastors, deacs, from, to, current: i === 0, slugs: [t.slug] });
+  });
+  return periods;
+}
+
+/** "2024 – present" for the current period, otherwise "2019 – 2024". */
+export const periodLabel = (p: PastorPeriod) => `${p.from} – ${p.current ? "present" : p.to}`;

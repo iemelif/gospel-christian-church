@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// "Coming soon" text for pages that don't have their content yet (About Us, Ministries, Contact Us).
+// "Coming soon" text for pages that don't have their content yet (Ministries, Contact Us).
 // Edit the title and text freely. When a page gets its real content, remove its entry here and the
 // <ComingSoon> from the page (see docs/pages/<page>.md).
 // ─────────────────────────────────────────────────────────────────────────────
@@ -7,10 +7,6 @@
 export type ComingSoonText = { title: string; text: string };
 
 export const COMING_SOON = {
-  about: {
-    title: "Our story is on its way",
-    text: "We are preparing a page about Gospel Christian Church IEMELIF and our church family in Frances, Calumpit. Please check back soon.",
-  },
   ministries: {
     title: "Our ministries page is on its way",
     text: "Soon you will find the ministries of our church here, and how you can take part. Until then, we would love to meet you at a worship service.",

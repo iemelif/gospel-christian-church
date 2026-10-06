@@ -18,8 +18,8 @@ It currently does two things:
    reCAPTCHA v3. A treasurer confirms pledges in `/admin`; only confirmed gifts count toward the progress
    figures and Giving Wall. Goal ₱12,000,000 (`NEXT_PUBLIC_GOAL`); ₱2,700,000 was raised before the site went
    live (`NEXT_PUBLIC_BASE_RAISED`).
-2. **Church information pages**: Church Officers, Leadership, Leadership History, plus "Coming soon"
-   placeholders for About Us, Ministries and Contact Us.
+2. **Church information pages**: About Us, Church Officers, Leadership, Leadership History, plus "Coming soon"
+   placeholders for Ministries and Contact Us.
 
 Production domains: main site `https://www.gcciemelif.website`; `https://support.gcciemelif.website` (still
 defined as `LINKS.support`, no longer used by the menu). **Both domains point to this same Cloud Run service**
@@ -92,7 +92,8 @@ app/                       App Router
   page.tsx                 "/"  – Home page (static) — see docs/pages/home.md
   manifest.ts              Web app manifest (icons in public/icons/, made from 02-gcc-logo.jpg)
   donate/page.tsx          "/donate" – THE Donate page for Project Nehemiah (force-dynamic, reads gifts) — see §7.3
-  about/ ministries/ contact/  Placeholders: PageHero + <ComingSoon> card + JoinUs (noindex); text in content/coming-soon.ts
+  about/page.tsx           "/about" – church intro, founding video (Facebook), pastors through the years (from officers), IEMELIF heritage; text in content/about.ts
+  ministries/ contact/     Placeholders: PageHero + <ComingSoon> card + JoinUs (noindex); text in content/coming-soon.ts
   leadership/page.tsx      Leadership groups for the current term (not in the header menu, but in sitemap)
   officers/page.tsx        Current-term officer board
   history/[term]/page.tsx  Past terms, statically generated from HISTORY_TERMS
@@ -105,6 +106,7 @@ components/                Shared React components (default exports, PascalCase 
 content/                   EDITABLE SITE CONTENT (non-developer friendly)
   site.ts                  URLs per environment, SITE name, LINKS, LOGOS, SHARE_IMAGES (search/share thumbnails), ADDRESS, SOCIAL, NAV menu
   officers.ts              CURRENT_TERM, HISTORY_TERMS, BOARD_ROLES, LEADERSHIP_GROUPS
+  about.ts                 About Us text: intro, welcome, FOUNDING_VIDEO, IEMELIF_HERITAGE (from iemelifchurch.com/history)
   coming-soon.ts           COMING_SOON title/text per placeholder page, COMING_SOON_JOIN_INTRO
 lib/
   config.ts                CHURCH (campaign "Project Nehemiah", goal, email), SCHEDULE, PAYMENT_METHODS (id + label),
@@ -118,7 +120,8 @@ lib/
   seo.ts                   pageMeta() helper for per-page metadata
   carousel.ts              carouselSlides(): server-side discovery of the Home carousel images (every image in
                            public/images/hershot-carousel/, alphabetical; no manual list)
-  nav.ts                   buildNav(): fills "Leadership History" submenu from officers
+  nav.ts                   buildNav(): fills "Leadership History" submenu from officers, grouped by pastor period
+                           ("2024 – present" → its past terms; pastorPeriods()/periodLabel() in lib/officers.ts)
   menu.ts                  Header dropdown state: activeMenuKeys() / toggleMenu() (auto-expands the current page's submenu)
   officers.ts              person merging, board rows, leadership groups, displayName()
   slug.ts                  slugify() for avatar file names
