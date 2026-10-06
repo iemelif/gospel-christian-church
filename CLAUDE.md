@@ -74,8 +74,7 @@ npm run test:watch   # Vitest, watch mode
 ```
 
 - **Before proposing a change as done run: `npm run lint && npm test && npm run build`** (same as CI).
-- Lint currently shows 3 known warnings (2× `react-hooks/set-state-in-effect` in `SiteHeader.tsx` and
-  `app/admin/page.tsx`, 1 unused import in `scripts/generate-avatars.mjs`). That rule is downgraded to
+- Lint currently shows 0 warnings. The `react-hooks/set-state-in-effect` rule is downgraded to
   `warn` in `eslint.config.mjs` on purpose; don't add new warnings.
 - Local env: copy `.env.example` → `.env.local` and set `ADMIN_PASSWORD`. **Never read out, print, or commit
   `.env.local`.**
@@ -385,7 +384,6 @@ Still open:
   environment.
 - The reCAPTCHA badge is hidden via `.grecaptcha-badge` in `app/globals.css` (with Google's notice in the form) —
   the one piece of hand-written CSS for a third-party element; owner may prefer the visible badge.
-- `react-hooks/set-state-in-effect` warnings in `SiteHeader.tsx` and `app/admin/page.tsx` (refactor candidates).
 - The footer stays three columns on narrow screens: the original CSS meant to stack it at ≤800px, but a
   source-order bug stopped that rule from applying. The Tailwind migration preserved the real behaviour on
   purpose; whether it should stack is an owner/design decision.

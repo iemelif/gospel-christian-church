@@ -60,8 +60,9 @@ export default function SiteHeader({ nav }: { nav: NavItem[] }) {
   const [openKeys, setOpenKeys] = useState<string[]>([]);
   const ref = useRef<HTMLElement>(null);
 
-  // close menus after navigating
-  useEffect(() => { setOpen(false); setOpenKeys([]); }, [pathname]);
+  // Close menus after navigating: reset during render (not in an effect) so there's no extra render pass.
+  const [shownPath, setShownPath] = useState(pathname);
+  if (shownPath !== pathname) { setShownPath(pathname); setOpen(false); setOpenKeys([]); }
 
   // close dropdowns on outside click / Escape
   useEffect(() => {
