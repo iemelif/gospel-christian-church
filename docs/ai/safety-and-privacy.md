@@ -8,7 +8,7 @@
 - `POST /api/gifts` is protected by Google reCAPTCHA v3 (the site's only runtime external service); other public
   endpoints have no bot protection. The only rate limiter (admin sign-in) is in-memory, keyed on a
   client-supplied header, and resets on restart (`docs/architecture/authentication.md`).
-- Runtime limits: one Cloud Run instance, 512Mi memory, 60s request timeout, scale to zero
+- Runtime limits: one Cloud Run instance, 512Mi memory, 60s request timeout, always on (min 1)
   (`docs/architecture/deployment.md`).
 - No database for logs, caches or quotas (`docs/architecture/data-storage.md`).
 - Only three runtime dependencies; adding an AI SDK would be a new dependency requiring approval (`CLAUDE.md`).

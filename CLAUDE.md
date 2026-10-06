@@ -180,7 +180,8 @@ Dockerfile, .dockerignore  3-stage build (deps → build → run), standalone se
   Wall, `GET /api/gifts`, pages).
 - Payment method **ids** (`GCash`, `Maya`, `Bank transfer`, `Cash at church`) are stored with pledges — never
   rename them; change the donor-facing `label` instead.
-- Cloud Run runs with `max-instances=1` because of the file store and the in-memory login rate limiter.
+- Cloud Run runs with `max-instances=1` because of the file store and the in-memory login rate limiter, and
+  `min-instances=1` (always on) so crawlers never hit a cold start.
 
 **Style of code (match it)**
 - Default-exported components, PascalCase filenames in `components/`; helpers are named exports in `lib/`.
