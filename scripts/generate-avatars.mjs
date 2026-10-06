@@ -3,7 +3,7 @@
 // - File name = the entry's `image` slug → public/images/people/<slug>.svg
 // - Existing files (including real photos you have added) are never overwritten.
 // - Entries without an `image` are reported with a suggested slug.
-import { existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readdirSync, writeFileSync } from "node:fs";
 import { CURRENT_TERM, HISTORY_TERMS } from "../content/officers.ts";
 import { slugify } from "../lib/slug.ts";
 

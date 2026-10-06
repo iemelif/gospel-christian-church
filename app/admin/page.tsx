@@ -9,6 +9,17 @@ import { btn, card, errorText, h2, input, label, muted, sub, wrap } from "@/lib/
 // Table cells (was the global th/td rule).
 const cell = "border-b border-line px-2 py-2.5 text-left align-top";
 
+type AdminGifts = { gifts: Gift[] | null } | { error: string };
+
+/** GET /api/admin: the gifts, `null` when not signed in, or the server's error message. */
+async function fetchGifts(): Promise<AdminGifts> {
+  const res = await fetch("/api/admin", { cache: "no-store" });
+  if (res.status === 401) return { gifts: null };
+  const data = await res.json();
+  if (!res.ok) return { error: data.error ?? "Something went wrong." };
+  return { gifts: data };
+}
+
 export default function Admin() {
   const [pw, setPw] = useState("");
   const [gifts, setGifts] = useState<Gift[] | null>(null);
@@ -16,17 +27,15 @@ export default function Admin() {
   const [err, setErr] = useState("");
   const [signingIn, setSigningIn] = useState(false); // reCAPTCHA + sign-in request running: blocks double submits
 
-  const load = useCallback(async () => {
-    const res = await fetch("/api/admin", { cache: "no-store" });
-    if (res.status === 401) { setGifts(null); return false; }
-    const data = await res.json();
-    if (!res.ok) { setErr(data.error ?? "Something went wrong."); return false; }
-    setGifts(data);
-    return true;
+  const show = useCallback((r: AdminGifts) => {
+    if ("error" in r) setErr(r.error);
+    else setGifts(r.gifts);
   }, []);
+  const load = useCallback(async () => show(await fetchGifts()), [show]);
 
   // Restore the session (the cookie lasts one day), so a refresh doesn't ask for the password again.
-  useEffect(() => { load().finally(() => setChecking(false)); }, [load]);
+  // State is set only in the promise callbacks, never synchronously in the effect.
+  useEffect(() => { fetchGifts().then(show).finally(() => setChecking(false)); }, [show]);
 
   /** Gets a reCAPTCHA token first; the password is only sent with a token (lib/adminSignIn.ts). */
   async function signIn() {

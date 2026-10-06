@@ -41,10 +41,12 @@ push to main     ──► deploy.yml: GCP auth (WIF) → docker build → push 
 | Volume | Cloud Storage bucket `<GCP_PROJECT_ID>-gospel-christian-church-data` mounted at `/data` |
 | Env | `NODE_ENV=production`, `DATA_DIR=/data`, `ADMIN_PASSWORD` and `RECAPTCHA_SECRET_KEY` (from GitHub secrets, plain env vars) |
 | Access | `--allow-unauthenticated` (public site) |
-| Scaling | min 0, **max 1** instance, concurrency 80 |
+| Scaling | **min 1, max 1** instance (always on), concurrency 80 |
 | Resources | 512Mi memory, 1 CPU, port 3000, 60s timeout |
 
-- Scale-to-zero means cold starts and reset in-memory state (login rate limiter).
+- Always on (min 1): no cold starts, so search-engine crawlers get a fast answer (a cold start once made Google's
+  test report "Crawl failed"). The idle instance has a small monthly cost. A redeploy still resets in-memory state
+  (login rate limiter).
 - One-time GCP setup (Artifact Registry repo, bucket, IAM, WIF) is documented in `README.md`.
 
 ## 5. Domains (verified / unknown)
@@ -78,7 +80,7 @@ push to main     ──► deploy.yml: GCP auth (WIF) → docker build → push 
 ## 8. AI-relevant notes
 
 **Verified limits** any AI feature would run under: 60s request timeout, 512Mi memory, 1 CPU, one instance
-with concurrency 80, scale to zero. **Proposed:** streaming responses or a higher timeout; secrets via
+with concurrency 80, always on (min 1). **Proposed:** streaming responses or a higher timeout; secrets via
 Secret Manager; budget-aware rate limiting.
 
 ## 9. Proposed (not decided)
