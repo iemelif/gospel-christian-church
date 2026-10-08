@@ -22,7 +22,7 @@ Giving settings are in `lib/config.ts`: goal, amount already raised, service sch
 
 ## Site header, footer, leaders & officers
 - `content/site.ts` – links, logos, church address, social media and the header menu.
-  - **Development vs production links:** the `ENVIRONMENTS` block at the top holds both sets. `npm run dev` uses `localhost:3000` for Home, GCC (and the unused Support link); `npm run build` / `npm start` use the real `gcciemelif.website` links. The IEMELIF and Facebook links are the same in both.
+  - **Development vs production links:** the `ENVIRONMENTS` block at the top holds both sets. `npm run dev` uses `localhost:3000` for Home, GCC (and the unused Support link); deployed builds use `gcciemelif.website` (staging, `NEXT_PUBLIC_SITE_ENV=staging`) or `gcciemelif.com` (production, the default for `npm run build` / `npm start`). On staging `robots.txt` blocks all crawlers. The IEMELIF and Facebook links are the same in both.
   - `SITE_URL` (canonical links, sitemap, Open Graph) follows the same switch.
 - `content/officers.ts` – current term (`CURRENT_TERM`), past terms (`HISTORY_TERMS`) and the groups on the Church Leadership page. New term: copy the current block into `HISTORY_TERMS`, then replace `CURRENT_TERM`.
 - **Pictures:** every line has `image: "<slug of the name>"` (e.g. `ocampo-juanito-jr-s`), which loads `/images/people/<slug>.svg`.
@@ -38,17 +38,25 @@ Pledges are stored in a file, so host on a server that keeps its disk (a VPS, or
 
 ## Deploy to Google Cloud Run (GitHub Actions)
 
-`.github/workflows/deploy.yml` builds the Docker image, pushes it to Artifact Registry and deploys to Cloud Run on every push to `main`. `ci.yml` type-checks and builds every pull request / branch.
+Two workflows build the Docker image, push it to Artifact Registry and deploy to Cloud Run:
+
+| Workflow | Branch | Site | Cloud Run service | Data bucket | GitHub Environment |
+| --- | --- | --- | --- | --- | --- |
+| `deploy-prod.yml` | `main` | gcciemelif.com | `gospel-christian-church-prod` | `PROJECT_ID-gospel-christian-church-prod-data` | `production` |
+| `deploy-staging.yml` | `develop` | gcciemelif.website | `gospel-christian-church` | `PROJECT_ID-gospel-christian-church-data` | `staging` |
+
+Variables and secrets set on a GitHub Environment override the repository-level ones, so staging and production can use different passwords or reCAPTCHA keys. `ci.yml` lints, tests and builds every pull request.
 
 ### One-time Google Cloud setup
-Replace `PROJECT_ID` and `GITHUB_USER/REPO`. Keep the region (`us-central1`), repository name and bucket name (`PROJECT_ID-gospel-christian-church-data`) as shown: `deploy.yml` expects exactly these.
+Replace `PROJECT_ID` and `GITHUB_USER/REPO`. Keep the region (`us-central1`), repository name and bucket names (`PROJECT_ID-gospel-christian-church-data` for staging, `PROJECT_ID-gospel-christian-church-prod-data` for production) as shown: the deploy workflows expect exactly these. Grant the runtime service account access to **both** buckets.
 
     gcloud config set project PROJECT_ID
     gcloud services enable run.googleapis.com artifactregistry.googleapis.com iamcredentials.googleapis.com storage.googleapis.com
 
     # image repository + bucket that stores gifts.json
     gcloud artifacts repositories create gospel-christian-church --repository-format=docker --location=us-central1
-    gcloud storage buckets create gs://PROJECT_ID-gospel-christian-church-data --location=us-central1
+    gcloud storage buckets create gs://PROJECT_ID-gospel-christian-church-data --location=us-central1       # staging
+    gcloud storage buckets create gs://PROJECT_ID-gospel-christian-church-prod-data --location=us-central1  # production
 
     # deploy service account (used by GitHub)
     gcloud iam service-accounts create gh-deployer

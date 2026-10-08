@@ -21,10 +21,15 @@ It currently does two things:
 2. **Church information pages**: About Us, Church Officers, Leadership, Leadership History, plus "Coming soon"
    placeholders for Ministries and Contact Us.
 
-Production domains: main site `https://www.gcciemelif.website`; `https://support.gcciemelif.website` (still
-defined as `LINKS.support`, no longer used by the menu). **Both domains point to this same Cloud Run service**
-(confirmed by the owner) — so any path works on either host, and `support.…/` serves the same `/` as `www.…/`.
-No redirect exists; the subdomain's future is an open owner question.
+Environments (since 2026-10-08):
+- **Production** `https://www.gcciemelif.com` — branch `main` → `deploy-prod.yml` → Cloud Run `gospel-christian-church-prod`.
+  `robots.txt` allows crawling (except `/admin`, `/api/`).
+- **Staging** `https://www.gcciemelif.website` — branch `develop` → `deploy-staging.yml` → Cloud Run
+  `gospel-christian-church` (the original service). `robots.txt` disallows everything.
+  `https://support.gcciemelif.website` (still `LINKS.support`, unused by the menu) points to the same staging service
+  (owner-confirmed); no redirect exists; the subdomain's future is an open owner question.
+- The build picks its URLs and robots rules from `NEXT_PUBLIC_SITE_ENV` (`staging` | `production`, default production),
+  set by each deploy workflow — see `ENVIRONMENTS` / `IS_STAGING` in `content/site.ts`.
 
 > **Home (implemented 2026-09-29):** `/` (`app/page.tsx`) is the Home page: carousel → welcome → Project
 > Nehemiah feature (inline Facebook video, muted autoplay requested; CTA → `/donate`) → "Our Pastor, Deacon,
@@ -54,8 +59,8 @@ No redirect exists; the subdomain's future is an open owner question.
 | Lint | **ESLint 9** flat config `eslint.config.mjs` using `eslint-config-next` (core-web-vitals + typescript). ESLint 10 is not used because Next's plugins don't support it yet (peer conflicts) |
 | Format | **None** (no Prettier). Match the existing compact style by hand |
 | Tests | **Vitest 5**, `vitest.config.mts` (node environment, `@/` alias). Tests are `*.test.ts` next to the code (currently `lib/*.test.ts`). No component/browser tests yet |
-| CI | GitHub Actions `ci.yml`: `npm ci` → `npm run lint` → `npm test` → `npm run build` on PRs and non-main pushes. `deploy.yml` does not run lint/tests |
-| Deploy | GitHub Actions `deploy.yml` → Docker → Artifact Registry → **Google Cloud Run** (`us-central1`) on push to `main` |
+| CI | GitHub Actions `ci.yml`: `npm ci` → `npm run lint` → `npm test` → `npm run build` on PRs and non-main pushes. the deploy workflows do not run lint/tests |
+| Deploy | GitHub Actions → Docker → Artifact Registry → **Google Cloud Run** (`us-central1`): `deploy-prod.yml` on push to `main` (gcciemelif.com), `deploy-staging.yml` on push to `develop` (gcciemelif.website) |
 
 ---
 
@@ -134,7 +139,7 @@ postcss.config.mjs         Registers the @tailwindcss/postcss plugin (Tailwind h
 eslint.config.mjs          ESLint flat config
 vitest.config.mts          Vitest config
 lib/*.test.ts              Unit tests (slug, officers, config, auth, store, carousel)
-.github/workflows/         ci.yml, deploy.yml
+.github/workflows/         ci.yml, deploy-prod.yml (main → .com), deploy-staging.yml (develop → .website)
 Dockerfile, .dockerignore  3-stage build (deps → build → run), standalone server
 ```
 
@@ -156,8 +161,8 @@ Dockerfile, .dockerignore  3-stage build (deps → build → run), standalone se
   not hard-coded in components**, and keep the explanatory header comments those files use for non-developers.
 - `NEXT_PUBLIC_*` must be read as literal `process.env.NEXT_PUBLIC_X` (no destructuring) so Next inlines them.
   They are **public** and **baked in at build time** — never put secrets in them. Adding one requires updating
-  `.env.example`, `Dockerfile` (ARG + ENV) and `deploy.yml` (env + `--build-arg`).
-- Environment-dependent URLs come from the `ENVIRONMENTS` block in `content/site.ts` (switches on `NODE_ENV`).
+  `.env.example`, `Dockerfile` (ARG + ENV) and **both** `deploy-prod.yml` and `deploy-staging.yml` (env + `--build-arg`).
+- Environment-dependent URLs come from the `ENVIRONMENTS` block in `content/site.ts` (switches on `NODE_ENV`, then `NEXT_PUBLIC_SITE_ENV` for staging vs production).
   Use `LINKS.*` / `SITE_URL`, never hard-code domains.
 
 **Pages**
@@ -338,7 +343,8 @@ components use only the `@theme` tokens and `lib/ui.ts` strings — no new palet
 
 ## 8. Git safety rules
 
-- Work on a feature branch; `main` auto-deploys to production Cloud Run on every push (except `**.md`-only changes).
+- Work on a feature branch; `develop` auto-deploys to staging (gcciemelif.website) and `main` to production
+  (gcciemelif.com) on every push (except `**.md`-only changes).
 - **Never** push, force-push, merge to `main`, rebase shared branches, or delete branches without explicit request.
 - Commit only when asked. Keep commits focused; run `npm run build` before proposing a commit.
 - **Never commit** `.env.local`, `data/gifts.json`, `.next/`, `node_modules/` (all gitignored — keep it that way).

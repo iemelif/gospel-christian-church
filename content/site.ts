@@ -5,7 +5,9 @@
 
 // ── Environment-based URLs ───────────────────────────────────────────────────
 // `npm run dev`  → NODE_ENV=development → the "development" block (localhost)
-// `npm run build` / `npm start` → NODE_ENV=production → the "production" block
+// Deployed builds pick their block from NEXT_PUBLIC_SITE_ENV (set by the GitHub workflow):
+//   "staging"    → the "staging" block    (deploy-staging.yml, branch develop → gcciemelif.website)
+//   anything else → the "production" block (deploy-prod.yml,    branch main    → gcciemelif.com)
 // Change the addresses/ports here if your local setup differs.
 const ENVIRONMENTS = {
   development: {
@@ -14,14 +16,24 @@ const ENVIRONMENTS = {
     gcc: "http://localhost:3000",
     support: "http://localhost:3000",     // the support site, if you run it locally
   },
-  production: {
+  staging: {
     siteUrl: "https://www.gcciemelif.website",
     home: "https://www.gcciemelif.website",
     gcc: "https://www.gcciemelif.website",
     support: "https://support.gcciemelif.website", // not used by the menu since Donate moved to /donate (subdomain decision pending)
   },
+  production: {
+    siteUrl: "https://www.gcciemelif.com",
+    home: "https://www.gcciemelif.com",
+    gcc: "https://www.gcciemelif.com",
+    support: "https://support.gcciemelif.com", // not used by the menu
+  },
 };
-const ENV = process.env.NODE_ENV === "development" ? ENVIRONMENTS.development : ENVIRONMENTS.production;
+
+/** True on the staging site (gcciemelif.website): robots.txt then blocks all crawlers. */
+export const IS_STAGING = process.env.NODE_ENV !== "development" && process.env.NEXT_PUBLIC_SITE_ENV === "staging";
+
+const ENV = process.env.NODE_ENV === "development" ? ENVIRONMENTS.development : IS_STAGING ? ENVIRONMENTS.staging : ENVIRONMENTS.production;
 
 /** Public URL of THIS site (used for SEO: canonical links, sitemap, Open Graph). */
 export const SITE_URL = ENV.siteUrl;

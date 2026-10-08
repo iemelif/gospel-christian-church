@@ -1,14 +1,17 @@
-name: Deploy to Cloud Run
+name: deploy-staging
+
+# gcciemelif.website (staging). Runs on every push to `develop`.
+# Per-environment vars/secrets can be set on the GitHub Environment "staging"; they override repository-level ones.
 
 on:
   push:
-    branches: [main]
+    branches: [develop]
     paths-ignore:
       - "**.md"
   workflow_dispatch:
 
 concurrency:
-  group: deploy-${{ github.ref }}
+  group: deploy-staging
   cancel-in-progress: false
 
 env:
@@ -19,8 +22,11 @@ env:
 
 jobs:
   deploy:
-    name: Build & Deploy
+    name: Build & Deploy (staging)
     runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://www.gcciemelif.website
     permissions:
       contents: read
       id-token: write
@@ -54,6 +60,7 @@ jobs:
           NEXT_PUBLIC_MAYA_NUMBER: ${{ vars.NEXT_PUBLIC_MAYA_NUMBER }}
           NEXT_PUBLIC_BANK_DETAILS: ${{ vars.NEXT_PUBLIC_BANK_DETAILS }}
           NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${{ vars.NEXT_PUBLIC_RECAPTCHA_SITE_KEY }}
+          NEXT_PUBLIC_SITE_ENV: staging # robots.txt blocks all crawlers
         run: |
           docker build \
             --tag "$IMAGE:${{ github.sha }}" \
@@ -66,6 +73,7 @@ jobs:
             --build-arg NEXT_PUBLIC_MAYA_NUMBER="$NEXT_PUBLIC_MAYA_NUMBER" \
             --build-arg NEXT_PUBLIC_BANK_DETAILS="$NEXT_PUBLIC_BANK_DETAILS" \
             --build-arg NEXT_PUBLIC_RECAPTCHA_SITE_KEY="$NEXT_PUBLIC_RECAPTCHA_SITE_KEY" \
+            --build-arg NEXT_PUBLIC_SITE_ENV="$NEXT_PUBLIC_SITE_ENV" \
             .
 
       - name: Push Docker image
@@ -105,4 +113,4 @@ jobs:
             --concurrency=80
 
       - name: Print deployed URL
-        run: echo "✅ Site → ${{ steps.deploy.outputs.url }}"
+        run: echo "✅ staging → ${{ steps.deploy.outputs.url }}"

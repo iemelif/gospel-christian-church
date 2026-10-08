@@ -266,5 +266,5 @@ church illustration in `FundraisingPercent` (§8).
 `app/donate/page.tsx`, `app/page.tsx`, `app/sitemap.ts`, `app/api/gifts/route.ts`, `components/GiveForm.tsx`,
 `components/PaymentDetails.tsx`, `components/FundraisingPercent.tsx`, `components/JoinUs.tsx`, `components/ChurchProgress.tsx`,
 `components/CopyButton.tsx`, `content/site.ts`, `lib/config.ts`, `lib/progress.ts`, `lib/recaptcha.ts`,
-`lib/seo.ts`, `lib/store.ts`, `app/globals.css`, `public/images/payments/`, `.env.example`, `Dockerfile`, `.github/workflows/deploy.yml`,
+`lib/seo.ts`, `lib/store.ts`, `app/globals.css`, `public/images/payments/`, `.env.example`, `Dockerfile`, `.github/workflows/deploy-prod.yml` / `deploy-staging.yml`,
 tests listed in §13.

@@ -35,10 +35,11 @@ Values are intentionally **not** reproduced here; see `.env.example` for names a
 | `ADMIN_PASSWORD` | `lib/auth.ts` | **Runtime** | **Secret** | Never `NEXT_PUBLIC_` |
 | `DATA_DIR` | `lib/store.ts` | Runtime | No | Default `./data`; `/data` on Cloud Run |
 | `NODE_ENV` | `content/site.ts`, `lib/auth.ts` | Build/runtime | No | `development` → localhost links; `production` → secure cookie |
+| `NEXT_PUBLIC_SITE_ENV` | `content/site.ts`, `app/robots.ts` | Build | Yes | `staging` → gcciemelif.website URLs + robots disallow all; anything else → gcciemelif.com. Set by the deploy workflows |
 
 - `NEXT_PUBLIC_*` must be read as literal `process.env.NEXT_PUBLIC_X` for inlining (comment in `lib/config.ts`).
 - Adding a `NEXT_PUBLIC_*` variable requires changes in `.env.example`, `Dockerfile` (ARG + ENV) and
-  `deploy.yml` (env + `--build-arg`).
+  both `deploy-prod.yml` and `deploy-staging.yml` (env + `--build-arg`).
 - Where values come from: local `.env.local` (gitignored); CI uses a dummy `ADMIN_PASSWORD`; production uses
   GitHub repository **variables** (public values, incl. `NEXT_PUBLIC_RECAPTCHA_SITE_KEY`) and **secrets**
   (`ADMIN_PASSWORD`, `RECAPTCHA_SECRET_KEY`, GCP identity). `.env.example` lists the reCAPTCHA variables
@@ -47,8 +48,8 @@ Values are intentionally **not** reproduced here; see `.env.example` for names a
 ## 3. Environment switching (verified)
 
 `content/site.ts` picks `ENVIRONMENTS.development` when `NODE_ENV === "development"` (i.e. `npm run dev`),
-otherwise production. So `npm run build && npm start` locally still uses production URLs for links,
-canonicals and the sitemap.
+otherwise `ENVIRONMENTS.staging` when `NEXT_PUBLIC_SITE_ENV === "staging"`, otherwise production. So
+`npm run build && npm start` locally uses production (gcciemelif.com) URLs for links, canonicals and the sitemap.
 
 ## 4. Findings (verified)
 
@@ -59,7 +60,7 @@ canonicals and the sitemap.
 ## 5. AI-relevant notes
 
 **Proposed:** AI provider keys would be runtime secrets (like `ADMIN_PASSWORD`, ideally via Secret Manager),
-added to `deploy.yml` runtime env, never `NEXT_PUBLIC_*`. Model names/limits could live in `lib/config.ts`.
+added to both deploy workflows' runtime env, never `NEXT_PUBLIC_*`. Model names/limits could live in `lib/config.ts`.
 
 ## 6. Unknown / Owner input required
 
@@ -69,4 +70,4 @@ added to `deploy.yml` runtime env, never `NEXT_PUBLIC_*`. Model names/limits cou
 ## 7. References
 
 `content/site.ts`, `content/officers.ts`, `lib/config.ts`, `lib/auth.ts`, `lib/store.ts`, `.env.example`,
-`Dockerfile`, `.github/workflows/deploy.yml`, `README.md`.
+`Dockerfile`, `.github/workflows/deploy-prod.yml` / `deploy-staging.yml`, `README.md`.
