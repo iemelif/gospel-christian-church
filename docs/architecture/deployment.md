@@ -4,7 +4,8 @@
 
 ```
 branch push / PR ──► ci.yml: npm ci → lint → test → build            (no deploy)
-push to main     ──► deploy.yml: GCP auth (WIF) → docker build → push to Artifact Registry → Cloud Run deploy
+push to develop  ──► deploy-staging.yml: GCP auth (WIF) → docker build → push → Cloud Run gospel-christian-church      (gcciemelif.website)
+push to main     ──► deploy-prod.yml:    GCP auth (WIF) → docker build → push → Cloud Run gospel-christian-church-prod (gcciemelif.com)
                      (skipped when only **.md files changed; also runnable manually)
 ```
 
@@ -24,21 +25,23 @@ push to main     ──► deploy.yml: GCP auth (WIF) → docker build → push 
 
 - `ci.yml`: on `pull_request` and pushes to branches other than `main`; Node 24 with npm cache; `npm ci`,
   `npm run lint`, `npm test`, `npm run build` (dummy `ADMIN_PASSWORD`).
-- `deploy.yml`: on push to `main` (paths-ignore `**.md`) and `workflow_dispatch`; concurrency group per ref,
-  no cancel. Permissions `contents: read`, `id-token: write`.
+- `deploy-prod.yml` (push to `main`, GitHub Environment `production`) and `deploy-staging.yml` (push to `develop`,
+  Environment `staging`) are identical except for service, image, bucket and `NEXT_PUBLIC_SITE_ENV`
+  (`production` / `staging`). Both: paths-ignore `**.md`, `workflow_dispatch`, one concurrency group each, no cancel.
+  Permissions `contents: read`, `id-token: write`. Environment-level vars/secrets override repository-level ones.
   - Auth: Workload Identity Federation (`GCP_WORKLOAD_IDENTITY_PROVIDER`, `GCP_SERVICE_ACCOUNT` secrets).
-  - Image: `us-central1-docker.pkg.dev/<GCP_PROJECT_ID>/gospel-christian-church/gospel-christian-church`,
+  - Image: `us-central1-docker.pkg.dev/<GCP_PROJECT_ID>/gospel-christian-church/<service>`,
     tagged with the commit SHA and `latest`.
   - Build args from repository variables `NEXT_PUBLIC_*` (now seven, including `NEXT_PUBLIC_RECAPTCHA_SITE_KEY`).
   - **Does not run lint or tests.**
 
-## 4. Cloud Run service (verified, `deploy.yml`)
+## 4. Cloud Run services (`deploy-prod.yml` / `deploy-staging.yml`)
 
 | Setting | Value |
 | --- | --- |
-| Service / region | `gospel-christian-church` / `us-central1` |
+| Service / region | prod `gospel-christian-church-prod`, staging `gospel-christian-church` / `us-central1` |
 | Execution environment | gen2 (required for the volume mount) |
-| Volume | Cloud Storage bucket `<GCP_PROJECT_ID>-gospel-christian-church-data` mounted at `/data` |
+| Volume | Cloud Storage bucket `<GCP_PROJECT_ID>-gospel-christian-church-prod-data` (prod) / `…-gospel-christian-church-data` (staging) mounted at `/data` |
 | Env | `NODE_ENV=production`, `DATA_DIR=/data`, `ADMIN_PASSWORD` and `RECAPTCHA_SECRET_KEY` (from GitHub secrets, plain env vars) |
 | Access | `--allow-unauthenticated` (public site) |
 | Scaling | **min 1, max 1** instance (always on), concurrency 80 |
@@ -51,12 +54,15 @@ push to main     ──► deploy.yml: GCP auth (WIF) → docker build → push 
 
 ## 5. Domains (verified / unknown)
 
-- **Verified (owner-confirmed):** `www.gcciemelif.website` and `support.gcciemelif.website` point to this service.
+- **Verified (owner-confirmed):** `www.gcciemelif.website` and `support.gcciemelif.website` point to `gospel-christian-church`
+  (now staging; robots.txt disallows all).
+- **Owner action:** map `www.gcciemelif.com` to `gospel-christian-church-prod`.
 - **Unknown:** how the domains are mapped (Cloud Run domain mapping, load balancer, or other), TLS setup and DNS.
 
 ## 6. Constraints (verified)
 
-- Every merge/push to `main` goes live without a manual approval step.
+- Every merge/push to `main` (production) or `develop` (staging) goes live without a manual approval step
+  (add required reviewers on the `production` GitHub Environment to change that).
 - Production correctness depends on `max-instances=1` and the bucket mount ([data-storage.md](data-storage.md)).
 - `NEXT_PUBLIC_*` changes require re-running the deploy.
 - **Required before deploying the reCAPTCHA code:** repository variable `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` and
@@ -85,7 +91,7 @@ Secret Manager; budget-aware rate limiting.
 
 ## 9. Proposed (not decided)
 
-Run lint/tests in `deploy.yml` or require CI via branch protection; non-root container user; Secret Manager
+Run lint/tests in the deploy workflows or require CI via branch protection; non-root container user; Secret Manager
 for secrets; health check; bucket versioning.
 
 ## 10. Owner input required
@@ -96,5 +102,5 @@ for secrets; health check; bucket versioning.
 
 ## 11. References
 
-`Dockerfile`, `.dockerignore`, `.github/workflows/ci.yml`, `.github/workflows/deploy.yml`, `next.config.ts`,
+`Dockerfile`, `.dockerignore`, `.github/workflows/ci.yml`, `.github/workflows/deploy-prod.yml`, `.github/workflows/deploy-staging.yml`, `next.config.ts`,
 `README.md` (GCP setup).

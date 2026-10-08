@@ -1,0 +1,116 @@
+name: deploy-prod
+
+# gcciemelif.com (production). Runs on every push to `main`.
+# Per-environment vars/secrets can be set on the GitHub Environment "production"; they override repository-level ones.
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+env:
+  PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+  REGION: us-central1
+  SERVICE: gospel-christian-church-prod
+  IMAGE: us-central1-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/gospel-christian-church/gospel-christian-church-prod
+
+jobs:
+  deploy:
+    name: Build & Deploy (prod)
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://www.gcciemelif.com
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      # ── Keyless auth (Workload Identity Federation) ─────────────────────
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v3
+
+      # ── Build & push image ───────────────────────────────────────────────
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+
+      # NEXT_PUBLIC_* values are inlined by Next.js at build time, so they are passed as build args.
+      # They come from repository *variables* (public values, not secrets).
+      - name: Build Docker image
+        env:
+          NEXT_PUBLIC_CHURCH_EMAIL: ${{ vars.NEXT_PUBLIC_CHURCH_EMAIL }}
+          NEXT_PUBLIC_GOAL: ${{ vars.NEXT_PUBLIC_GOAL }}
+          NEXT_PUBLIC_BASE_RAISED: ${{ vars.NEXT_PUBLIC_BASE_RAISED }}
+          NEXT_PUBLIC_GCASH_NUMBER: ${{ vars.NEXT_PUBLIC_GCASH_NUMBER }}
+          NEXT_PUBLIC_MAYA_NUMBER: ${{ vars.NEXT_PUBLIC_MAYA_NUMBER }}
+          NEXT_PUBLIC_BANK_DETAILS: ${{ vars.NEXT_PUBLIC_BANK_DETAILS }}
+          NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${{ vars.NEXT_PUBLIC_RECAPTCHA_SITE_KEY }}
+          NEXT_PUBLIC_SITE_ENV: production # crawlable, canonical URLs on gcciemelif.com
+        run: |
+          docker build \
+            --tag "$IMAGE:${{ github.sha }}" \
+            --tag "$IMAGE:latest" \
+            --file Dockerfile \
+            --build-arg NEXT_PUBLIC_CHURCH_EMAIL="$NEXT_PUBLIC_CHURCH_EMAIL" \
+            --build-arg NEXT_PUBLIC_GOAL="$NEXT_PUBLIC_GOAL" \
+            --build-arg NEXT_PUBLIC_BASE_RAISED="$NEXT_PUBLIC_BASE_RAISED" \
+            --build-arg NEXT_PUBLIC_GCASH_NUMBER="$NEXT_PUBLIC_GCASH_NUMBER" \
+            --build-arg NEXT_PUBLIC_MAYA_NUMBER="$NEXT_PUBLIC_MAYA_NUMBER" \
+            --build-arg NEXT_PUBLIC_BANK_DETAILS="$NEXT_PUBLIC_BANK_DETAILS" \
+            --build-arg NEXT_PUBLIC_RECAPTCHA_SITE_KEY="$NEXT_PUBLIC_RECAPTCHA_SITE_KEY" \
+            --build-arg NEXT_PUBLIC_SITE_ENV="$NEXT_PUBLIC_SITE_ENV" \
+            .
+
+      - name: Push Docker image
+        run: |
+          docker push "$IMAGE:${{ github.sha }}"
+          docker push "$IMAGE:latest"
+
+      # ── Deploy to Cloud Run ──────────────────────────────────────────────
+      # ADMIN_PASSWORD is a runtime secret. DATA_DIR=/data is a Cloud Storage bucket mounted as a volume
+      # (the --add-volume flags below; needs the gen2 execution environment), so gifts.json survives restarts.
+      # Without the mount, pledges are written to the container's temporary disk and vanish when it scales to zero.
+      # Keep max-instances=1 so all writes go through one process. min-instances=1 keeps that one instance always
+      # running: a cold start (container + bucket mount) took long enough that Google's crawler gave up ("Crawl failed").
+      - name: Deploy to Cloud Run
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v3
+        with:
+          service: ${{ env.SERVICE }}
+          region: ${{ env.REGION }}
+          image: ${{ env.IMAGE }}:${{ github.sha }}
+          env_vars: |
+            NODE_ENV=production
+            DATA_DIR=/data
+            ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}
+            RECAPTCHA_SECRET_KEY=${{ secrets.RECAPTCHA_SECRET_KEY }}
+          flags: >-
+            --execution-environment=gen2
+            --add-volume=name=data,type=cloud-storage,bucket=${{ vars.GCP_PROJECT_ID }}-gospel-christian-church-prod-data
+            --add-volume-mount=volume=data,mount-path=/data
+            --allow-unauthenticated
+            --min-instances=1
+            --max-instances=1
+            --memory=512Mi
+            --cpu=1
+            --port=3000
+            --timeout=60s
+            --concurrency=80
+
+      - name: Print deployed URL
+        run: echo "✅ prod → ${{ steps.deploy.outputs.url }}"

@@ -154,5 +154,5 @@ password; a double-click sends one request.
 
 `app/admin/layout.tsx`, `app/admin/page.tsx`, `app/api/admin/route.ts`, `app/api/admin/session/route.ts`,
 `lib/auth.ts`, `lib/auth.test.ts`, `lib/adminSignIn.ts`, `lib/recaptcha.ts`, `lib/recaptchaClient.ts`,
-`components/RecaptchaNotice.tsx`, `lib/store.ts`, `app/robots.ts`, `.github/workflows/deploy.yml`,
+`components/RecaptchaNotice.tsx`, `lib/store.ts`, `app/robots.ts`, `.github/workflows/deploy-prod.yml` / `deploy-staging.yml`,
 `README.md`, [donate.md](donate.md).

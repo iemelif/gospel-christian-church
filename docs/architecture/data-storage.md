@@ -75,4 +75,4 @@ usage quotas) to this file store would inherit the single-instance and non-atomi
 ## 8. References
 
 `lib/store.ts`, `lib/store.test.ts`, `app/api/gifts/route.ts`, `app/api/admin/route.ts`, `lib/config.ts`,
-`.github/workflows/deploy.yml`, `.gitignore`, `.dockerignore`.
+`.github/workflows/deploy-prod.yml` / `deploy-staging.yml`, `.gitignore`, `.dockerignore`.

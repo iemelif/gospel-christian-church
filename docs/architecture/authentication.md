@@ -13,7 +13,7 @@
 ## 2. Credentials (verified)
 
 - One shared password: runtime environment variable `ADMIN_PASSWORD` (server-only; never `NEXT_PUBLIC_*`).
-- In production it comes from the GitHub secret `ADMIN_PASSWORD`, passed by `deploy.yml` as a plain Cloud
+- In production it comes from the GitHub secret `ADMIN_PASSWORD`, passed by the deploy workflows as a plain Cloud
   Run environment variable (not Secret Manager).
 - If `ADMIN_PASSWORD` is unset or empty, sign-in always fails and all sessions are invalid.
 
@@ -72,4 +72,4 @@ address; audit trail; individual accounts if more than one person administers.
 ## 10. References
 
 `lib/auth.ts`, `lib/auth.test.ts`, `app/api/admin/route.ts`, `app/api/admin/session/route.ts`,
-`app/admin/page.tsx`, `app/robots.ts`, `.github/workflows/deploy.yml`, `docs/pages/admin.md`.
+`app/admin/page.tsx`, `app/robots.ts`, `.github/workflows/deploy-prod.yml` / `deploy-staging.yml`, `docs/pages/admin.md`.

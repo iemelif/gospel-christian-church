@@ -51,7 +51,7 @@ unused import (`scripts/generate-avatars.mjs`).
 ## 4. CI gates (verified)
 
 - `ci.yml` (PRs and non-`main` pushes): lint → test → build.
-- `deploy.yml` (`main`): **no** lint or tests; relies on CI having run on the branch.
+- `deploy-prod.yml` (`main`) / `deploy-staging.yml` (`develop`): **no** lint or tests; relies on CI having run on the branch.
 - **Unknown:** whether branch protection requires CI before merging.
 
 ## 5. Coverage gaps (verified)
@@ -78,9 +78,9 @@ unused import (`scripts/generate-avatars.mjs`).
 ## 8. Owner input required
 
 1. Is adding component/E2E test tooling acceptable?
-2. Should `deploy.yml` also run lint/tests?
+2. Should the deploy workflows also run lint/tests?
 
 ## 9. References
 
 `package.json`, `eslint.config.mjs`, `vitest.config.mts`, `lib/*.test.ts`, `.github/workflows/ci.yml`,
-`.github/workflows/deploy.yml`, `CLAUDE.md`.
+`.github/workflows/deploy-prod.yml` / `deploy-staging.yml`, `CLAUDE.md`.
